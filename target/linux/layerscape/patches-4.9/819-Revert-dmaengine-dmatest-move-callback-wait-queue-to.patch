@@ -9,11 +9,9 @@ This reverts commit 679dbeac0b6bb551e1f3b95673695b22b2ac953d.
  drivers/dma/dmatest.c | 55 ++++++++++++++++++++++-----------------------------
  1 file changed, 24 insertions(+), 31 deletions(-)
 
-diff --git a/drivers/dma/dmatest.c b/drivers/dma/dmatest.c
-index e0bd578..fbb7551 100644
 --- a/drivers/dma/dmatest.c
 +++ b/drivers/dma/dmatest.c
-@@ -158,12 +158,6 @@ MODULE_PARM_DESC(run, "Run the test (default: false)");
+@@ -158,12 +158,6 @@ MODULE_PARM_DESC(run, "Run the test (def
  #define PATTERN_OVERWRITE	0x20
  #define PATTERN_COUNT_MASK	0x1f
  
@@ -35,7 +33,7 @@ index e0bd578..fbb7551 100644
  	bool			done;
  };
  
-@@ -334,25 +326,18 @@ static unsigned int dmatest_verify(u8 **bufs, unsigned int start,
+@@ -334,25 +326,18 @@ static unsigned int dmatest_verify(u8 **
  	return error_count;
  }
  
@@ -69,7 +67,7 @@ index e0bd578..fbb7551 100644
  }
  
  static unsigned int min_odd(unsigned int x, unsigned int y)
-@@ -423,8 +408,9 @@ static unsigned long long dmatest_KBs(s64 runtime, unsigned long long len)
+@@ -423,8 +408,9 @@ static unsigned long long dmatest_KBs(s6
   */
  static int dmatest_func(void *data)
  {
@@ -116,7 +114,7 @@ index e0bd578..fbb7551 100644
  			dmaengine_unmap_put(um);
  			result("test timed out", total_tests, src_off, dst_off,
  			       len, 0);
-@@ -752,7 +747,7 @@ static int dmatest_func(void *data)
+@@ -752,7 +747,7 @@ err_thread_type:
  		dmatest_KBs(runtime, total_len), ret);
  
  	/* terminate all transfers on specified channels */
@@ -125,7 +123,7 @@ index e0bd578..fbb7551 100644
  		dmaengine_terminate_all(chan);
  
  	thread->done = true;
-@@ -812,8 +807,6 @@ static int dmatest_add_threads(struct dmatest_info *info,
+@@ -812,8 +807,6 @@ static int dmatest_add_threads(struct dm
  		thread->info = info;
  		thread->chan = dtc->chan;
  		thread->type = type;
@@ -134,6 +132,3 @@ index e0bd578..fbb7551 100644
  		smp_wmb();
  		thread->task = kthread_create(dmatest_func, thread, "%s-%s%u",
  				dma_chan_name(chan), op, i);
--- 
-2.7.4
-
