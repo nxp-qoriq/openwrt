@@ -7,44 +7,15 @@
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/image.mk
 
-define Build/append-ls-rcw
+define Build/ls-clean
 	rm -f $@
-	dd if=$(STAGING_DIR_IMAGE)/$(1)-rcw.bin >> $@
 endef
 
-define Build/append-ls-uboot
-	dd if=$(STAGING_DIR_IMAGE)/$(1)-uboot.bin >> $@
+define Build/ls-append
+	dd if=$(STAGING_DIR_IMAGE)/$(1) >> $@
 endef
 
-define Build/append-ls-uboot-env
-	dd if=$(STAGING_DIR_IMAGE)/$(1)-uboot-env.bin >> $@
-endef
-
-define Build/append-ls-ppa
-	dd if=$(STAGING_DIR_IMAGE)/$(1)-ppa.itb >> $@
-endef
-
-define Build/append-ls-fman
-	dd if=$(STAGING_DIR_IMAGE)/$(1)-fman.bin >> $@
-endef
-
-define Build/append-ls-mc
-	dd if=$(STAGING_DIR_IMAGE)/$(1)-mc.itb >> $@
-endef
-
-define Build/append-ls-ppfe
-	dd if=$(STAGING_DIR_IMAGE)/pfe.itb >> $@
-endef
-
-define Build/append-ls-dpl
-	dd if=$(STAGING_DIR_IMAGE)/$(1)-dpl.dtb >> $@
-endef
-
-define Build/append-ls-dpc
-	dd if=$(STAGING_DIR_IMAGE)/$(1)-dpc.dtb >> $@
-endef
-
-define Build/append-ls-dtb
+define Build/ls-append-dtb
 	$(call Image/BuildDTB,$(DTS_DIR)/$(1).dts,$(DTS_DIR)/$(1).dtb)
 	dd if=$(DTS_DIR)/$(1).dtb >> $@
 endef
@@ -76,12 +47,13 @@ define Device/ls1043ardb
     DEVICE_PACKAGES += u-boot-ls1043ardb-image
   endif
   DEVICE_DTS = ../../../arm64/boot/dts/freescale/fsl-ls1043a-rdb-sdk
-  IMAGE/firmware.bin =	append-ls-rcw $(1) | pad-to 1M | \
-			append-ls-uboot $(1) | pad-to 3M | \
-			append-ls-uboot-env $(1) | pad-to 4M | \
-			append-ls-ppa $(1) | pad-to 9M | \
-			append-ls-fman $(1) | pad-to 15M | \
-			append-ls-dtb $$(DEVICE_DTS) | pad-to 16M | \
+  IMAGE/firmware.bin =	ls-clean | \
+			ls-append $(1)-rcw.bin | pad-to 1M | \
+			ls-append $(1)-uboot.bin | pad-to 3M | \
+			ls-append $(1)-uboot-env.bin | pad-to 4M | \
+			ls-append $(1)-ppa.itb | pad-to 9M | \
+			ls-append $(1)-fman.bin | pad-to 15M | \
+			ls-append-dtb $$(DEVICE_DTS) | pad-to 16M | \
 			append-kernel | pad-to 32M | \
 			append-rootfs | pad-rootfs | check-size 67108865
 endef
@@ -100,12 +72,13 @@ define Device/ls1046ardb
   UBINIZE_OPTS := -E 5
   BLOCKSIZE := 256KiB
   PAGESIZE := 1
-  IMAGE/firmware.bin =	append-ls-rcw $(1) | pad-to 1M | \
-			append-ls-uboot $(1) | pad-to 3M | \
-			append-ls-uboot-env $(1) | pad-to 4M | \
-			append-ls-ppa $(1) | pad-to 9M | \
-			append-ls-fman $(1) | pad-to 15M | \
-			append-ls-dtb $$(DEVICE_DTS) | pad-to 16M | \
+  IMAGE/firmware.bin =	ls-clean | \
+			ls-append $(1)-rcw.bin | pad-to 1M | \
+			ls-append $(1)-uboot.bin | pad-to 3M | \
+			ls-append $(1)-uboot-env.bin | pad-to 4M | \
+			ls-append $(1)-ppa.itb | pad-to 9M | \
+			ls-append $(1)-fman.bin | pad-to 15M | \
+			ls-append-dtb $$(DEVICE_DTS) | pad-to 16M | \
 			append-kernel | pad-to 32M | \
 			append-ubi | check-size 67108865
 endef
@@ -124,12 +97,13 @@ define Device/ls1012ardb
   UBINIZE_OPTS := -E 5
   BLOCKSIZE := 256KiB
   PAGESIZE := 1
-  IMAGE/firmware.bin =	append-ls-rcw $(1) | pad-to 1M | \
-			append-ls-uboot $(1) | pad-to 3M | \
-			append-ls-uboot-env $(1) | pad-to 4M | \
-			append-ls-ppa $(1) | pad-to 10M | \
-			append-ls-ppfe | pad-to 15M | \
-			append-ls-dtb $$(DEVICE_DTS) | pad-to 16M | \
+  IMAGE/firmware.bin =	ls-clean | \
+			ls-append $(1)-rcw.bin | pad-to 1M | \
+			ls-append $(1)-uboot.bin | pad-to 3M | \
+			ls-append $(1)-uboot-env.bin | pad-to 4M | \
+			ls-append $(1)-ppa.itb | pad-to 10M | \
+			ls-append pfe.itb | pad-to 15M | \
+			ls-append-dtb $$(DEVICE_DTS) | pad-to 16M | \
 			append-kernel | pad-to 32M | \
 			append-ubi | check-size 67108865
 endef
@@ -148,12 +122,13 @@ define Device/ls1012afrdm
   UBINIZE_OPTS := -E 5
   BLOCKSIZE := 256KiB
   PAGESIZE := 1
-  IMAGE/firmware.bin =	append-ls-rcw $(1) | pad-to 1M | \
-			append-ls-uboot $(1) | pad-to 3M | \
-			append-ls-uboot-env $(1) | pad-to 4M | \
-			append-ls-ppa $(1) | pad-to 10M | \
-			append-ls-ppfe | pad-to 15M | \
-			append-ls-dtb $$(DEVICE_DTS) | pad-to 16M | \
+  IMAGE/firmware.bin =	ls-clean | \
+			ls-append $(1)-rcw.bin | pad-to 1M | \
+			ls-append $(1)-uboot.bin | pad-to 3M | \
+			ls-append $(1)-uboot-env.bin | pad-to 4M | \
+			ls-append $(1)-ppa.itb | pad-to 10M | \
+			ls-append pfe.itb | pad-to 15M | \
+			ls-append-dtb $$(DEVICE_DTS) | pad-to 16M | \
 			append-kernel | pad-to 32M | \
 			append-ubi | check-size 67108865
 endef
@@ -171,14 +146,15 @@ define Device/ls1088ardb
   UBINIZE_OPTS := -E 5
   BLOCKSIZE := 256KiB
   PAGESIZE := 1
-  IMAGE/firmware.bin =	append-ls-rcw $(1) | pad-to 1M | \
-			append-ls-uboot $(1) | pad-to 3M | \
-			append-ls-uboot-env $(1) | pad-to 4M | \
-			append-ls-ppa $(1) | pad-to 10M | \
-			append-ls-mc $(1) | pad-to 13M | \
-			append-ls-dpl $(1) | pad-to 14M | \
-			append-ls-dpc $(1) | pad-to 15M | \
-			append-ls-dtb $$(DEVICE_DTS) | pad-to 16M | \
+  IMAGE/firmware.bin =	ls-clean | \
+			ls-append $(1)-rcw.bin | pad-to 1M | \
+			ls-append $(1)-uboot.bin | pad-to 3M | \
+			ls-append $(1)-uboot-env.bin | pad-to 4M | \
+			ls-append $(1)-ppa.itb | pad-to 10M | \
+			ls-append $(1)-mc.itb | pad-to 13M | \
+			ls-append $(1)-dpl.dtb | pad-to 14M | \
+			ls-append $(1)-dpc.dtb | pad-to 15M | \
+			ls-append-dtb $$(DEVICE_DTS) | pad-to 16M | \
 			append-kernel | pad-to 32M | \
 			append-ubi | check-size 67108865
 endef
@@ -190,14 +166,15 @@ define Device/ls2088ardb
 			layerscape-mc-ls2088ardb layerscape-dpl-ls2088ardb restool \
 			layerscape-ppa-ls2088ardb
   DEVICE_DTS = ../../../arm64/boot/dts/freescale/fsl-ls2088a-rdb
-  IMAGE/firmware.bin =	append-ls-rcw $(1) | pad-to 1M | \
-			append-ls-uboot $(1) | pad-to 3M | \
-			append-ls-uboot-env $(1) | pad-to 4M | \
-			append-ls-ppa $(1) | pad-to 10M | \
-			append-ls-mc $(1) | pad-to 13M | \
-			append-ls-dpl $(1) | pad-to 14M | \
-			append-ls-dpc $(1) | pad-to 15M | \
-			append-ls-dtb $$(DEVICE_DTS) | pad-to 16M | \
+  IMAGE/firmware.bin =	ls-clean | \
+			ls-append $(1)-rcw.bin | pad-to 1M | \
+			ls-append $(1)-uboot.bin | pad-to 3M | \
+			ls-append $(1)-uboot-env.bin | pad-to 4M | \
+			ls-append $(1)-ppa.itb | pad-to 10M | \
+			ls-append $(1)-mc.itb | pad-to 13M | \
+			ls-append $(1)-dpl.dtb | pad-to 14M | \
+			ls-append $(1)-dpc.dtb | pad-to 15M | \
+			ls-append-dtb $$(DEVICE_DTS) | pad-to 16M | \
 			append-kernel | pad-to 32M | \
 			append-rootfs | pad-rootfs | check-size 67108865
 endef
