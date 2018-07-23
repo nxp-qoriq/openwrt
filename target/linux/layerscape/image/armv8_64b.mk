@@ -71,7 +71,8 @@ define Device/ls1043ardb
   DEVICE_PACKAGES += \
     layerscape-rcw-ls1043ardb \
     layerscape-fman-ls1043ardb \
-    layerscape-ppa-ls1043ardb
+    layerscape-ppa-ls1043ardb \
+    fmc fmc-eth-config
   DEVICE_DTS := freescale/fsl-ls1043a-rdb-sdk
   FILESYSTEMS := squashfs
   IMAGE/firmware.bin := \
@@ -91,7 +92,8 @@ define Device/ls1043ardb-sdboot
   DEVICE_TITLE := LS1043ARDB (SD Card Boot)
   DEVICE_PACKAGES += \
     layerscape-fman-ls1043ardb \
-    layerscape-ppa-ls1043ardb
+    layerscape-ppa-ls1043ardb \
+    fmc fmc-eth-config
   DEVICE_DTS := freescale/fsl-ls1043a-rdb-sdk
   FILESYSTEMS := ext4
   IMAGES := sdcard.img
@@ -113,7 +115,8 @@ define Device/ls1046ardb
   DEVICE_PACKAGES += \
     layerscape-rcw-ls1046ardb \
     layerscape-fman-ls1046ardb \
-    layerscape-ppa-ls1046ardb
+    layerscape-ppa-ls1046ardb \
+    fmc fmc-eth-config
   DEVICE_DTS := freescale/fsl-ls1046a-rdb-sdk
   UBIFS_OPTS := -m 1 -e 262016 -c 128
   UBINIZE_OPTS := -E 5
@@ -136,7 +139,8 @@ define Device/ls1046ardb-sdboot
   DEVICE_TITLE := LS1046ARDB (SD Card Boot)
   DEVICE_PACKAGES += \
     layerscape-fman-ls1046ardb \
-    layerscape-ppa-ls1046ardb
+    layerscape-ppa-ls1046ardb \
+    fmc fmc-eth-config
   DEVICE_DTS := freescale/fsl-ls1046a-rdb-sdk
   FILESYSTEMS := ext4
   IMAGES := sdcard.img
