@@ -136,9 +136,11 @@ from SD card.
   some firmwares on QSPI flash, and kernel/dtb/rootfs on SD card.
   So both firmware.bin and sdcard.img are needed for OpenWrt starting up.
 
-  To program sdcard.img, please refer to 3.1. To program firmware.bin,
-  start up board from QSPI flash, and program firmware with below commands.
-  Reset to start up OpenWrt. (LS1012AFRWY supports only one bank.)
+  To program sdcard.img, please use linux command described in 3.1 on a
+  linux machine.
+  To program firmware.bin, start up board from QSPI flash, and program
+  firmware with below commands. Reset to start up OpenWrt. (LS1012AFRWY
+  supports only one bank.)
 
   => tftp 96000000 <firmware_name>-firmware.bin
   => sf probe 0:0
