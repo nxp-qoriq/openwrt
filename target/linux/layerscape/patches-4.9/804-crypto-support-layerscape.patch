@@ -28616,9 +28616,9 @@ Singed-off-by: Yangbo Lu <yangbo.lu@nxp.com>
 +#endif /* _SG_SW_SEC4_H_ */
 --- a/drivers/crypto/talitos.c
 +++ b/drivers/crypto/talitos.c
-@@ -1202,6 +1202,14 @@ static int ipsec_esp(struct talitos_edes
- 	ret = talitos_sg_map(dev, areq->src, areq->assoclen, edesc,
- 			     &desc->ptr[1], sg_count, 0, tbl_off);
+@@ -1241,6 +1241,14 @@ static int ipsec_esp(struct talitos_edes
+ 	ret = talitos_sg_map_ext(dev, areq->src, cryptlen, edesc, &desc->ptr[4],
+ 				 sg_count, areq->assoclen, tbl_off, elen);
  
 +	/*
 +	 * In case of SEC 2.x+, cipher in len must include only the ciphertext,
