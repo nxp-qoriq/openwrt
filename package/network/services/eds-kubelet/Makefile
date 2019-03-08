@@ -31,7 +31,7 @@ define Package/edgescale-kubelet
   TITLE:=Edgescale Kubelet
   DEPENDS:=@(arm||aarch64) +edgescale \
     +kmod-veth +kmod-br-netfilter +kmod-nf-ipvs +kmod-nf-nat +kmod-ipt-extra \
-    +iptables +iptables-mod-extra
+    +iptables +iptables-mod-extra +haveged
 endef
 
 define Package/edgescale-kubelet/config
