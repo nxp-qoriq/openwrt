@@ -1,0 +1,28 @@
+From c85c1be3d0643ce0a896cd50213edc8a5819f763 Mon Sep 17 00:00:00 2001
+From: Yangbo Lu <yangbo.lu@nxp.com>
+Date: Fri, 8 Mar 2019 17:50:30 +0800
+Subject: [PATCH] netfilter: disable warning in __nf_unregister_net_hooks
+
+Temporary patch to disable warning in __nf_unregister_net_hooks.
+
+Signed-off-by: Yangbo Lu <yangbo.lu@nxp.com>
+---
+ net/netfilter/core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/net/netfilter/core.c b/net/netfilter/core.c
+index 997dd387d..f3cc9fce1 100644
+--- a/net/netfilter/core.c
++++ b/net/netfilter/core.c
+@@ -390,7 +390,7 @@ void __nf_unregister_net_hook(struct net *net, int pf,
+ 	mutex_lock(&nf_hook_mutex);
+ 
+ 	p = nf_entry_dereference(*pp);
+-	if (WARN_ON_ONCE(!p)) {
++	if (!p) {
+ 		mutex_unlock(&nf_hook_mutex);
+ 		return;
+ 	}
+-- 
+2.17.1
+
