@@ -75,7 +75,8 @@ define Device/ls1043ardb
     layerscape-rcw-ls1043ardb \
     layerscape-fman-ls1043ardb \
     layerscape-ppa-ls1043ardb \
-    u-boot-ls1043ardb-image
+    u-boot-ls1043ardb-image \
+    fmc fmc-eth-config
   DEVICE_DTS := ../../../arm64/boot/dts/freescale/fsl-ls1043a-rdb-sdk
   FILESYSTEMS := squashfs
   IMAGE/firmware.bin := \
@@ -97,7 +98,8 @@ define Device/ls1046ardb
     layerscape-rcw-ls1046ardb \
     layerscape-fman-ls1046ardb \
     layerscape-ppa-ls1046ardb \
-    u-boot-ls1046ardb-image
+    u-boot-ls1046ardb-image \
+    fmc fmc-eth-config
   DEVICE_DTS := ../../../arm64/boot/dts/freescale/fsl-ls1046a-rdb-sdk
   UBINIZE_OPTS := -E 5
   BLOCKSIZE := 256KiB
