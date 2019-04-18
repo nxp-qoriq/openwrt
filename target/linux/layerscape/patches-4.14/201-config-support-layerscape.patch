@@ -58,8 +58,6 @@ Signed-off-by: Zhao Qiang <qiang.zhao@nxp.com>
  create mode 100644 drivers/soc/fsl/layerscape/Kconfig
  create mode 100644 drivers/soc/fsl/layerscape/Makefile
 
-diff --git a/drivers/Makefile b/drivers/Makefile
-index 5f5ccdbad..82a7dd0e6 100644
 --- a/drivers/Makefile
 +++ b/drivers/Makefile
 @@ -20,6 +20,8 @@ obj-$(CONFIG_PCI)		+= pci/
@@ -71,17 +69,13 @@ index 5f5ccdbad..82a7dd0e6 100644
  
  obj-$(CONFIG_PARISC)		+= parisc/
  obj-$(CONFIG_RAPIDIO)		+= rapidio/
-diff --git a/drivers/irqchip/Makefile b/drivers/irqchip/Makefile
-index b842dfdc9..a3ef13053 100644
 --- a/drivers/irqchip/Makefile
 +++ b/drivers/irqchip/Makefile
-@@ -80,3 +80,4 @@ obj-$(CONFIG_ARCH_ASPEED)		+= irq-aspeed-vic.o irq-aspeed-i2c-ic.o
+@@ -80,3 +80,4 @@ obj-$(CONFIG_ARCH_ASPEED)		+= irq-aspeed
  obj-$(CONFIG_STM32_EXTI) 		+= irq-stm32-exti.o
  obj-$(CONFIG_QCOM_IRQ_COMBINER)		+= qcom-irq-combiner.o
  obj-$(CONFIG_IRQ_UNIPHIER_AIDET)	+= irq-uniphier-aidet.o
 +obj-$(CONFIG_QUICC_ENGINE)		+= irq-qeic.o
-diff --git a/drivers/net/ethernet/freescale/Kconfig b/drivers/net/ethernet/freescale/Kconfig
-index 6e490fd23..3227aa9cf 100644
 --- a/drivers/net/ethernet/freescale/Kconfig
 +++ b/drivers/net/ethernet/freescale/Kconfig
 @@ -5,10 +5,11 @@
@@ -119,8 +113,6 @@ index 6e490fd23..3227aa9cf 100644
  source "drivers/net/ethernet/freescale/dpaa/Kconfig"
  
  endif # NET_VENDOR_FREESCALE
-diff --git a/drivers/net/ethernet/freescale/Makefile b/drivers/net/ethernet/freescale/Makefile
-index ed8ad0fef..df5fd6a8e 100644
 --- a/drivers/net/ethernet/freescale/Makefile
 +++ b/drivers/net/ethernet/freescale/Makefile
 @@ -20,5 +20,8 @@ gianfar_driver-objs := gianfar.o \
@@ -132,8 +124,6 @@ index ed8ad0fef..df5fd6a8e 100644
 +
  obj-$(CONFIG_FSL_FMAN) += fman/
  obj-$(CONFIG_FSL_DPAA_ETH) += dpaa/
-diff --git a/drivers/ptp/Kconfig b/drivers/ptp/Kconfig
-index a21ad10d6..53e31d745 100644
 --- a/drivers/ptp/Kconfig
 +++ b/drivers/ptp/Kconfig
 @@ -41,19 +41,19 @@ config PTP_1588_CLOCK_DTE
@@ -164,8 +154,6 @@ index a21ad10d6..53e31d745 100644
  
  config PTP_1588_CLOCK_IXP46X
  	tristate "Intel IXP46x as PTP clock"
-diff --git a/drivers/soc/Kconfig b/drivers/soc/Kconfig
-index fc9e98047..5428eaf32 100644
 --- a/drivers/soc/Kconfig
 +++ b/drivers/soc/Kconfig
 @@ -5,6 +5,7 @@ source "drivers/soc/amlogic/Kconfig"
@@ -176,8 +164,6 @@ index fc9e98047..5428eaf32 100644
  source "drivers/soc/imx/Kconfig"
  source "drivers/soc/mediatek/Kconfig"
  source "drivers/soc/qcom/Kconfig"
-diff --git a/drivers/soc/fsl/Kconfig b/drivers/soc/fsl/Kconfig
-index 7a9fb9baa..2995dac1a 100644
 --- a/drivers/soc/fsl/Kconfig
 +++ b/drivers/soc/fsl/Kconfig
 @@ -16,3 +16,14 @@ config FSL_GUTS
@@ -195,9 +181,6 @@ index 7a9fb9baa..2995dac1a 100644
 +if ARM || ARM64
 +source "drivers/soc/fsl/Kconfig.arm"
 +endif
-diff --git a/drivers/soc/fsl/Kconfig.arm b/drivers/soc/fsl/Kconfig.arm
-new file mode 100644
-index 000000000..106c9b981
 --- /dev/null
 +++ b/drivers/soc/fsl/Kconfig.arm
 @@ -0,0 +1,16 @@
@@ -217,11 +200,9 @@ index 000000000..106c9b981
 +if LS_SOC_DRIVERS
 +	source "drivers/soc/fsl/layerscape/Kconfig"
 +endif
-diff --git a/drivers/soc/fsl/Makefile b/drivers/soc/fsl/Makefile
-index 44b3bebef..2a33963b8 100644
 --- a/drivers/soc/fsl/Makefile
 +++ b/drivers/soc/fsl/Makefile
-@@ -6,3 +6,7 @@ obj-$(CONFIG_FSL_DPAA)                 += qbman/
+@@ -6,3 +6,7 @@ obj-$(CONFIG_FSL_DPAA)                 +
  obj-$(CONFIG_QUICC_ENGINE)		+= qe/
  obj-$(CONFIG_CPM)			+= qe/
  obj-$(CONFIG_FSL_GUTS)			+= guts.o
@@ -229,9 +210,6 @@ index 44b3bebef..2a33963b8 100644
 +obj-$(CONFIG_SUSPEND)			+= rcpm.o
 +obj-$(CONFIG_LS_SOC_DRIVERS)		+= layerscape/
 +obj-$(CONFIG_FSL_SLEEP_FSM)	+= sleep_fsm.o
-diff --git a/drivers/soc/fsl/layerscape/Kconfig b/drivers/soc/fsl/layerscape/Kconfig
-new file mode 100644
-index 000000000..e1373aa1b
 --- /dev/null
 +++ b/drivers/soc/fsl/layerscape/Kconfig
 @@ -0,0 +1,10 @@
@@ -245,18 +223,13 @@ index 000000000..e1373aa1b
 +	Say y here to enable FTM alarm support.  The FTM alarm provides
 +	alarm functions for wakeup system from deep sleep.  There is only
 +	one FTM can be used in ALARM(FTM 0).
-diff --git a/drivers/soc/fsl/layerscape/Makefile b/drivers/soc/fsl/layerscape/Makefile
-new file mode 100644
-index 000000000..6299aa1de
 --- /dev/null
 +++ b/drivers/soc/fsl/layerscape/Makefile
 @@ -0,0 +1 @@
 +obj-$(CONFIG_FTM_ALARM) += ftm_alarm.o
-diff --git a/drivers/staging/Kconfig b/drivers/staging/Kconfig
-index 554683912..c5c39b641 100644
 --- a/drivers/staging/Kconfig
 +++ b/drivers/staging/Kconfig
-@@ -118,4 +118,8 @@ source "drivers/staging/vboxvideo/Kconfig"
+@@ -118,4 +118,8 @@ source "drivers/staging/vboxvideo/Kconfi
  
  source "drivers/staging/pi433/Kconfig"
  
@@ -265,18 +238,14 @@ index 554683912..c5c39b641 100644
 +source "drivers/staging/fsl_ppfe/Kconfig"
 +
  endif # STAGING
-diff --git a/drivers/staging/Makefile b/drivers/staging/Makefile
-index 6e5360200..2d947e1e4 100644
 --- a/drivers/staging/Makefile
 +++ b/drivers/staging/Makefile
-@@ -50,3 +50,5 @@ obj-$(CONFIG_BCM2835_VCHIQ)	+= vc04_services/
+@@ -50,3 +50,5 @@ obj-$(CONFIG_BCM2835_VCHIQ)	+= vc04_serv
  obj-$(CONFIG_CRYPTO_DEV_CCREE)	+= ccree/
  obj-$(CONFIG_DRM_VBOXVIDEO)	+= vboxvideo/
  obj-$(CONFIG_PI433)		+= pi433/
 +obj-$(CONFIG_FSL_SDK_DPA)      += fsl_qbman/
 +obj-$(CONFIG_FSL_PPFE)		+= fsl_ppfe/
-diff --git a/drivers/staging/fsl-dpaa2/Kconfig b/drivers/staging/fsl-dpaa2/Kconfig
-index dfff675b3..24d447a8a 100644
 --- a/drivers/staging/fsl-dpaa2/Kconfig
 +++ b/drivers/staging/fsl-dpaa2/Kconfig
 @@ -4,7 +4,7 @@
@@ -346,8 +315,6 @@ index dfff675b3..24d447a8a 100644
 +	---help---
 +	Driver for Freescale DPAA2 Ethernet Switch. Select
 +	BRIDGE to have support for bridge tools.
-diff --git a/drivers/staging/fsl-dpaa2/Makefile b/drivers/staging/fsl-dpaa2/Makefile
-index 0836ba897..90d213615 100644
 --- a/drivers/staging/fsl-dpaa2/Makefile
 +++ b/drivers/staging/fsl-dpaa2/Makefile
 @@ -3,3 +3,7 @@
@@ -358,6 +325,3 @@ index 0836ba897..90d213615 100644
 +obj-$(CONFIG_FSL_DPAA2_EVB)	+= evb/
 +obj-$(CONFIG_FSL_DPAA2_PTP_CLOCK) += rtc/
 +obj-$(CONFIG_FSL_DPAA2_ETHSW)	+= ethsw/
--- 
-2.17.1
-

@@ -40,8 +40,6 @@ Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
  create mode 100644 drivers/net/phy/inphi.c
  create mode 100644 drivers/net/phy/mdio-mux-multiplexer.c
 
-diff --git a/drivers/net/phy/Kconfig b/drivers/net/phy/Kconfig
-index f8af7b86a..2cb001684 100644
 --- a/drivers/net/phy/Kconfig
 +++ b/drivers/net/phy/Kconfig
 @@ -87,9 +87,27 @@ config MDIO_BUS_MUX_MMIOREG
@@ -101,8 +99,6 @@ index f8af7b86a..2cb001684 100644
  config INTEL_XWAY_PHY
  	tristate "Intel XWAY PHYs"
  	---help---
-diff --git a/drivers/net/phy/Makefile b/drivers/net/phy/Makefile
-index f023102a9..18f035656 100644
 --- a/drivers/net/phy/Makefile
 +++ b/drivers/net/phy/Makefile
 @@ -44,7 +44,11 @@ obj-$(CONFIG_MDIO_BUS_MUX)	+= mdio-mux.o
@@ -125,8 +121,6 @@ index f023102a9..18f035656 100644
  obj-$(CONFIG_INTEL_XWAY_PHY)	+= intel-xway.o
  obj-$(CONFIG_LSI_ET1011C_PHY)	+= et1011c.o
  obj-$(CONFIG_LXT_PHY)		+= lxt.o
-diff --git a/drivers/net/phy/aquantia.c b/drivers/net/phy/aquantia.c
-index e8ae50e12..3253c7e8d 100644
 --- a/drivers/net/phy/aquantia.c
 +++ b/drivers/net/phy/aquantia.c
 @@ -4,6 +4,7 @@
@@ -340,7 +334,7 @@ index e8ae50e12..3253c7e8d 100644
  }
  
  static int aquantia_aneg_done(struct phy_device *phydev)
-@@ -51,25 +237,26 @@ static int aquantia_config_intr(struct phy_device *phydev)
+@@ -51,25 +237,26 @@ static int aquantia_config_intr(struct p
  	int err;
  
  	if (phydev->interrupts == PHY_INTERRUPT_ENABLED) {
@@ -373,7 +367,7 @@ index e8ae50e12..3253c7e8d 100644
  	}
  
  	return err;
-@@ -79,42 +266,145 @@ static int aquantia_ack_interrupt(struct phy_device *phydev)
+@@ -79,42 +266,145 @@ static int aquantia_ack_interrupt(struct
  {
  	int reg;
  
@@ -530,8 +524,6 @@ index e8ae50e12..3253c7e8d 100644
  	return 0;
  }
  
-diff --git a/drivers/net/phy/at803x.c b/drivers/net/phy/at803x.c
-index dedf4b190..e309f40ac 100644
 --- a/drivers/net/phy/at803x.c
 +++ b/drivers/net/phy/at803x.c
 @@ -68,6 +68,8 @@
@@ -543,7 +535,7 @@ index dedf4b190..e309f40ac 100644
  #define ATH8030_PHY_ID 0x004dd076
  #define ATH8031_PHY_ID 0x004dd074
  #define ATH8032_PHY_ID 0x004dd023
-@@ -290,6 +292,19 @@ static void at803x_disable_smarteee(struct phy_device *phydev)
+@@ -290,6 +292,19 @@ static void at803x_disable_smarteee(stru
  	phy_write_mmd(phydev, MDIO_MMD_AN, MDIO_AN_EEE_ADV, 0);
  }
  
@@ -563,7 +555,7 @@ index dedf4b190..e309f40ac 100644
  static int at803x_config_init(struct phy_device *phydev)
  {
  	struct at803x_platform_data *pdata;
-@@ -320,6 +335,12 @@ static int at803x_config_init(struct phy_device *phydev)
+@@ -320,6 +335,12 @@ static int at803x_config_init(struct phy
  	if (ret < 0)
  		return ret;
  
@@ -576,9 +568,6 @@ index dedf4b190..e309f40ac 100644
  	if (phydev->interface == PHY_INTERFACE_MODE_RGMII_RXID ||
  			phydev->interface == PHY_INTERFACE_MODE_RGMII_ID) {
  		ret = at803x_enable_rx_delay(phydev);
-diff --git a/drivers/net/phy/fsl_backplane.c b/drivers/net/phy/fsl_backplane.c
-new file mode 100644
-index 000000000..30fc3c5df
 --- /dev/null
 +++ b/drivers/net/phy/fsl_backplane.c
 @@ -0,0 +1,1780 @@
@@ -2362,9 +2351,6 @@ index 000000000..30fc3c5df
 +MODULE_DESCRIPTION("Freescale Backplane driver");
 +MODULE_AUTHOR("Shaohui Xie <Shaohui.Xie@freescale.com>");
 +MODULE_LICENSE("GPL v2");
-diff --git a/drivers/net/phy/fsl_backplane.h b/drivers/net/phy/fsl_backplane.h
-new file mode 100644
-index 000000000..8c50586f3
 --- /dev/null
 +++ b/drivers/net/phy/fsl_backplane.h
 @@ -0,0 +1,41 @@
@@ -2409,9 +2395,6 @@ index 000000000..8c50586f3
 +
 +
 +#endif //FSL_BACKPLANE_H
-diff --git a/drivers/net/phy/fsl_backplane_serdes_10g.c b/drivers/net/phy/fsl_backplane_serdes_10g.c
-new file mode 100644
-index 000000000..2d19d881f
 --- /dev/null
 +++ b/drivers/net/phy/fsl_backplane_serdes_10g.c
 @@ -0,0 +1,281 @@
@@ -2696,9 +2679,6 @@ index 000000000..2d19d881f
 +	return &srds;
 +}
 +
-diff --git a/drivers/net/phy/fsl_backplane_serdes_28g.c b/drivers/net/phy/fsl_backplane_serdes_28g.c
-new file mode 100644
-index 000000000..4e188ad92
 --- /dev/null
 +++ b/drivers/net/phy/fsl_backplane_serdes_28g.c
 @@ -0,0 +1,336 @@
@@ -3038,9 +3018,6 @@ index 000000000..4e188ad92
 +
 +	return &srds;
 +}
-diff --git a/drivers/net/phy/inphi.c b/drivers/net/phy/inphi.c
-new file mode 100644
-index 000000000..65d3059ce
 --- /dev/null
 +++ b/drivers/net/phy/inphi.c
 @@ -0,0 +1,594 @@
@@ -3638,9 +3615,6 @@ index 000000000..65d3059ce
 +};
 +
 +MODULE_DEVICE_TABLE(mdio, inphi_tbl);
-diff --git a/drivers/net/phy/mdio-mux-multiplexer.c b/drivers/net/phy/mdio-mux-multiplexer.c
-new file mode 100644
-index 000000000..d6564381a
 --- /dev/null
 +++ b/drivers/net/phy/mdio-mux-multiplexer.c
 @@ -0,0 +1,122 @@
@@ -3766,11 +3740,9 @@ index 000000000..d6564381a
 +MODULE_DESCRIPTION("MDIO bus multiplexer using kernel multiplexer subsystem");
 +MODULE_AUTHOR("Pankaj Bansal <pankaj.bansal@nxp.com>");
 +MODULE_LICENSE("GPL");
-diff --git a/drivers/net/phy/swphy.c b/drivers/net/phy/swphy.c
-index 34f58f234..52ddddbe1 100644
 --- a/drivers/net/phy/swphy.c
 +++ b/drivers/net/phy/swphy.c
-@@ -77,6 +77,7 @@ static const struct swmii_regs duplex[] = {
+@@ -77,6 +77,7 @@ static const struct swmii_regs duplex[]
  static int swphy_decode_speed(int speed)
  {
  	switch (speed) {
@@ -3778,8 +3750,6 @@ index 34f58f234..52ddddbe1 100644
  	case 1000:
  		return SWMII_SPEED_1000;
  	case 100:
-diff --git a/include/linux/phy.h b/include/linux/phy.h
-index 1c007fe91..492c60f75 100644
 --- a/include/linux/phy.h
 +++ b/include/linux/phy.h
 @@ -87,6 +87,7 @@ typedef enum {
@@ -3790,7 +3760,7 @@ index 1c007fe91..492c60f75 100644
  	PHY_INTERFACE_MODE_MAX,
  } phy_interface_t;
  
-@@ -159,6 +160,8 @@ static inline const char *phy_modes(phy_interface_t interface)
+@@ -159,6 +160,8 @@ static inline const char *phy_modes(phy_
  		return "xaui";
  	case PHY_INTERFACE_MODE_10GKR:
  		return "10gbase-kr";
@@ -3799,6 +3769,3 @@ index 1c007fe91..492c60f75 100644
  	default:
  		return "unknown";
  	}
--- 
-2.17.1
-

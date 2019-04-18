@@ -28,8 +28,6 @@ Signed-off-by: Valentin Rothberg <valentinrothberg@gmail.com>
  include/soc/fsl/qman.h              |  17 +++
  13 files changed, 390 insertions(+), 62 deletions(-)
 
-diff --git a/drivers/soc/fsl/qbman/Kconfig b/drivers/soc/fsl/qbman/Kconfig
-index 757033c05..fb4e6bf0a 100644
 --- a/drivers/soc/fsl/qbman/Kconfig
 +++ b/drivers/soc/fsl/qbman/Kconfig
 @@ -1,6 +1,6 @@
@@ -40,8 +38,6 @@ index 757033c05..fb4e6bf0a 100644
  	select GENERIC_ALLOCATOR
  	help
  	  The Freescale Data Path Acceleration Architecture (DPAA) is a set of
-diff --git a/drivers/soc/fsl/qbman/bman.c b/drivers/soc/fsl/qbman/bman.c
-index a3d6d7cfa..1fa9099e3 100644
 --- a/drivers/soc/fsl/qbman/bman.c
 +++ b/drivers/soc/fsl/qbman/bman.c
 @@ -35,6 +35,27 @@
@@ -80,7 +76,7 @@ index a3d6d7cfa..1fa9099e3 100644
  
  /*
   * Portal modes.
-@@ -607,7 +629,7 @@ int bman_p_irqsource_add(struct bman_portal *p, u32 bits)
+@@ -607,7 +629,7 @@ int bman_p_irqsource_add(struct bman_por
  	unsigned long irqflags;
  
  	local_irq_save(irqflags);
@@ -89,8 +85,6 @@ index a3d6d7cfa..1fa9099e3 100644
  	bm_out(&p->p, BM_REG_IER, p->irq_sources);
  	local_irq_restore(irqflags);
  	return 0;
-diff --git a/drivers/soc/fsl/qbman/bman_ccsr.c b/drivers/soc/fsl/qbman/bman_ccsr.c
-index eaa9585c7..035ae91bf 100644
 --- a/drivers/soc/fsl/qbman/bman_ccsr.c
 +++ b/drivers/soc/fsl/qbman/bman_ccsr.c
 @@ -29,6 +29,7 @@
@@ -101,7 +95,7 @@ index eaa9585c7..035ae91bf 100644
  
  u16 bman_ip_rev;
  EXPORT_SYMBOL(bman_ip_rev);
-@@ -120,6 +121,7 @@ static void bm_set_memory(u64 ba, u32 size)
+@@ -120,6 +121,7 @@ static void bm_set_memory(u64 ba, u32 si
   */
  static dma_addr_t fbpr_a;
  static size_t fbpr_sz;
@@ -109,7 +103,7 @@ index eaa9585c7..035ae91bf 100644
  
  static int bman_fbpr(struct reserved_mem *rmem)
  {
-@@ -166,14 +168,24 @@ static irqreturn_t bman_isr(int irq, void *ptr)
+@@ -166,14 +168,24 @@ static irqreturn_t bman_isr(int irq, voi
  	return IRQ_HANDLED;
  }
  
@@ -135,7 +129,7 @@ index eaa9585c7..035ae91bf 100644
  
  	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
  	if (!res) {
-@@ -201,6 +213,47 @@ static int fsl_bman_probe(struct platform_device *pdev)
+@@ -201,6 +213,47 @@ static int fsl_bman_probe(struct platfor
  		return -ENODEV;
  	}
  
@@ -183,7 +177,7 @@ index eaa9585c7..035ae91bf 100644
  	bm_set_memory(fbpr_a, fbpr_sz);
  
  	err_irq = platform_get_irq(pdev, 0);
-@@ -240,6 +293,8 @@ static int fsl_bman_probe(struct platform_device *pdev)
+@@ -240,6 +293,8 @@ static int fsl_bman_probe(struct platfor
  		return ret;
  	}
  
@@ -192,8 +186,6 @@ index eaa9585c7..035ae91bf 100644
  	return 0;
  };
  
-diff --git a/drivers/soc/fsl/qbman/bman_portal.c b/drivers/soc/fsl/qbman/bman_portal.c
-index 39b39c8f1..e350d158d 100644
 --- a/drivers/soc/fsl/qbman/bman_portal.c
 +++ b/drivers/soc/fsl/qbman/bman_portal.c
 @@ -32,6 +32,7 @@
@@ -204,7 +196,7 @@ index 39b39c8f1..e350d158d 100644
  /* protect bman global registers and global data shared among portals */
  static DEFINE_SPINLOCK(bman_lock);
  
-@@ -85,6 +86,12 @@ static int bman_online_cpu(unsigned int cpu)
+@@ -85,6 +86,12 @@ static int bman_online_cpu(unsigned int
  	return 0;
  }
  
@@ -217,7 +209,7 @@ index 39b39c8f1..e350d158d 100644
  static int bman_portal_probe(struct platform_device *pdev)
  {
  	struct device *dev = &pdev->dev;
-@@ -92,11 +99,21 @@ static int bman_portal_probe(struct platform_device *pdev)
+@@ -92,11 +99,21 @@ static int bman_portal_probe(struct plat
  	struct bm_portal_config *pcfg;
  	struct resource *addr_phys[2];
  	void __iomem *va;
@@ -241,7 +233,7 @@ index 39b39c8f1..e350d158d 100644
  
  	pcfg->dev = dev;
  
-@@ -104,14 +121,14 @@ static int bman_portal_probe(struct platform_device *pdev)
+@@ -104,14 +121,14 @@ static int bman_portal_probe(struct plat
  					     DPAA_PORTAL_CE);
  	if (!addr_phys[0]) {
  		dev_err(dev, "Can't get %pOF property 'reg::CE'\n", node);
@@ -258,7 +250,7 @@ index 39b39c8f1..e350d158d 100644
  	}
  
  	pcfg->cpu = -1;
-@@ -119,11 +136,18 @@ static int bman_portal_probe(struct platform_device *pdev)
+@@ -119,11 +136,18 @@ static int bman_portal_probe(struct plat
  	irq = platform_get_irq(pdev, 0);
  	if (irq <= 0) {
  		dev_err(dev, "Can't get %pOF IRQ'\n", node);
@@ -279,7 +271,7 @@ index 39b39c8f1..e350d158d 100644
  	if (!va) {
  		dev_err(dev, "ioremap::CE failed\n");
  		goto err_ioremap1;
-@@ -131,8 +155,7 @@ static int bman_portal_probe(struct platform_device *pdev)
+@@ -131,8 +155,7 @@ static int bman_portal_probe(struct plat
  
  	pcfg->addr_virt[DPAA_PORTAL_CE] = va;
  
@@ -289,7 +281,7 @@ index 39b39c8f1..e350d158d 100644
  	if (!va) {
  		dev_err(dev, "ioremap::CI failed\n");
  		goto err_ioremap2;
-@@ -149,6 +172,9 @@ static int bman_portal_probe(struct platform_device *pdev)
+@@ -149,6 +172,9 @@ static int bman_portal_probe(struct plat
  	}
  
  	cpumask_set_cpu(cpu, &portal_cpus);
@@ -308,8 +300,6 @@ index 39b39c8f1..e350d158d 100644
  	return -ENXIO;
  }
  
-diff --git a/drivers/soc/fsl/qbman/bman_priv.h b/drivers/soc/fsl/qbman/bman_priv.h
-index f6896a2f6..765a4bf7b 100644
 --- a/drivers/soc/fsl/qbman/bman_priv.h
 +++ b/drivers/soc/fsl/qbman/bman_priv.h
 @@ -33,6 +33,9 @@
@@ -322,8 +312,6 @@ index f6896a2f6..765a4bf7b 100644
  
  /* Portal processing (interrupt) sources */
  #define BM_PIRQ_RCRI	0x00000002	/* RCR Ring (below threshold) */
-diff --git a/drivers/soc/fsl/qbman/dpaa_sys.h b/drivers/soc/fsl/qbman/dpaa_sys.h
-index 2ce394aa4..992501333 100644
 --- a/drivers/soc/fsl/qbman/dpaa_sys.h
 +++ b/drivers/soc/fsl/qbman/dpaa_sys.h
 @@ -44,20 +44,18 @@
@@ -350,8 +338,6 @@ index 2ce394aa4..992501333 100644
  	__cpuc_flush_dcache_area(p, 64);
  #elif defined(CONFIG_ARM64)
  	__flush_dcache_area(p, 64);
-diff --git a/drivers/soc/fsl/qbman/qman.c b/drivers/soc/fsl/qbman/qman.c
-index 90892a360..b62cb4e87 100644
 --- a/drivers/soc/fsl/qbman/qman.c
 +++ b/drivers/soc/fsl/qbman/qman.c
 @@ -41,6 +41,43 @@
@@ -406,7 +392,7 @@ index 90892a360..b62cb4e87 100644
  
  /*
   * BTW, the drivers (and h/w programming model) already obtain the required
-@@ -909,12 +947,12 @@ static inline int qm_mc_result_timeout(struct qm_portal *portal,
+@@ -909,12 +947,12 @@ static inline int qm_mc_result_timeout(s
  
  static inline void fq_set(struct qman_fq *fq, u32 mask)
  {
@@ -421,7 +407,7 @@ index 90892a360..b62cb4e87 100644
  }
  
  static inline int fq_isset(struct qman_fq *fq, u32 mask)
-@@ -1567,7 +1605,7 @@ void qman_p_irqsource_add(struct qman_portal *p, u32 bits)
+@@ -1567,7 +1605,7 @@ void qman_p_irqsource_add(struct qman_po
  	unsigned long irqflags;
  
  	local_irq_save(irqflags);
@@ -430,7 +416,7 @@ index 90892a360..b62cb4e87 100644
  	qm_out(&p->p, QM_REG_IER, p->irq_sources);
  	local_irq_restore(irqflags);
  }
-@@ -1590,7 +1628,7 @@ void qman_p_irqsource_remove(struct qman_portal *p, u32 bits)
+@@ -1590,7 +1628,7 @@ void qman_p_irqsource_remove(struct qman
  	 */
  	local_irq_save(irqflags);
  	bits &= QM_PIRQ_VISIBLE;
@@ -439,8 +425,6 @@ index 90892a360..b62cb4e87 100644
  	qm_out(&p->p, QM_REG_IER, p->irq_sources);
  	ier = qm_in(&p->p, QM_REG_IER);
  	/*
-diff --git a/drivers/soc/fsl/qbman/qman_ccsr.c b/drivers/soc/fsl/qbman/qman_ccsr.c
-index 835ce947f..47d56fe25 100644
 --- a/drivers/soc/fsl/qbman/qman_ccsr.c
 +++ b/drivers/soc/fsl/qbman/qman_ccsr.c
 @@ -29,6 +29,7 @@
@@ -451,7 +435,7 @@ index 835ce947f..47d56fe25 100644
  
  u16 qman_ip_rev;
  EXPORT_SYMBOL(qman_ip_rev);
-@@ -273,6 +274,7 @@ static const struct qman_error_info_mdata error_mdata[] = {
+@@ -273,6 +274,7 @@ static const struct qman_error_info_mdat
  static u32 __iomem *qm_ccsr_start;
  /* A SDQCR mask comprising all the available/visible pool channels */
  static u32 qm_pools_sdqcr;
@@ -459,7 +443,7 @@ index 835ce947f..47d56fe25 100644
  
  static inline u32 qm_ccsr_in(u32 offset)
  {
-@@ -401,21 +403,42 @@ static int qm_init_pfdr(struct device *dev, u32 pfdr_start, u32 num)
+@@ -401,21 +403,42 @@ static int qm_init_pfdr(struct device *d
  }
  
  /*
@@ -507,7 +491,7 @@ index 835ce947f..47d56fe25 100644
  	return 0;
  }
  RESERVEDMEM_OF_DECLARE(qman_fqd, "fsl,qman-fqd", qman_fqd);
-@@ -431,32 +454,13 @@ static int qman_pfdr(struct reserved_mem *rmem)
+@@ -431,32 +454,13 @@ static int qman_pfdr(struct reserved_mem
  }
  RESERVEDMEM_OF_DECLARE(qman_pfdr, "fsl,qman-pfdr", qman_pfdr);
  
@@ -542,7 +526,7 @@ index 835ce947f..47d56fe25 100644
  static void log_edata_bits(struct device *dev, u32 bit_count)
  {
  	u32 i, j, mask = 0xffffffff;
-@@ -595,6 +599,7 @@ static int qman_init_ccsr(struct device *dev)
+@@ -595,6 +599,7 @@ static int qman_init_ccsr(struct device
  #define LIO_CFG_LIODN_MASK 0x0fff0000
  void qman_liodn_fixup(u16 channel)
  {
@@ -558,7 +542,7 @@ index 835ce947f..47d56fe25 100644
  }
  
  #define IO_CFG_SDEST_MASK 0x00ff0000
-@@ -684,14 +690,24 @@ static int qman_resource_init(struct device *dev)
+@@ -684,14 +690,24 @@ static int qman_resource_init(struct dev
  	return 0;
  }
  
@@ -584,7 +568,7 @@ index 835ce947f..47d56fe25 100644
  
  	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
  	if (!res) {
-@@ -717,6 +733,8 @@ static int fsl_qman_probe(struct platform_device *pdev)
+@@ -717,6 +733,8 @@ static int fsl_qman_probe(struct platfor
  		qman_ip_rev = QMAN_REV30;
  	else if (major == 3 && minor == 1)
  		qman_ip_rev = QMAN_REV31;
@@ -593,7 +577,7 @@ index 835ce947f..47d56fe25 100644
  	else {
  		dev_err(dev, "Unknown QMan version\n");
  		return -ENODEV;
-@@ -727,10 +745,96 @@ static int fsl_qman_probe(struct platform_device *pdev)
+@@ -727,10 +745,96 @@ static int fsl_qman_probe(struct platfor
  		qm_channel_caam = QMAN_CHANNEL_CAAM_REV3;
  	}
  
@@ -694,7 +678,7 @@ index 835ce947f..47d56fe25 100644
  
  	ret = qman_init_ccsr(dev);
  	if (ret) {
-@@ -793,6 +897,8 @@ static int fsl_qman_probe(struct platform_device *pdev)
+@@ -793,6 +897,8 @@ static int fsl_qman_probe(struct platfor
  	if (ret)
  		return ret;
  
@@ -703,8 +687,6 @@ index 835ce947f..47d56fe25 100644
  	return 0;
  }
  
-diff --git a/drivers/soc/fsl/qbman/qman_portal.c b/drivers/soc/fsl/qbman/qman_portal.c
-index cbacdf4f9..fb59a04ac 100644
 --- a/drivers/soc/fsl/qbman/qman_portal.c
 +++ b/drivers/soc/fsl/qbman/qman_portal.c
 @@ -29,6 +29,7 @@
@@ -723,7 +705,7 @@ index cbacdf4f9..fb59a04ac 100644
  /* protect qman global registers and global data shared among portals */
  static DEFINE_SPINLOCK(qman_lock);
  
-@@ -218,19 +220,36 @@ static int qman_online_cpu(unsigned int cpu)
+@@ -218,19 +220,36 @@ static int qman_online_cpu(unsigned int
  	return 0;
  }
  
@@ -761,7 +743,7 @@ index cbacdf4f9..fb59a04ac 100644
  
  	pcfg->dev = dev;
  
-@@ -238,19 +257,20 @@ static int qman_portal_probe(struct platform_device *pdev)
+@@ -238,19 +257,20 @@ static int qman_portal_probe(struct plat
  					     DPAA_PORTAL_CE);
  	if (!addr_phys[0]) {
  		dev_err(dev, "Can't get %pOF property 'reg::CE'\n", node);
@@ -784,7 +766,7 @@ index cbacdf4f9..fb59a04ac 100644
  		return err;
  	}
  	pcfg->channel = val;
-@@ -258,11 +278,18 @@ static int qman_portal_probe(struct platform_device *pdev)
+@@ -258,11 +278,18 @@ static int qman_portal_probe(struct plat
  	irq = platform_get_irq(pdev, 0);
  	if (irq <= 0) {
  		dev_err(dev, "Can't get %pOF IRQ\n", node);
@@ -805,7 +787,7 @@ index cbacdf4f9..fb59a04ac 100644
  	if (!va) {
  		dev_err(dev, "ioremap::CE failed\n");
  		goto err_ioremap1;
-@@ -270,8 +297,7 @@ static int qman_portal_probe(struct platform_device *pdev)
+@@ -270,8 +297,7 @@ static int qman_portal_probe(struct plat
  
  	pcfg->addr_virt[DPAA_PORTAL_CE] = va;
  
@@ -815,7 +797,7 @@ index cbacdf4f9..fb59a04ac 100644
  	if (!va) {
  		dev_err(dev, "ioremap::CI failed\n");
  		goto err_ioremap2;
-@@ -279,6 +305,21 @@ static int qman_portal_probe(struct platform_device *pdev)
+@@ -279,6 +305,21 @@ static int qman_portal_probe(struct plat
  
  	pcfg->addr_virt[DPAA_PORTAL_CI] = va;
  
@@ -837,7 +819,7 @@ index cbacdf4f9..fb59a04ac 100644
  	pcfg->pools = qm_get_pools_sdqcr();
  
  	spin_lock(&qman_lock);
-@@ -290,6 +331,9 @@ static int qman_portal_probe(struct platform_device *pdev)
+@@ -290,6 +331,9 @@ static int qman_portal_probe(struct plat
  	}
  
  	cpumask_set_cpu(cpu, &portal_cpus);
@@ -856,8 +838,6 @@ index cbacdf4f9..fb59a04ac 100644
  	return -ENXIO;
  }
  
-diff --git a/drivers/soc/fsl/qbman/qman_priv.h b/drivers/soc/fsl/qbman/qman_priv.h
-index 5fe9faf62..7ee1f16d7 100644
 --- a/drivers/soc/fsl/qbman/qman_priv.h
 +++ b/drivers/soc/fsl/qbman/qman_priv.h
 @@ -28,13 +28,13 @@
@@ -884,8 +864,6 @@ index 5fe9faf62..7ee1f16d7 100644
  extern u16 qman_ip_rev; /* 0 if uninitialised, otherwise QMAN_REVx */
  
  #define QM_FQID_RANGE_START 1 /* FQID 0 reserved for internal use */
-diff --git a/drivers/soc/fsl/qbman/qman_test.h b/drivers/soc/fsl/qbman/qman_test.h
-index d5f8cb226..41bdbc48c 100644
 --- a/drivers/soc/fsl/qbman/qman_test.h
 +++ b/drivers/soc/fsl/qbman/qman_test.h
 @@ -30,7 +30,5 @@
@@ -896,11 +874,9 @@ index d5f8cb226..41bdbc48c 100644
 -
  int qman_test_stash(void);
  int qman_test_api(void);
-diff --git a/include/soc/fsl/bman.h b/include/soc/fsl/bman.h
-index eaaf56df4..173e4049d 100644
 --- a/include/soc/fsl/bman.h
 +++ b/include/soc/fsl/bman.h
-@@ -126,4 +126,20 @@ int bman_release(struct bman_pool *pool, const struct bm_buffer *bufs, u8 num);
+@@ -126,4 +126,20 @@ int bman_release(struct bman_pool *pool,
   */
  int bman_acquire(struct bman_pool *pool, struct bm_buffer *bufs, u8 num);
  
@@ -921,11 +897,9 @@ index eaaf56df4..173e4049d 100644
 +int bman_portals_probed(void);
 +
  #endif	/* __FSL_BMAN_H */
-diff --git a/include/soc/fsl/qman.h b/include/soc/fsl/qman.h
-index d4dfefdee..7732e4808 100644
 --- a/include/soc/fsl/qman.h
 +++ b/include/soc/fsl/qman.h
-@@ -1186,4 +1186,21 @@ int qman_alloc_cgrid_range(u32 *result, u32 count);
+@@ -1186,4 +1186,21 @@ int qman_alloc_cgrid_range(u32 *result,
   */
  int qman_release_cgrid(u32 id);
  
@@ -947,6 +921,3 @@ index d4dfefdee..7732e4808 100644
 +int qman_portals_probed(void);
 +
  #endif	/* __FSL_QMAN_H */
--- 
-2.17.1
-

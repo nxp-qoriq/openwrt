@@ -23,11 +23,9 @@ Signed-off-by: Zhao Chenhui <chenhui.zhao@nxp.com>
  create mode 100644 drivers/soc/fsl/sleep_fsm.c
  create mode 100644 drivers/soc/fsl/sleep_fsm.h
 
-diff --git a/drivers/firmware/psci.c b/drivers/firmware/psci.c
-index c80ec1d03..29fb105ee 100644
 --- a/drivers/firmware/psci.c
 +++ b/drivers/firmware/psci.c
-@@ -437,8 +437,18 @@ CPUIDLE_METHOD_OF_DECLARE(psci, "psci", &psci_cpuidle_ops);
+@@ -437,8 +437,18 @@ CPUIDLE_METHOD_OF_DECLARE(psci, "psci",
  
  static int psci_system_suspend(unsigned long unused)
  {
@@ -48,7 +46,7 @@ index c80ec1d03..29fb105ee 100644
  }
  
  static int psci_system_suspend_enter(suspend_state_t state)
-@@ -562,6 +572,8 @@ static void __init psci_0_2_set_functions(void)
+@@ -562,6 +572,8 @@ static void __init psci_0_2_set_function
  	arm_pm_restart = psci_sys_reset;
  
  	pm_power_off = psci_sys_poweroff;
@@ -57,9 +55,6 @@ index c80ec1d03..29fb105ee 100644
  }
  
  /*
-diff --git a/drivers/soc/fsl/rcpm.c b/drivers/soc/fsl/rcpm.c
-new file mode 100644
-index 000000000..30d415ce9
 --- /dev/null
 +++ b/drivers/soc/fsl/rcpm.c
 @@ -0,0 +1,156 @@
@@ -219,9 +214,6 @@ index 000000000..30d415ce9
 +}
 +
 +subsys_initcall(layerscape_rcpm_init);
-diff --git a/drivers/soc/fsl/sleep_fsm.c b/drivers/soc/fsl/sleep_fsm.c
-new file mode 100644
-index 000000000..a30309863
 --- /dev/null
 +++ b/drivers/soc/fsl/sleep_fsm.c
 @@ -0,0 +1,279 @@
@@ -504,9 +496,6 @@ index 000000000..a30309863
 +	for (offset = EPECR0; offset <= EPECR15; offset += EPECR_STRIDE)
 +		iowrite32be(0, epu_base + offset);
 +}
-diff --git a/drivers/soc/fsl/sleep_fsm.h b/drivers/soc/fsl/sleep_fsm.h
-new file mode 100644
-index 000000000..e0013c0d9
 --- /dev/null
 +++ b/drivers/soc/fsl/sleep_fsm.h
 @@ -0,0 +1,130 @@
@@ -640,6 +629,3 @@ index 000000000..e0013c0d9
 +void fsl_epu_clean_default(void __iomem *epu_base);
 +
 +#endif /* _FSL_SLEEP_FSM_H */
--- 
-2.17.1
-

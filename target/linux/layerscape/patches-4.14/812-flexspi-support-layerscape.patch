@@ -48,11 +48,9 @@ Signed-off-by: Yogesh Gaur <yogeshnarayan.gaur@nxp.com>
  14 files changed, 1499 insertions(+), 4 deletions(-)
  create mode 100644 drivers/mtd/spi-nor/nxp-flexspi.c
 
-diff --git a/drivers/md/dm-thin.c b/drivers/md/dm-thin.c
-index 18d6a8a10..6f94a051a 100644
 --- a/drivers/md/dm-thin.c
 +++ b/drivers/md/dm-thin.c
-@@ -3690,6 +3690,19 @@ static int process_create_thin_mesg(unsigned argc, char **argv, struct pool *poo
+@@ -3690,6 +3690,19 @@ static int process_create_thin_mesg(unsi
  		return r;
  	}
  
@@ -72,8 +70,6 @@ index 18d6a8a10..6f94a051a 100644
  	return 0;
  }
  
-diff --git a/drivers/mtd/spi-nor/Kconfig b/drivers/mtd/spi-nor/Kconfig
-index 1cb6061bd..1ad237193 100644
 --- a/drivers/mtd/spi-nor/Kconfig
 +++ b/drivers/mtd/spi-nor/Kconfig
 @@ -97,6 +97,16 @@ config SPI_NXP_SPIFI
@@ -93,11 +89,9 @@ index 1cb6061bd..1ad237193 100644
  config SPI_INTEL_SPI
  	tristate
  
-diff --git a/drivers/mtd/spi-nor/Makefile b/drivers/mtd/spi-nor/Makefile
-index f4c61d282..928a486ce 100644
 --- a/drivers/mtd/spi-nor/Makefile
 +++ b/drivers/mtd/spi-nor/Makefile
-@@ -7,6 +7,7 @@ obj-$(CONFIG_SPI_FSL_QUADSPI)	+= fsl-quadspi.o
+@@ -7,6 +7,7 @@ obj-$(CONFIG_SPI_FSL_QUADSPI)	+= fsl-qua
  obj-$(CONFIG_SPI_HISI_SFC)	+= hisi-sfc.o
  obj-$(CONFIG_MTD_MT81xx_NOR)    += mtk-quadspi.o
  obj-$(CONFIG_SPI_NXP_SPIFI)	+= nxp-spifi.o
@@ -105,9 +99,6 @@ index f4c61d282..928a486ce 100644
  obj-$(CONFIG_SPI_INTEL_SPI)	+= intel-spi.o
  obj-$(CONFIG_SPI_INTEL_SPI_PCI)	+= intel-spi-pci.o
  obj-$(CONFIG_SPI_INTEL_SPI_PLATFORM)	+= intel-spi-platform.o
-diff --git a/drivers/mtd/spi-nor/nxp-flexspi.c b/drivers/mtd/spi-nor/nxp-flexspi.c
-new file mode 100644
-index 000000000..31aba0a82
 --- /dev/null
 +++ b/drivers/mtd/spi-nor/nxp-flexspi.c
 @@ -0,0 +1,1404 @@
@@ -1515,11 +1506,9 @@ index 000000000..31aba0a82
 +MODULE_DESCRIPTION("NXP FSPI Controller Driver");
 +MODULE_AUTHOR("NXP Semiconductor");
 +MODULE_LICENSE("GPL v2");
-diff --git a/drivers/mtd/spi-nor/spi-nor.c b/drivers/mtd/spi-nor/spi-nor.c
-index 8f3b7004b..a8db4b165 100644
 --- a/drivers/mtd/spi-nor/spi-nor.c
 +++ b/drivers/mtd/spi-nor/spi-nor.c
-@@ -269,6 +269,7 @@ static inline int set_4byte(struct spi_nor *nor, const struct flash_info *info,
+@@ -269,6 +269,7 @@ static inline int set_4byte(struct spi_n
  	u8 cmd;
  
  	switch (JEDEC_MFR(info)) {
@@ -1527,7 +1516,7 @@ index 8f3b7004b..a8db4b165 100644
  	case SNOR_MFR_MICRON:
  		/* Some Micron need WREN command; all will accept it */
  		need_wren = true;
-@@ -1039,7 +1040,7 @@ static const struct flash_info spi_nor_ids[] = {
+@@ -1039,7 +1040,7 @@ static const struct flash_info spi_nor_i
  	{ "mx66l1g45g",  INFO(0xc2201b, 0, 64 * 1024, 2048, SECT_4K | SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ) },
  	{ "mx66l1g55g",  INFO(0xc2261b, 0, 64 * 1024, 2048, SPI_NOR_QUAD_READ) },
  
@@ -1536,7 +1525,7 @@ index 8f3b7004b..a8db4b165 100644
  	{ "n25q016a",	 INFO(0x20bb15, 0, 64 * 1024,   32, SECT_4K | SPI_NOR_QUAD_READ) },
  	{ "n25q032",	 INFO(0x20ba16, 0, 64 * 1024,   64, SPI_NOR_QUAD_READ) },
  	{ "n25q032a",	 INFO(0x20bb16, 0, 64 * 1024,   64, SPI_NOR_QUAD_READ) },
-@@ -1054,6 +1055,12 @@ static const struct flash_info spi_nor_ids[] = {
+@@ -1054,6 +1055,12 @@ static const struct flash_info spi_nor_i
  	{ "n25q00",      INFO(0x20ba21, 0, 64 * 1024, 2048, SECT_4K | USE_FSR | SPI_NOR_QUAD_READ | NO_CHIP_ERASE) },
  	{ "n25q00a",     INFO(0x20bb21, 0, 64 * 1024, 2048, SECT_4K | USE_FSR | SPI_NOR_QUAD_READ | NO_CHIP_ERASE) },
  
@@ -1549,7 +1538,7 @@ index 8f3b7004b..a8db4b165 100644
  	/* PMC */
  	{ "pm25lv512",   INFO(0,        0, 32 * 1024,    2, SECT_4K_PMC) },
  	{ "pm25lv010",   INFO(0,        0, 32 * 1024,    4, SECT_4K_PMC) },
-@@ -2431,6 +2438,7 @@ static int spi_nor_init_params(struct spi_nor *nor,
+@@ -2431,6 +2438,7 @@ static int spi_nor_init_params(struct sp
  			params->quad_enable = macronix_quad_enable;
  			break;
  
@@ -1557,7 +1546,7 @@ index 8f3b7004b..a8db4b165 100644
  		case SNOR_MFR_MICRON:
  			break;
  
-@@ -2749,8 +2757,8 @@ int spi_nor_scan(struct spi_nor *nor, const char *name,
+@@ -2749,8 +2757,8 @@ int spi_nor_scan(struct spi_nor *nor, co
  	mtd->_read = spi_nor_read;
  
  	/* NOR protection support for STmicro/Micron chips and similar */
@@ -1568,11 +1557,9 @@ index 8f3b7004b..a8db4b165 100644
  	    info->flags & SPI_NOR_HAS_LOCK) {
  		nor->flash_lock = stm_lock;
  		nor->flash_unlock = stm_unlock;
-diff --git a/drivers/net/ethernet/qlogic/qed/qed_mcp.c b/drivers/net/ethernet/qlogic/qed/qed_mcp.c
-index 7938abe9a..052e14e6b 100644
 --- a/drivers/net/ethernet/qlogic/qed/qed_mcp.c
 +++ b/drivers/net/ethernet/qlogic/qed/qed_mcp.c
-@@ -616,6 +616,13 @@ static int qed_mcp_cmd_and_union(struct qed_hwfn *p_hwfn,
+@@ -616,6 +616,13 @@ static int qed_mcp_cmd_and_union(struct
  		return -EBUSY;
  	}
  
@@ -1586,11 +1573,9 @@ index 7938abe9a..052e14e6b 100644
  	if (p_mb_params->data_src_size > union_data_size ||
  	    p_mb_params->data_dst_size > union_data_size) {
  		DP_ERR(p_hwfn,
-diff --git a/drivers/net/phy/xilinx_gmii2rgmii.c b/drivers/net/phy/xilinx_gmii2rgmii.c
-index aef525467..52bc88749 100644
 --- a/drivers/net/phy/xilinx_gmii2rgmii.c
 +++ b/drivers/net/phy/xilinx_gmii2rgmii.c
-@@ -92,6 +92,11 @@ static int xgmiitorgmii_probe(struct mdio_device *mdiodev)
+@@ -92,6 +92,11 @@ static int xgmiitorgmii_probe(struct mdi
  		return -EPROBE_DEFER;
  	}
  
@@ -1602,11 +1587,9 @@ index aef525467..52bc88749 100644
  	priv->addr = mdiodev->addr;
  	priv->phy_drv = priv->phy_dev->drv;
  	memcpy(&priv->conv_phy_drv, priv->phy_dev->drv,
-diff --git a/drivers/spi/spi-tegra20-slink.c b/drivers/spi/spi-tegra20-slink.c
-index 9831c1106..77e703840 100644
 --- a/drivers/spi/spi-tegra20-slink.c
 +++ b/drivers/spi/spi-tegra20-slink.c
-@@ -1081,6 +1081,24 @@ static int tegra_slink_probe(struct platform_device *pdev)
+@@ -1081,6 +1081,24 @@ static int tegra_slink_probe(struct plat
  		goto exit_free_master;
  	}
  
@@ -1631,11 +1614,9 @@ index 9831c1106..77e703840 100644
  	spi_irq = platform_get_irq(pdev, 0);
  	tspi->irq = spi_irq;
  	ret = request_threaded_irq(tspi->irq, tegra_slink_isr,
-diff --git a/drivers/staging/android/ashmem.c b/drivers/staging/android/ashmem.c
-index 4151bb44a..8776c4fc9 100644
 --- a/drivers/staging/android/ashmem.c
 +++ b/drivers/staging/android/ashmem.c
-@@ -380,6 +380,12 @@ static int ashmem_mmap(struct file *file, struct vm_area_struct *vma)
+@@ -380,6 +380,12 @@ static int ashmem_mmap(struct file *file
  		goto out;
  	}
  
@@ -1648,11 +1629,9 @@ index 4151bb44a..8776c4fc9 100644
  	/* requested protection bits must match our allowed protection mask */
  	if (unlikely((vma->vm_flags & ~calc_vm_prot_bits(asma->prot_mask, 0)) &
  		     calc_vm_prot_bits(PROT_MASK, 0))) {
-diff --git a/drivers/tty/serial/imx.c b/drivers/tty/serial/imx.c
-index 4e827e5a5..25cb98604 100644
 --- a/drivers/tty/serial/imx.c
 +++ b/drivers/tty/serial/imx.c
-@@ -2221,6 +2221,14 @@ static int serial_imx_probe(struct platform_device *pdev)
+@@ -2221,6 +2221,14 @@ static int serial_imx_probe(struct platf
  				ret);
  			return ret;
  		}
@@ -1667,8 +1646,6 @@ index 4e827e5a5..25cb98604 100644
  	} else {
  		ret = devm_request_irq(&pdev->dev, rxirq, imx_int, 0,
  				       dev_name(&pdev->dev), sport);
-diff --git a/include/linux/mtd/cfi.h b/include/linux/mtd/cfi.h
-index 9b57a9b1b..cbf771686 100644
 --- a/include/linux/mtd/cfi.h
 +++ b/include/linux/mtd/cfi.h
 @@ -377,6 +377,7 @@ struct cfi_fixup {
@@ -1679,8 +1656,6 @@ index 9b57a9b1b..cbf771686 100644
  #define CFI_MFR_TOSHIBA		0x0098
  #define CFI_MFR_WINBOND		0x00DA
  
-diff --git a/include/linux/mtd/spi-nor.h b/include/linux/mtd/spi-nor.h
-index 1f0a7fc77..d4d6c32c1 100644
 --- a/include/linux/mtd/spi-nor.h
 +++ b/include/linux/mtd/spi-nor.h
 @@ -23,7 +23,8 @@
@@ -1693,11 +1668,9 @@ index 1f0a7fc77..d4d6c32c1 100644
  #define SNOR_MFR_MACRONIX	CFI_MFR_MACRONIX
  #define SNOR_MFR_SPANSION	CFI_MFR_AMD
  #define SNOR_MFR_SST		CFI_MFR_SST
-diff --git a/kernel/events/core.c b/kernel/events/core.c
-index 92939b539..1c6644ba1 100644
 --- a/kernel/events/core.c
 +++ b/kernel/events/core.c
-@@ -3763,6 +3763,12 @@ int perf_event_read_local(struct perf_event *event, u64 *value)
+@@ -3763,6 +3763,12 @@ int perf_event_read_local(struct perf_ev
  		goto out;
  	}
  
@@ -1710,11 +1683,9 @@ index 92939b539..1c6644ba1 100644
  	/*
  	 * If the event is currently on this CPU, its either a per-task event,
  	 * or local to this CPU. Furthermore it means its ACTIVE (otherwise
-diff --git a/sound/soc/soc-dapm.c b/sound/soc/soc-dapm.c
-index e9f7c6287..9b15ca956 100644
 --- a/sound/soc/soc-dapm.c
 +++ b/sound/soc/soc-dapm.c
-@@ -4036,6 +4036,13 @@ int snd_soc_dapm_link_dai_widgets(struct snd_soc_card *card)
+@@ -4036,6 +4036,13 @@ int snd_soc_dapm_link_dai_widgets(struct
  			continue;
  		}
  
@@ -1728,6 +1699,3 @@ index e9f7c6287..9b15ca956 100644
  		dai = dai_w->priv;
  
  		/* ...find all widgets with the same stream and link them */
--- 
-2.17.1
-

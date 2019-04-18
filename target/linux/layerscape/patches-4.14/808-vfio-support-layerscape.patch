@@ -25,8 +25,6 @@ Signed-off-by: Yangbo Lu <yangbo.lu@nxp.com>
  create mode 100644 drivers/vfio/fsl-mc/vfio_fsl_mc_intr.c
  create mode 100644 drivers/vfio/fsl-mc/vfio_fsl_mc_private.h
 
-diff --git a/drivers/vfio/Kconfig b/drivers/vfio/Kconfig
-index c84333eb5..4f2c41a07 100644
 --- a/drivers/vfio/Kconfig
 +++ b/drivers/vfio/Kconfig
 @@ -47,4 +47,5 @@ menuconfig VFIO_NOIOMMU
@@ -35,18 +33,13 @@ index c84333eb5..4f2c41a07 100644
  source "drivers/vfio/mdev/Kconfig"
 +source "drivers/vfio/fsl-mc/Kconfig"
  source "virt/lib/Kconfig"
-diff --git a/drivers/vfio/Makefile b/drivers/vfio/Makefile
-index de67c4725..fee73f3d9 100644
 --- a/drivers/vfio/Makefile
 +++ b/drivers/vfio/Makefile
-@@ -9,3 +9,4 @@ obj-$(CONFIG_VFIO_SPAPR_EEH) += vfio_spapr_eeh.o
+@@ -9,3 +9,4 @@ obj-$(CONFIG_VFIO_SPAPR_EEH) += vfio_spa
  obj-$(CONFIG_VFIO_PCI) += pci/
  obj-$(CONFIG_VFIO_PLATFORM) += platform/
  obj-$(CONFIG_VFIO_MDEV) += mdev/
 +obj-$(CONFIG_VFIO_FSL_MC) += fsl-mc/
-diff --git a/drivers/vfio/fsl-mc/Kconfig b/drivers/vfio/fsl-mc/Kconfig
-new file mode 100644
-index 000000000..b1a527d6b
 --- /dev/null
 +++ b/drivers/vfio/fsl-mc/Kconfig
 @@ -0,0 +1,9 @@
@@ -59,17 +52,11 @@ index 000000000..b1a527d6b
 +	  fsl-mc bus devices using the VFIO framework.
 +
 +	  If you don't know what to do here, say N.
-diff --git a/drivers/vfio/fsl-mc/Makefile b/drivers/vfio/fsl-mc/Makefile
-new file mode 100644
-index 000000000..2aca75af9
 --- /dev/null
 +++ b/drivers/vfio/fsl-mc/Makefile
 @@ -0,0 +1,2 @@
 +vfio-fsl_mc-y := vfio_fsl_mc.o
 +obj-$(CONFIG_VFIO_FSL_MC) += vfio_fsl_mc.o vfio_fsl_mc_intr.o
-diff --git a/drivers/vfio/fsl-mc/vfio_fsl_mc.c b/drivers/vfio/fsl-mc/vfio_fsl_mc.c
-new file mode 100644
-index 000000000..e05fe9bdd
 --- /dev/null
 +++ b/drivers/vfio/fsl-mc/vfio_fsl_mc.c
 @@ -0,0 +1,759 @@
@@ -832,9 +819,6 @@ index 000000000..e05fe9bdd
 +MODULE_LICENSE("GPL v2");
 +MODULE_AUTHOR(DRIVER_AUTHOR);
 +MODULE_DESCRIPTION(DRIVER_DESC);
-diff --git a/drivers/vfio/fsl-mc/vfio_fsl_mc_intr.c b/drivers/vfio/fsl-mc/vfio_fsl_mc_intr.c
-new file mode 100644
-index 000000000..b3ce07df7
 --- /dev/null
 +++ b/drivers/vfio/fsl-mc/vfio_fsl_mc_intr.c
 @@ -0,0 +1,199 @@
@@ -1037,9 +1021,6 @@ index 000000000..b3ce07df7
 +
 +	return ret;
 +}
-diff --git a/drivers/vfio/fsl-mc/vfio_fsl_mc_private.h b/drivers/vfio/fsl-mc/vfio_fsl_mc_private.h
-new file mode 100644
-index 000000000..ead81cb72
 --- /dev/null
 +++ b/drivers/vfio/fsl-mc/vfio_fsl_mc_private.h
 @@ -0,0 +1,57 @@
@@ -1100,8 +1081,6 @@ index 000000000..ead81cb72
 +			       unsigned int start, unsigned int count,
 +			       void *data);
 +#endif /* VFIO_PCI_PRIVATE_H */
-diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
-index e3301dbd2..1730971fa 100644
 --- a/include/uapi/linux/vfio.h
 +++ b/include/uapi/linux/vfio.h
 @@ -200,6 +200,7 @@ struct vfio_device_info {
@@ -1112,6 +1091,3 @@ index e3301dbd2..1730971fa 100644
  	__u32	num_regions;	/* Max region index + 1 */
  	__u32	num_irqs;	/* Max IRQ index + 1 */
  };
--- 
-2.17.1
-

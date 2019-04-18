@@ -22,9 +22,6 @@ Signed-off-by: Razvan Stefanescu <razvan.stefanescu@nxp.com>
  create mode 100644 drivers/staging/fsl-dpaa2/evb/dpdmux.h
  create mode 100644 drivers/staging/fsl-dpaa2/evb/evb.c
 
-diff --git a/drivers/staging/fsl-dpaa2/evb/Kconfig b/drivers/staging/fsl-dpaa2/evb/Kconfig
-new file mode 100644
-index 000000000..3534f6975
 --- /dev/null
 +++ b/drivers/staging/fsl-dpaa2/evb/Kconfig
 @@ -0,0 +1,7 @@
@@ -35,9 +32,6 @@ index 000000000..3534f6975
 +	default y
 +	---help---
 +	Prototype driver for DPAA2 Edge Virtual Bridge.
-diff --git a/drivers/staging/fsl-dpaa2/evb/Makefile b/drivers/staging/fsl-dpaa2/evb/Makefile
-new file mode 100644
-index 000000000..ecc529d74
 --- /dev/null
 +++ b/drivers/staging/fsl-dpaa2/evb/Makefile
 @@ -0,0 +1,10 @@
@@ -51,9 +45,6 @@ index 000000000..ecc529d74
 +
 +clean:
 +	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
-diff --git a/drivers/staging/fsl-dpaa2/evb/dpdmux-cmd.h b/drivers/staging/fsl-dpaa2/evb/dpdmux-cmd.h
-new file mode 100644
-index 000000000..66306804e
 --- /dev/null
 +++ b/drivers/staging/fsl-dpaa2/evb/dpdmux-cmd.h
 @@ -0,0 +1,279 @@
@@ -336,9 +327,6 @@ index 000000000..66306804e
 +};
 +
 +#endif /* _FSL_DPDMUX_CMD_H */
-diff --git a/drivers/staging/fsl-dpaa2/evb/dpdmux.c b/drivers/staging/fsl-dpaa2/evb/dpdmux.c
-new file mode 100644
-index 000000000..4c4a059e7
 --- /dev/null
 +++ b/drivers/staging/fsl-dpaa2/evb/dpdmux.c
 @@ -0,0 +1,1111 @@
@@ -1453,9 +1441,6 @@ index 000000000..4c4a059e7
 +
 +	return 0;
 +}
-diff --git a/drivers/staging/fsl-dpaa2/evb/dpdmux.h b/drivers/staging/fsl-dpaa2/evb/dpdmux.h
-new file mode 100644
-index 000000000..a6ccc7efa
 --- /dev/null
 +++ b/drivers/staging/fsl-dpaa2/evb/dpdmux.h
 @@ -0,0 +1,453 @@
@@ -1912,9 +1897,6 @@ index 000000000..a6ccc7efa
 +			   u16 *minor_ver);
 +
 +#endif /* __FSL_DPDMUX_H */
-diff --git a/drivers/staging/fsl-dpaa2/evb/evb.c b/drivers/staging/fsl-dpaa2/evb/evb.c
-new file mode 100644
-index 000000000..0dea5dbd7
 --- /dev/null
 +++ b/drivers/staging/fsl-dpaa2/evb/evb.c
 @@ -0,0 +1,1353 @@
@@ -3271,6 +3253,3 @@ index 000000000..0dea5dbd7
 +
 +MODULE_LICENSE("GPL");
 +MODULE_DESCRIPTION("Layerscape DPAA Edge Virtual Bridge driver (prototype)");
--- 
-2.17.1
-

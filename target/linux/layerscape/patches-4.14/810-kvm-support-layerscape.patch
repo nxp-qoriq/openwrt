@@ -17,8 +17,6 @@ Signed-off-by: Laurentiu Tudor <laurentiu.tudor@nxp.com>
  virt/kvm/arm/vgic/vgic-v2.c      |  3 +-
  6 files changed, 74 insertions(+), 9 deletions(-)
 
-diff --git a/arch/arm/include/asm/kvm_mmu.h b/arch/arm/include/asm/kvm_mmu.h
-index ca62f95f3..8756376dd 100644
 --- a/arch/arm/include/asm/kvm_mmu.h
 +++ b/arch/arm/include/asm/kvm_mmu.h
 @@ -55,7 +55,8 @@ void stage2_unmap_vm(struct kvm *kvm);
@@ -31,8 +29,6 @@ index ca62f95f3..8756376dd 100644
  
  int kvm_handle_guest_abort(struct kvm_vcpu *vcpu, struct kvm_run *run);
  
-diff --git a/arch/arm64/include/asm/kvm_mmu.h b/arch/arm64/include/asm/kvm_mmu.h
-index e42c1f0ae..b405c3305 100644
 --- a/arch/arm64/include/asm/kvm_mmu.h
 +++ b/arch/arm64/include/asm/kvm_mmu.h
 @@ -167,7 +167,8 @@ void stage2_unmap_vm(struct kvm *kvm);
@@ -45,7 +41,7 @@ index e42c1f0ae..b405c3305 100644
  
  int kvm_handle_guest_abort(struct kvm_vcpu *vcpu, struct kvm_run *run);
  
-@@ -270,8 +271,15 @@ static inline void __coherent_cache_guest_page(struct kvm_vcpu *vcpu,
+@@ -270,8 +271,15 @@ static inline void __coherent_cache_gues
  
  static inline void __kvm_flush_dcache_pte(pte_t pte)
  {
@@ -63,11 +59,9 @@ index e42c1f0ae..b405c3305 100644
  }
  
  static inline void __kvm_flush_dcache_pmd(pmd_t pmd)
-diff --git a/arch/powerpc/kvm/booke.c b/arch/powerpc/kvm/booke.c
-index 071b87ee6..499f86aaa 100644
 --- a/arch/powerpc/kvm/booke.c
 +++ b/arch/powerpc/kvm/booke.c
-@@ -305,6 +305,11 @@ void kvmppc_core_queue_fpunavail(struct kvm_vcpu *vcpu)
+@@ -305,6 +305,11 @@ void kvmppc_core_queue_fpunavail(struct
  	kvmppc_booke_queue_irqprio(vcpu, BOOKE_IRQPRIO_FP_UNAVAIL);
  }
  
@@ -79,11 +73,9 @@ index 071b87ee6..499f86aaa 100644
  void kvmppc_core_queue_dec(struct kvm_vcpu *vcpu)
  {
  	kvmppc_booke_queue_irqprio(vcpu, BOOKE_IRQPRIO_DECREMENTER);
-diff --git a/virt/kvm/arm/mmu.c b/virt/kvm/arm/mmu.c
-index 225dc671a..f2cab8ff6 100644
 --- a/virt/kvm/arm/mmu.c
 +++ b/virt/kvm/arm/mmu.c
-@@ -1027,9 +1027,11 @@ static int stage2_pmdp_test_and_clear_young(pmd_t *pmd)
+@@ -1027,9 +1027,11 @@ static int stage2_pmdp_test_and_clear_yo
   * @guest_ipa:	The IPA at which to insert the mapping
   * @pa:		The physical address of the device
   * @size:	The size of the mapping
@@ -96,7 +88,7 @@ index 225dc671a..f2cab8ff6 100644
  {
  	phys_addr_t addr, end;
  	int ret = 0;
-@@ -1040,7 +1042,7 @@ int kvm_phys_addr_ioremap(struct kvm *kvm, phys_addr_t guest_ipa,
+@@ -1040,7 +1042,7 @@ int kvm_phys_addr_ioremap(struct kvm *kv
  	pfn = __phys_to_pfn(pa);
  
  	for (addr = guest_ipa; addr < end; addr += PAGE_SIZE) {
@@ -136,7 +128,7 @@ index 225dc671a..f2cab8ff6 100644
  static bool transparent_hugepage_adjust(kvm_pfn_t *pfnp, phys_addr_t *ipap)
  {
  	kvm_pfn_t pfn = *pfnp;
-@@ -1334,6 +1360,18 @@ static int user_mem_abort(struct kvm_vcpu *vcpu, phys_addr_t fault_ipa,
+@@ -1334,6 +1360,18 @@ static int user_mem_abort(struct kvm_vcp
  		hugetlb = true;
  		gfn = (fault_ipa & PMD_MASK) >> PAGE_SHIFT;
  	} else {
@@ -155,7 +147,7 @@ index 225dc671a..f2cab8ff6 100644
  		/*
  		 * Pages belonging to memslots that don't have the same
  		 * alignment for userspace and IPA cannot be mapped using
-@@ -1375,6 +1413,11 @@ static int user_mem_abort(struct kvm_vcpu *vcpu, phys_addr_t fault_ipa,
+@@ -1375,6 +1413,11 @@ static int user_mem_abort(struct kvm_vcp
  	if (is_error_noslot_pfn(pfn))
  		return -EFAULT;
  
@@ -167,7 +159,7 @@ index 225dc671a..f2cab8ff6 100644
  	if (kvm_is_device_pfn(pfn)) {
  		mem_type = PAGE_S2_DEVICE;
  		flags |= KVM_S2PTE_FLAG_IS_IOMAP;
-@@ -1911,6 +1954,9 @@ int kvm_arch_prepare_memory_region(struct kvm *kvm,
+@@ -1911,6 +1954,9 @@ int kvm_arch_prepare_memory_region(struc
  			gpa_t gpa = mem->guest_phys_addr +
  				    (vm_start - mem->userspace_addr);
  			phys_addr_t pa;
@@ -177,7 +169,7 @@ index 225dc671a..f2cab8ff6 100644
  
  			pa = (phys_addr_t)vma->vm_pgoff << PAGE_SHIFT;
  			pa += vm_start - vma->vm_start;
-@@ -1921,9 +1967,13 @@ int kvm_arch_prepare_memory_region(struct kvm *kvm,
+@@ -1921,9 +1967,13 @@ int kvm_arch_prepare_memory_region(struc
  				goto out;
  			}
  
@@ -192,11 +184,9 @@ index 225dc671a..f2cab8ff6 100644
  			if (ret)
  				break;
  		}
-diff --git a/virt/kvm/arm/vgic/vgic-its.c b/virt/kvm/arm/vgic/vgic-its.c
-index d72b8481f..0ec5425f3 100644
 --- a/virt/kvm/arm/vgic/vgic-its.c
 +++ b/virt/kvm/arm/vgic/vgic-its.c
-@@ -243,7 +243,7 @@ static struct its_ite *find_ite(struct vgic_its *its, u32 device_id,
+@@ -243,7 +243,7 @@ static struct its_ite *find_ite(struct v
  #define GIC_LPI_OFFSET 8192
  
  #define VITS_TYPER_IDBITS 16
@@ -205,11 +195,9 @@ index d72b8481f..0ec5425f3 100644
  #define VITS_DTE_MAX_DEVID_OFFSET	(BIT(14) - 1)
  #define VITS_ITE_MAX_EVENTID_OFFSET	(BIT(16) - 1)
  
-diff --git a/virt/kvm/arm/vgic/vgic-v2.c b/virt/kvm/arm/vgic/vgic-v2.c
-index 841d4b275..b5f98caf6 100644
 --- a/virt/kvm/arm/vgic/vgic-v2.c
 +++ b/virt/kvm/arm/vgic/vgic-v2.c
-@@ -304,7 +304,8 @@ int vgic_v2_map_resources(struct kvm *kvm)
+@@ -304,7 +304,8 @@ int vgic_v2_map_resources(struct kvm *kv
  	if (!static_branch_unlikely(&vgic_v2_cpuif_trap)) {
  		ret = kvm_phys_addr_ioremap(kvm, dist->vgic_cpu_base,
  					    kvm_vgic_global_state.vcpu_base,
@@ -219,6 +207,3 @@ index 841d4b275..b5f98caf6 100644
  		if (ret) {
  			kvm_err("Unable to remap VGIC CPU to VCPU\n");
  			goto out;
--- 
-2.17.1
-

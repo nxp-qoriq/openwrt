@@ -35,9 +35,6 @@ Signed-off-by: Valentin Catalin Neacsu <valentin-catalin.neacsu@nxp.com>
  create mode 100644 drivers/staging/fsl-dpaa2/mac/dpmac.h
  create mode 100644 drivers/staging/fsl-dpaa2/mac/mac.c
 
-diff --git a/drivers/staging/fsl-dpaa2/mac/Kconfig b/drivers/staging/fsl-dpaa2/mac/Kconfig
-new file mode 100644
-index 000000000..c94f7c1b1
 --- /dev/null
 +++ b/drivers/staging/fsl-dpaa2/mac/Kconfig
 @@ -0,0 +1,23 @@
@@ -64,9 +61,6 @@ index 000000000..c94f7c1b1
 +	PHYs.
 +	.
 +	Leave disabled if unsure.
-diff --git a/drivers/staging/fsl-dpaa2/mac/Makefile b/drivers/staging/fsl-dpaa2/mac/Makefile
-new file mode 100644
-index 000000000..bda94101b
 --- /dev/null
 +++ b/drivers/staging/fsl-dpaa2/mac/Makefile
 @@ -0,0 +1,10 @@
@@ -80,9 +74,6 @@ index 000000000..bda94101b
 +
 +clean:
 +	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
-diff --git a/drivers/staging/fsl-dpaa2/mac/dpmac-cmd.h b/drivers/staging/fsl-dpaa2/mac/dpmac-cmd.h
-new file mode 100644
-index 000000000..eff4bc1c0
 --- /dev/null
 +++ b/drivers/staging/fsl-dpaa2/mac/dpmac-cmd.h
 @@ -0,0 +1,196 @@
@@ -282,9 +273,6 @@ index 000000000..eff4bc1c0
 +};
 +
 +#endif /* _FSL_DPMAC_CMD_H */
-diff --git a/drivers/staging/fsl-dpaa2/mac/dpmac.c b/drivers/staging/fsl-dpaa2/mac/dpmac.c
-new file mode 100644
-index 000000000..c37cbc13b
 --- /dev/null
 +++ b/drivers/staging/fsl-dpaa2/mac/dpmac.c
 @@ -0,0 +1,689 @@
@@ -977,9 +965,6 @@ index 000000000..c37cbc13b
 +
 +	return 0;
 +}
-diff --git a/drivers/staging/fsl-dpaa2/mac/dpmac.h b/drivers/staging/fsl-dpaa2/mac/dpmac.h
-new file mode 100644
-index 000000000..018aa2539
 --- /dev/null
 +++ b/drivers/staging/fsl-dpaa2/mac/dpmac.h
 @@ -0,0 +1,374 @@
@@ -1357,9 +1342,6 @@ index 000000000..018aa2539
 +			  u16 *minor_ver);
 +
 +#endif /* __FSL_DPMAC_H */
-diff --git a/drivers/staging/fsl-dpaa2/mac/mac.c b/drivers/staging/fsl-dpaa2/mac/mac.c
-new file mode 100644
-index 000000000..eb2602e05
 --- /dev/null
 +++ b/drivers/staging/fsl-dpaa2/mac/mac.c
 @@ -0,0 +1,817 @@
@@ -2180,6 +2162,3 @@ index 000000000..eb2602e05
 +
 +MODULE_LICENSE("GPL");
 +MODULE_DESCRIPTION("DPAA2 PHY proxy interface driver");
--- 
-2.17.1
-

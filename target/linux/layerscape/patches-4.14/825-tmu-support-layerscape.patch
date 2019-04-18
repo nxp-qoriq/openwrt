@@ -13,8 +13,6 @@ Signed-off-by: Yuantian Tang <andy.tang@nxp.com>
  drivers/thermal/qoriq_thermal.c | 102 ++++++++++++++------------------
  1 file changed, 46 insertions(+), 56 deletions(-)
 
-diff --git a/drivers/thermal/qoriq_thermal.c b/drivers/thermal/qoriq_thermal.c
-index c866cc165..529100170 100644
 --- a/drivers/thermal/qoriq_thermal.c
 +++ b/drivers/thermal/qoriq_thermal.c
 @@ -69,14 +69,21 @@ struct qoriq_tmu_regs {
@@ -41,7 +39,7 @@ index c866cc165..529100170 100644
  };
  
  static void tmu_write(struct qoriq_tmu_data *p, u32 val, void __iomem *addr)
-@@ -97,48 +104,51 @@ static u32 tmu_read(struct qoriq_tmu_data *p, void __iomem *addr)
+@@ -97,48 +104,51 @@ static u32 tmu_read(struct qoriq_tmu_dat
  
  static int tmu_get_temp(void *p, int *temp)
  {
@@ -78,6 +76,17 @@ index c866cc165..529100170 100644
 +				sizeof(struct qoriq_sensor), GFP_KERNEL);
 +		if (!qdata->sensor[id])
 +			return -ENOMEM;
++
++		qdata->sensor[id]->id = id;
++		qdata->sensor[id]->qdata = qdata;
++
++		qdata->sensor[id]->tzd = devm_thermal_zone_of_sensor_register(
++				&pdev->dev, id, qdata->sensor[id], &tmu_tz_ops);
++		if (IS_ERR(qdata->sensor[id]->tzd)) {
++			if (PTR_ERR(qdata->sensor[id]->tzd) == -ENODEV)
++				continue;
++			else
++				return PTR_ERR(qdata->sensor[id]->tzd);
  
 -	sensor_np = of_get_next_child(np, NULL);
 -	ret = of_parse_phandle_with_args(sensor_np, "thermal-sensors",
@@ -88,9 +97,7 @@ index c866cc165..529100170 100644
 -		of_node_put(sensor_np);
 -		return ret;
 -	}
-+		qdata->sensor[id]->id = id;
-+		qdata->sensor[id]->qdata = qdata;
- 
+-
 -	if (sensor_specs.args_count >= 1) {
 -		id = sensor_specs.args[0];
 -		WARN(sensor_specs.args_count > 1,
@@ -99,30 +106,22 @@ index c866cc165..529100170 100644
 -	} else {
 -		id = 0;
 -	}
-+		qdata->sensor[id]->tzd = devm_thermal_zone_of_sensor_register(
-+				&pdev->dev, id, qdata->sensor[id], &tmu_tz_ops);
-+		if (IS_ERR(qdata->sensor[id]->tzd)) {
-+			if (PTR_ERR(qdata->sensor[id]->tzd) == -ENODEV)
-+				continue;
-+			else
-+				return PTR_ERR(qdata->sensor[id]->tzd);
++		}
  
 -	of_node_put(np);
 -	of_node_put(sensor_np);
-+		}
- 
--	return id;
 +		sites |= 0x1 << (15 - id);
 +	}
 +	/* Enable monitoring */
 +	if (sites != 0)
 +		tmu_write(qdata, sites | TMR_ME | TMR_ALPF, &qdata->regs->tmr);
-+
+ 
+-	return id;
 +	return 0;
  }
  
  static int qoriq_tmu_calibration(struct platform_device *pdev)
-@@ -188,16 +198,11 @@ static void qoriq_tmu_init_device(struct qoriq_tmu_data *data)
+@@ -188,16 +198,11 @@ static void qoriq_tmu_init_device(struct
  	tmu_write(data, TMR_DISABLE, &data->regs->tmr);
  }
  
@@ -139,7 +138,7 @@ index c866cc165..529100170 100644
  
  	if (!np) {
  		dev_err(&pdev->dev, "Device OF-Node is NULL");
-@@ -213,13 +218,6 @@ static int qoriq_tmu_probe(struct platform_device *pdev)
+@@ -213,13 +218,6 @@ static int qoriq_tmu_probe(struct platfo
  
  	data->little_endian = of_property_read_bool(np, "little-endian");
  
@@ -153,7 +152,7 @@ index c866cc165..529100170 100644
  	data->regs = of_iomap(np, 0);
  	if (!data->regs) {
  		dev_err(&pdev->dev, "Failed to get memory region\n");
-@@ -233,19 +231,13 @@ static int qoriq_tmu_probe(struct platform_device *pdev)
+@@ -233,19 +231,13 @@ static int qoriq_tmu_probe(struct platfo
  	if (ret < 0)
  		goto err_tmu;
  
@@ -178,7 +177,7 @@ index c866cc165..529100170 100644
  	return 0;
  
  err_tmu:
-@@ -261,8 +253,6 @@ static int qoriq_tmu_remove(struct platform_device *pdev)
+@@ -261,8 +253,6 @@ static int qoriq_tmu_remove(struct platf
  {
  	struct qoriq_tmu_data *data = platform_get_drvdata(pdev);
  
@@ -187,6 +186,3 @@ index c866cc165..529100170 100644
  	/* Disable monitoring */
  	tmu_write(data, TMR_DISABLE, &data->regs->tmr);
  
--- 
-2.17.1
-

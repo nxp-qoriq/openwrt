@@ -20,8 +20,6 @@ Signed-off-by: Zhao Qiang <qiang.zhao@nxp.com>
  include/linux/of_pci.h   |  10 ----
  8 files changed, 166 insertions(+), 117 deletions(-)
 
-diff --git a/drivers/iommu/arm-smmu.c b/drivers/iommu/arm-smmu.c
-index 01a6a0ea2..53dda07d8 100644
 --- a/drivers/iommu/arm-smmu.c
 +++ b/drivers/iommu/arm-smmu.c
 @@ -52,6 +52,7 @@
@@ -32,7 +30,7 @@ index 01a6a0ea2..53dda07d8 100644
  
  #include "io-pgtable.h"
  #include "arm-smmu-regs.h"
-@@ -1465,6 +1466,8 @@ static struct iommu_group *arm_smmu_device_group(struct device *dev)
+@@ -1465,6 +1466,8 @@ static struct iommu_group *arm_smmu_devi
  
  	if (dev_is_pci(dev))
  		group = pci_device_group(dev);
@@ -52,8 +50,6 @@ index 01a6a0ea2..53dda07d8 100644
  }
  
  static int arm_smmu_device_probe(struct platform_device *pdev)
-diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-index 3de5c0bcb..eaf8a4d3e 100644
 --- a/drivers/iommu/iommu.c
 +++ b/drivers/iommu/iommu.c
 @@ -33,6 +33,7 @@
@@ -64,7 +60,7 @@ index 3de5c0bcb..eaf8a4d3e 100644
  
  static struct kset *iommu_group_kset;
  static DEFINE_IDA(iommu_group_ida);
-@@ -987,6 +988,26 @@ struct iommu_group *pci_device_group(struct device *dev)
+@@ -987,6 +988,26 @@ struct iommu_group *pci_device_group(str
  	return iommu_group_alloc();
  }
  
@@ -91,8 +87,6 @@ index 3de5c0bcb..eaf8a4d3e 100644
  /**
   * iommu_group_get_for_dev - Find or create the IOMMU group for a device
   * @dev: target device
-diff --git a/drivers/iommu/of_iommu.c b/drivers/iommu/of_iommu.c
-index 50947ebb6..c21e3745c 100644
 --- a/drivers/iommu/of_iommu.c
 +++ b/drivers/iommu/of_iommu.c
 @@ -24,6 +24,7 @@
@@ -222,7 +216,7 @@ index 50947ebb6..c21e3745c 100644
  	if (err)
  		return err == -ENODEV ? NO_IOMMU : err;
  
-@@ -160,6 +261,23 @@ static int of_pci_iommu_init(struct pci_dev *pdev, u16 alias, void *data)
+@@ -160,6 +261,23 @@ static int of_pci_iommu_init(struct pci_
  	return err;
  }
  
@@ -246,7 +240,7 @@ index 50947ebb6..c21e3745c 100644
  const struct iommu_ops *of_iommu_configure(struct device *dev,
  					   struct device_node *master_np)
  {
-@@ -191,6 +309,8 @@ const struct iommu_ops *of_iommu_configure(struct device *dev,
+@@ -191,6 +309,8 @@ const struct iommu_ops *of_iommu_configu
  
  		err = pci_for_each_dma_alias(to_pci_dev(dev),
  					     of_pci_iommu_init, &info);
@@ -255,8 +249,6 @@ index 50947ebb6..c21e3745c 100644
  	} else {
  		struct of_phandle_args iommu_spec;
  		int idx = 0;
-diff --git a/drivers/of/irq.c b/drivers/of/irq.c
-index ec00ae738..ca5d107af 100644
 --- a/drivers/of/irq.c
 +++ b/drivers/of/irq.c
 @@ -26,7 +26,7 @@
@@ -268,7 +260,7 @@ index ec00ae738..ca5d107af 100644
  #include <linux/string.h>
  #include <linux/slab.h>
  
-@@ -593,8 +593,8 @@ static u32 __of_msi_map_rid(struct device *dev, struct device_node **np,
+@@ -593,8 +593,8 @@ static u32 __of_msi_map_rid(struct devic
  	 * "msi-map" property.
  	 */
  	for (parent_dev = dev; parent_dev; parent_dev = parent_dev->parent)
@@ -279,8 +271,6 @@ index ec00ae738..ca5d107af 100644
  			break;
  	return rid_out;
  }
-diff --git a/drivers/of/of_pci.c b/drivers/of/of_pci.c
-index e9ec931f5..34abb24c3 100644
 --- a/drivers/of/of_pci.c
 +++ b/drivers/of/of_pci.c
 @@ -281,104 +281,3 @@ parse_failed:
@@ -388,11 +378,9 @@ index e9ec931f5..34abb24c3 100644
 -		np, map_name, rid, target && *target ? *target : NULL);
 -	return -EFAULT;
 -}
-diff --git a/include/linux/iommu.h b/include/linux/iommu.h
-index 41b8c5757..00a460b4c 100644
 --- a/include/linux/iommu.h
 +++ b/include/linux/iommu.h
-@@ -389,6 +389,8 @@ static inline size_t iommu_map_sg(struct iommu_domain *domain,
+@@ -389,6 +389,8 @@ static inline size_t iommu_map_sg(struct
  extern struct iommu_group *pci_device_group(struct device *dev);
  /* Generic device grouping function */
  extern struct iommu_group *generic_device_group(struct device *dev);
@@ -401,11 +389,9 @@ index 41b8c5757..00a460b4c 100644
  
  /**
   * struct iommu_fwspec - per-device IOMMU instance data
-diff --git a/include/linux/of_iommu.h b/include/linux/of_iommu.h
-index cddfaff4d..b9abb472f 100644
 --- a/include/linux/of_iommu.h
 +++ b/include/linux/of_iommu.h
-@@ -15,6 +15,9 @@ extern int of_get_dma_window(struct device_node *dn, const char *prefix,
+@@ -15,6 +15,9 @@ extern int of_get_dma_window(struct devi
  extern const struct iommu_ops *of_iommu_configure(struct device *dev,
  					struct device_node *master_np);
  
@@ -415,7 +401,7 @@ index cddfaff4d..b9abb472f 100644
  #else
  
  static inline int of_get_dma_window(struct device_node *dn, const char *prefix,
-@@ -30,6 +33,13 @@ static inline const struct iommu_ops *of_iommu_configure(struct device *dev,
+@@ -30,6 +33,13 @@ static inline const struct iommu_ops *of
  	return NULL;
  }
  
@@ -429,11 +415,9 @@ index cddfaff4d..b9abb472f 100644
  #endif	/* CONFIG_OF_IOMMU */
  
  extern struct of_device_id __iommu_of_table;
-diff --git a/include/linux/of_pci.h b/include/linux/of_pci.h
-index bf588a05d..061584365 100644
 --- a/include/linux/of_pci.h
 +++ b/include/linux/of_pci.h
-@@ -19,9 +19,6 @@ int of_pci_parse_bus_range(struct device_node *node, struct resource *res);
+@@ -19,9 +19,6 @@ int of_pci_parse_bus_range(struct device
  int of_get_pci_domain_nr(struct device_node *node);
  int of_pci_get_max_link_speed(struct device_node *node);
  void of_pci_check_probe_only(void);
@@ -443,7 +427,7 @@ index bf588a05d..061584365 100644
  #else
  static inline int of_irq_parse_pci(const struct pci_dev *pdev, struct of_phandle_args *out_irq)
  {
-@@ -57,13 +54,6 @@ of_get_pci_domain_nr(struct device_node *node)
+@@ -57,13 +54,6 @@ of_get_pci_domain_nr(struct device_node
  	return -1;
  }
  
@@ -457,6 +441,3 @@ index bf588a05d..061584365 100644
  static inline int
  of_pci_get_max_link_speed(struct device_node *node)
  {
--- 
-2.17.1
-

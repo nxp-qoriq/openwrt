@@ -28,8 +28,6 @@ Signed-off-by: Udit Agarwal <udit.agarwal@nxp.com>
  create mode 100644 security/keys/securekey_desc.c
  create mode 100644 security/keys/securekey_desc.h
 
-diff --git a/drivers/tee/optee/Kconfig b/drivers/tee/optee/Kconfig
-index 0126de898..3c59e1902 100644
 --- a/drivers/tee/optee/Kconfig
 +++ b/drivers/tee/optee/Kconfig
 @@ -5,3 +5,11 @@ config OPTEE
@@ -44,8 +42,6 @@ index 0126de898..3c59e1902 100644
 +	help
 +	  This sets the number of private shared memory pages to be
 +	  used by OP-TEE TEE driver.
-diff --git a/drivers/tee/optee/core.c b/drivers/tee/optee/core.c
-index edb6e4e9e..690286350 100644
 --- a/drivers/tee/optee/core.c
 +++ b/drivers/tee/optee/core.c
 @@ -31,7 +31,7 @@
@@ -57,9 +53,6 @@ index edb6e4e9e..690286350 100644
  
  /**
   * optee_from_msg_param() - convert from OPTEE_MSG parameters to
-diff --git a/include/keys/secure-type.h b/include/keys/secure-type.h
-new file mode 100644
-index 000000000..5b7a5f144
 --- /dev/null
 +++ b/include/keys/secure-type.h
 @@ -0,0 +1,33 @@
@@ -96,8 +89,6 @@ index 000000000..5b7a5f144
 +
 +extern struct key_type key_type_secure;
 +#endif
-diff --git a/security/keys/Kconfig b/security/keys/Kconfig
-index 6462e6654..7eb138b5a 100644
 --- a/security/keys/Kconfig
 +++ b/security/keys/Kconfig
 @@ -71,6 +71,17 @@ config TRUSTED_KEYS
@@ -118,8 +109,6 @@ index 6462e6654..7eb138b5a 100644
  config ENCRYPTED_KEYS
  	tristate "ENCRYPTED KEYS"
  	depends on KEYS
-diff --git a/security/keys/Makefile b/security/keys/Makefile
-index ef1581b33..eec1c350e 100644
 --- a/security/keys/Makefile
 +++ b/security/keys/Makefile
 @@ -28,4 +28,9 @@ obj-$(CONFIG_KEY_DH_OPERATIONS) += dh.o
@@ -132,11 +121,9 @@ index ef1581b33..eec1c350e 100644
 +securekey-y := securekey_desc.o \
 +	       secure_key.o
  obj-$(CONFIG_ENCRYPTED_KEYS) += encrypted-keys/
-diff --git a/security/keys/encrypted-keys/Makefile b/security/keys/encrypted-keys/Makefile
-index 7a44dce6f..df2b906b7 100644
 --- a/security/keys/encrypted-keys/Makefile
 +++ b/security/keys/encrypted-keys/Makefile
-@@ -7,5 +7,7 @@ obj-$(CONFIG_ENCRYPTED_KEYS) += encrypted-keys.o
+@@ -7,5 +7,7 @@ obj-$(CONFIG_ENCRYPTED_KEYS) += encrypte
  
  encrypted-keys-y := encrypted.o ecryptfs_format.o
  masterkey-$(CONFIG_TRUSTED_KEYS) := masterkey_trusted.o
@@ -144,8 +131,6 @@ index 7a44dce6f..df2b906b7 100644
  masterkey-$(CONFIG_TRUSTED_KEYS)-$(CONFIG_ENCRYPTED_KEYS) := masterkey_trusted.o
 +masterkey-$(CONFIG_SECURE_KEYS)-$(CONFIG_ENCRYPTED_KEYS) := masterkey_secure.o
  encrypted-keys-y += $(masterkey-y) $(masterkey-m-m)
-diff --git a/security/keys/encrypted-keys/encrypted.c b/security/keys/encrypted-keys/encrypted.c
-index d92cbf968..258b38094 100644
 --- a/security/keys/encrypted-keys/encrypted.c
 +++ b/security/keys/encrypted-keys/encrypted.c
 @@ -39,6 +39,7 @@
@@ -164,7 +149,7 @@ index d92cbf968..258b38094 100644
  #define KEY_USER_PREFIX_LEN (sizeof (KEY_USER_PREFIX) - 1)
  #define KEY_ECRYPTFS_DESC_LEN 16
  #define HASH_SIZE SHA256_DIGEST_SIZE
-@@ -125,7 +127,7 @@ static int valid_ecryptfs_desc(const char *ecryptfs_desc)
+@@ -125,7 +127,7 @@ static int valid_ecryptfs_desc(const cha
  /*
   * valid_master_desc - verify the 'key-type:desc' of a new/updated master-key
   *
@@ -173,7 +158,7 @@ index d92cbf968..258b38094 100644
   * desc:= master-key description
   *
   * Verify that 'key-type' is valid and that 'desc' exists. On key update,
-@@ -140,6 +142,8 @@ static int valid_master_desc(const char *new_desc, const char *orig_desc)
+@@ -140,6 +142,8 @@ static int valid_master_desc(const char
  
  	if (!strncmp(new_desc, KEY_TRUSTED_PREFIX, KEY_TRUSTED_PREFIX_LEN))
  		prefix_len = KEY_TRUSTED_PREFIX_LEN;
@@ -182,7 +167,7 @@ index d92cbf968..258b38094 100644
  	else if (!strncmp(new_desc, KEY_USER_PREFIX, KEY_USER_PREFIX_LEN))
  		prefix_len = KEY_USER_PREFIX_LEN;
  	else
-@@ -358,7 +362,7 @@ static int calc_hmac(u8 *digest, const u8 *key, unsigned int keylen,
+@@ -358,7 +362,7 @@ static int calc_hmac(u8 *digest, const u
  
  enum derived_key_type { ENC_KEY, AUTH_KEY };
  
@@ -191,7 +176,7 @@ index d92cbf968..258b38094 100644
  static int get_derived_key(u8 *derived_key, enum derived_key_type key_type,
  			   const u8 *master_key, size_t master_keylen)
  {
-@@ -429,6 +433,11 @@ static struct key *request_master_key(struct encrypted_key_payload *epayload,
+@@ -429,6 +433,11 @@ static struct key *request_master_key(st
  		mkey = request_trusted_key(epayload->master_desc +
  					   KEY_TRUSTED_PREFIX_LEN,
  					   master_key, master_keylen);
@@ -203,11 +188,9 @@ index d92cbf968..258b38094 100644
  	} else if (!strncmp(epayload->master_desc, KEY_USER_PREFIX,
  			    KEY_USER_PREFIX_LEN)) {
  		mkey = request_user_key(epayload->master_desc +
-diff --git a/security/keys/encrypted-keys/encrypted.h b/security/keys/encrypted-keys/encrypted.h
-index 1809995db..f1cb73611 100644
 --- a/security/keys/encrypted-keys/encrypted.h
 +++ b/security/keys/encrypted-keys/encrypted.h
-@@ -16,6 +16,19 @@ static inline struct key *request_trusted_key(const char *trusted_desc,
+@@ -16,6 +16,19 @@ static inline struct key *request_truste
  }
  #endif
  
@@ -227,9 +210,6 @@ index 1809995db..f1cb73611 100644
  #if ENCRYPTED_DEBUG
  static inline void dump_master_key(const u8 *master_key, size_t master_keylen)
  {
-diff --git a/security/keys/encrypted-keys/masterkey_secure.c b/security/keys/encrypted-keys/masterkey_secure.c
-new file mode 100644
-index 000000000..87068c966
 --- /dev/null
 +++ b/security/keys/encrypted-keys/masterkey_secure.c
 @@ -0,0 +1,37 @@
@@ -270,9 +250,6 @@ index 000000000..87068c966
 +error:
 +	return skey;
 +}
-diff --git a/security/keys/secure_key.c b/security/keys/secure_key.c
-new file mode 100644
-index 000000000..ec8ad4394
 --- /dev/null
 +++ b/security/keys/secure_key.c
 @@ -0,0 +1,339 @@
@@ -615,9 +592,6 @@ index 000000000..ec8ad4394
 +module_exit(cleanup_secure_key);
 +
 +MODULE_LICENSE("GPL");
-diff --git a/security/keys/securekey_desc.c b/security/keys/securekey_desc.c
-new file mode 100644
-index 000000000..03a57cb93
 --- /dev/null
 +++ b/security/keys/securekey_desc.c
 @@ -0,0 +1,608 @@
@@ -1229,9 +1203,6 @@ index 000000000..03a57cb93
 +
 +}
 +EXPORT_SYMBOL(key_blob);
-diff --git a/security/keys/securekey_desc.h b/security/keys/securekey_desc.h
-new file mode 100644
-index 000000000..0ee26e95b
 --- /dev/null
 +++ b/security/keys/securekey_desc.h
 @@ -0,0 +1,141 @@
@@ -1376,6 +1347,3 @@ index 000000000..0ee26e95b
 +	       struct device *dev);
 +
 +#endif /*_SECUREKEY_DESC_H_*/
--- 
-2.17.1
-

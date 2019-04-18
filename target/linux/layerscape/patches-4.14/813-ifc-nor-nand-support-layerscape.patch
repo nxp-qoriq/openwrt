@@ -14,8 +14,6 @@ Signed-off-by: Raghav Dogra <raghav.dogra@nxp.com>
  include/linux/fsl_ifc.h            |   7 +
  3 files changed, 274 insertions(+)
 
-diff --git a/drivers/memory/fsl_ifc.c b/drivers/memory/fsl_ifc.c
-index 1b182b117..10d2a5f8b 100644
 --- a/drivers/memory/fsl_ifc.c
 +++ b/drivers/memory/fsl_ifc.c
 @@ -24,6 +24,7 @@
@@ -297,7 +295,7 @@ index 1b182b117..10d2a5f8b 100644
  static const struct of_device_id fsl_ifc_match[] = {
  	{
  		.compatible = "fsl,ifc",
-@@ -318,10 +576,15 @@ static const struct of_device_id fsl_ifc_match[] = {
+@@ -318,10 +576,15 @@ static const struct of_device_id fsl_ifc
  	{},
  };
  
@@ -313,8 +311,6 @@ index 1b182b117..10d2a5f8b 100644
  	},
  	.probe       = fsl_ifc_ctrl_probe,
  	.remove      = fsl_ifc_ctrl_remove,
-diff --git a/drivers/mtd/maps/physmap_of_core.c b/drivers/mtd/maps/physmap_of_core.c
-index 9b066a06a..7e3b3a0e4 100644
 --- a/drivers/mtd/maps/physmap_of_core.c
 +++ b/drivers/mtd/maps/physmap_of_core.c
 @@ -20,6 +20,7 @@
@@ -325,7 +321,7 @@ index 9b066a06a..7e3b3a0e4 100644
  #include <linux/of.h>
  #include <linux/of_address.h>
  #include <linux/of_platform.h>
-@@ -205,6 +206,9 @@ static int of_flash_probe(struct platform_device *dev)
+@@ -205,6 +206,9 @@ static int of_flash_probe(struct platfor
  		info->list[i].map.bankwidth = be32_to_cpup(width);
  		info->list[i].map.device_node = dp;
  
@@ -335,8 +331,6 @@ index 9b066a06a..7e3b3a0e4 100644
  		err = of_flash_probe_gemini(dev, dp, &info->list[i].map);
  		if (err)
  			goto err_out;
-diff --git a/include/linux/fsl_ifc.h b/include/linux/fsl_ifc.h
-index 3fdfede2f..d6aea246b 100644
 --- a/include/linux/fsl_ifc.h
 +++ b/include/linux/fsl_ifc.h
 @@ -274,6 +274,8 @@
@@ -360,6 +354,3 @@ index 3fdfede2f..d6aea246b 100644
  };
  
  extern struct fsl_ifc_ctrl *fsl_ifc_ctrl_dev;
--- 
-2.17.1
-

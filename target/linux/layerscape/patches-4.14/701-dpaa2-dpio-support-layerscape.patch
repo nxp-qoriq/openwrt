@@ -59,23 +59,17 @@ Signed-off-by: Youri Querry <youri.querry_1@nxp.com>
  33 files changed, 1233 insertions(+), 693 deletions(-)
  create mode 100644 drivers/staging/fsl-mc/include/dpopr.h
 
-diff --git a/drivers/staging/fsl-mc/Kconfig b/drivers/staging/fsl-mc/Kconfig
-index 32df07b15..3002229be 100644
 --- a/drivers/staging/fsl-mc/Kconfig
 +++ b/drivers/staging/fsl-mc/Kconfig
 @@ -1 +1,2 @@
 +# SPDX-License-Identifier: GPL-2.0
  source "drivers/staging/fsl-mc/bus/Kconfig"
-diff --git a/drivers/staging/fsl-mc/Makefile b/drivers/staging/fsl-mc/Makefile
-index 9c6a00128..14683889d 100644
 --- a/drivers/staging/fsl-mc/Makefile
 +++ b/drivers/staging/fsl-mc/Makefile
 @@ -1,2 +1,3 @@
 +# SPDX-License-Identifier: GPL-2.0
  # Freescale Management Complex (MC) bus drivers
  obj-$(CONFIG_FSL_MC_BUS)	+= bus/
-diff --git a/drivers/staging/fsl-mc/bus/Kconfig b/drivers/staging/fsl-mc/bus/Kconfig
-index eee1c1b27..e5fb2aaaf 100644
 --- a/drivers/staging/fsl-mc/bus/Kconfig
 +++ b/drivers/staging/fsl-mc/bus/Kconfig
 @@ -1,10 +1,9 @@
@@ -99,8 +93,6 @@ index eee1c1b27..e5fb2aaaf 100644
          help
  	  Driver for the DPAA2 DPIO object.  A DPIO provides queue and
  	  buffer management facilities for software to interact with
-diff --git a/drivers/staging/fsl-mc/bus/Makefile b/drivers/staging/fsl-mc/bus/Makefile
-index 6df407edf..29059db95 100644
 --- a/drivers/staging/fsl-mc/bus/Makefile
 +++ b/drivers/staging/fsl-mc/bus/Makefile
 @@ -1,10 +1,9 @@
@@ -115,8 +107,6 @@ index 6df407edf..29059db95 100644
  obj-$(CONFIG_FSL_MC_BUS) += mc-bus-driver.o
  
  mc-bus-driver-objs := fsl-mc-bus.o \
-diff --git a/drivers/staging/fsl-mc/bus/dpbp-cmd.h b/drivers/staging/fsl-mc/bus/dpbp-cmd.h
-index 5904836fd..0b7f5c041 100644
 --- a/drivers/staging/fsl-mc/bus/dpbp-cmd.h
 +++ b/drivers/staging/fsl-mc/bus/dpbp-cmd.h
 @@ -1,33 +1,7 @@
@@ -154,8 +144,6 @@ index 5904836fd..0b7f5c041 100644
   */
  #ifndef _FSL_DPBP_CMD_H
  #define _FSL_DPBP_CMD_H
-diff --git a/drivers/staging/fsl-mc/bus/dpbp.c b/drivers/staging/fsl-mc/bus/dpbp.c
-index 363730a80..e80b15436 100644
 --- a/drivers/staging/fsl-mc/bus/dpbp.c
 +++ b/drivers/staging/fsl-mc/bus/dpbp.c
 @@ -1,33 +1,7 @@
@@ -193,8 +181,6 @@ index 363730a80..e80b15436 100644
   */
  #include <linux/kernel.h>
  #include "../include/mc.h"
-diff --git a/drivers/staging/fsl-mc/bus/dpcon-cmd.h b/drivers/staging/fsl-mc/bus/dpcon-cmd.h
-index 2bb66988e..b6b2af581 100644
 --- a/drivers/staging/fsl-mc/bus/dpcon-cmd.h
 +++ b/drivers/staging/fsl-mc/bus/dpcon-cmd.h
 @@ -1,33 +1,7 @@
@@ -232,8 +218,6 @@ index 2bb66988e..b6b2af581 100644
   */
  #ifndef _FSL_DPCON_CMD_H
  #define _FSL_DPCON_CMD_H
-diff --git a/drivers/staging/fsl-mc/bus/dpcon.c b/drivers/staging/fsl-mc/bus/dpcon.c
-index ca1da85c6..deae5fa8a 100644
 --- a/drivers/staging/fsl-mc/bus/dpcon.c
 +++ b/drivers/staging/fsl-mc/bus/dpcon.c
 @@ -1,33 +1,7 @@
@@ -273,8 +257,6 @@ index ca1da85c6..deae5fa8a 100644
   */
  #include <linux/kernel.h>
  #include "../include/mc.h"
-diff --git a/drivers/staging/fsl-mc/bus/dpio/Makefile b/drivers/staging/fsl-mc/bus/dpio/Makefile
-index 837d3303e..b9ff24c76 100644
 --- a/drivers/staging/fsl-mc/bus/dpio/Makefile
 +++ b/drivers/staging/fsl-mc/bus/dpio/Makefile
 @@ -1,9 +1,8 @@
@@ -288,8 +270,6 @@ index 837d3303e..b9ff24c76 100644
  obj-$(CONFIG_FSL_MC_DPIO) += fsl-mc-dpio.o
  
  fsl-mc-dpio-objs := dpio.o qbman-portal.o dpio-service.o dpio-driver.o
-diff --git a/drivers/staging/fsl-mc/bus/dpio/dpio-cmd.h b/drivers/staging/fsl-mc/bus/dpio/dpio-cmd.h
-index b2dc6e766..5814d2f39 100644
 --- a/drivers/staging/fsl-mc/bus/dpio/dpio-cmd.h
 +++ b/drivers/staging/fsl-mc/bus/dpio/dpio-cmd.h
 @@ -1,34 +1,8 @@
@@ -336,8 +316,6 @@ index b2dc6e766..5814d2f39 100644
  
  struct dpio_cmd_open {
  	__le32 dpio_id;
-diff --git a/drivers/staging/fsl-mc/bus/dpio/dpio-driver.c b/drivers/staging/fsl-mc/bus/dpio/dpio-driver.c
-index e36da20a2..cfb8607fd 100644
 --- a/drivers/staging/fsl-mc/bus/dpio/dpio-driver.c
 +++ b/drivers/staging/fsl-mc/bus/dpio/dpio-driver.c
 @@ -1,33 +1,8 @@
@@ -393,7 +371,7 @@ index e36da20a2..cfb8607fd 100644
  static irqreturn_t dpio_irq_handler(int irq_num, void *arg)
  {
  	struct device *dev = (struct device *)arg;
-@@ -113,7 +91,7 @@ static int dpaa2_dpio_probe(struct fsl_mc_device *dpio_dev)
+@@ -113,7 +91,7 @@ static int dpaa2_dpio_probe(struct fsl_m
  	struct dpio_priv *priv;
  	int err = -ENOMEM;
  	struct device *dev = &dpio_dev->dev;
@@ -402,7 +380,7 @@ index e36da20a2..cfb8607fd 100644
  
  	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
  	if (!priv)
-@@ -135,6 +113,12 @@ static int dpaa2_dpio_probe(struct fsl_mc_device *dpio_dev)
+@@ -135,6 +113,12 @@ static int dpaa2_dpio_probe(struct fsl_m
  		goto err_open;
  	}
  
@@ -415,7 +393,7 @@ index e36da20a2..cfb8607fd 100644
  	err = dpio_get_attributes(dpio_dev->mc_io, 0, dpio_dev->mc_handle,
  				  &dpio_attrs);
  	if (err) {
-@@ -155,26 +139,35 @@ static int dpaa2_dpio_probe(struct fsl_mc_device *dpio_dev)
+@@ -155,26 +139,35 @@ static int dpaa2_dpio_probe(struct fsl_m
  	desc.dpio_id = dpio_dev->obj_desc.id;
  
  	/* get the cpu to use for the affinity hint */
@@ -434,7 +412,15 @@ index e36da20a2..cfb8607fd 100644
 -	desc.cpu = next_cpu;
 +	desc.cpu = possible_next_cpu;
 +	cpumask_clear_cpu(possible_next_cpu, cpus_unused_mask);
-+
+ 
+-	/*
+-	 * Set the CENA regs to be the cache inhibited area of the portal to
+-	 * avoid coherency issues if a user migrates to another core.
+-	 */
+-	desc.regs_cena = ioremap_wc(dpio_dev->regions[1].start,
+-		resource_size(&dpio_dev->regions[1]));
+-	desc.regs_cinh = ioremap(dpio_dev->regions[1].start,
+-		resource_size(&dpio_dev->regions[1]));
 +	if (dpio_dev->obj_desc.region_count < 3) {
 +		/* No support for DDR backed portals, use classic mapping */
 +		desc.regs_cena = ioremap_cache_ns(dpio_dev->regions[0].start,
@@ -448,15 +434,7 @@ index e36da20a2..cfb8607fd 100644
 +		dev_err(dev, "ioremap_cache_ns failed\n");
 +		goto err_allocate_irqs;
 +	}
- 
--	/*
--	 * Set the CENA regs to be the cache inhibited area of the portal to
--	 * avoid coherency issues if a user migrates to another core.
--	 */
--	desc.regs_cena = ioremap_wc(dpio_dev->regions[1].start,
--		resource_size(&dpio_dev->regions[1]));
--	desc.regs_cinh = ioremap(dpio_dev->regions[1].start,
--		resource_size(&dpio_dev->regions[1]));
++
 +	desc.regs_cinh = devm_ioremap(dev, dpio_dev->regions[1].start,
 +				      resource_size(&dpio_dev->regions[1]));
 +	if (!desc.regs_cinh) {
@@ -466,7 +444,7 @@ index e36da20a2..cfb8607fd 100644
  
  	err = fsl_mc_allocate_irqs(dpio_dev);
  	if (err) {
-@@ -186,7 +179,7 @@ static int dpaa2_dpio_probe(struct fsl_mc_device *dpio_dev)
+@@ -186,7 +179,7 @@ static int dpaa2_dpio_probe(struct fsl_m
  	if (err)
  		goto err_register_dpio_irq;
  
@@ -475,7 +453,7 @@ index e36da20a2..cfb8607fd 100644
  	if (!priv->io) {
  		dev_err(dev, "dpaa2_io_create failed\n");
  		goto err_dpaa2_io_create;
-@@ -196,7 +189,6 @@ static int dpaa2_dpio_probe(struct fsl_mc_device *dpio_dev)
+@@ -196,7 +189,6 @@ static int dpaa2_dpio_probe(struct fsl_m
  	dev_dbg(dev, "   receives_notifications = %d\n",
  		desc.receives_notifications);
  	dpio_close(dpio_dev->mc_io, 0, dpio_dev->mc_handle);
@@ -491,7 +469,7 @@ index e36da20a2..cfb8607fd 100644
  	dpio_close(dpio_dev->mc_io, 0, dpio_dev->mc_handle);
  err_open:
  	fsl_mc_portal_free(dpio_dev->mc_io);
-@@ -227,7 +220,7 @@ static int dpaa2_dpio_remove(struct fsl_mc_device *dpio_dev)
+@@ -227,7 +220,7 @@ static int dpaa2_dpio_remove(struct fsl_
  {
  	struct device *dev;
  	struct dpio_priv *priv;
@@ -500,7 +478,7 @@ index e36da20a2..cfb8607fd 100644
  
  	dev = &dpio_dev->dev;
  	priv = dev_get_drvdata(dev);
-@@ -236,11 +229,8 @@ static int dpaa2_dpio_remove(struct fsl_mc_device *dpio_dev)
+@@ -236,11 +229,8 @@ static int dpaa2_dpio_remove(struct fsl_
  
  	dpio_teardown_irqs(dpio_dev);
  
@@ -514,7 +492,7 @@ index e36da20a2..cfb8607fd 100644
  
  	err = dpio_open(dpio_dev->mc_io, 0, dpio_dev->obj_desc.id,
  			&dpio_dev->mc_handle);
-@@ -261,7 +251,7 @@ static int dpaa2_dpio_remove(struct fsl_mc_device *dpio_dev)
+@@ -261,7 +251,7 @@ static int dpaa2_dpio_remove(struct fsl_
  
  err_open:
  	fsl_mc_portal_free(dpio_dev->mc_io);
@@ -523,7 +501,7 @@ index e36da20a2..cfb8607fd 100644
  	return err;
  }
  
-@@ -285,11 +275,16 @@ static struct fsl_mc_driver dpaa2_dpio_driver = {
+@@ -285,11 +275,16 @@ static struct fsl_mc_driver dpaa2_dpio_d
  
  static int dpio_driver_init(void)
  {
@@ -540,8 +518,6 @@ index e36da20a2..cfb8607fd 100644
  	fsl_mc_driver_unregister(&dpaa2_dpio_driver);
  }
  module_init(dpio_driver_init);
-diff --git a/drivers/staging/fsl-mc/bus/dpio/dpio-service.c b/drivers/staging/fsl-mc/bus/dpio/dpio-service.c
-index a609ec82d..912a60111 100644
 --- a/drivers/staging/fsl-mc/bus/dpio/dpio-service.c
 +++ b/drivers/staging/fsl-mc/bus/dpio/dpio-service.c
 @@ -1,33 +1,8 @@
@@ -595,7 +571,7 @@ index a609ec82d..912a60111 100644
  };
  
  struct dpaa2_io_store {
-@@ -83,7 +58,7 @@ static inline struct dpaa2_io *service_select_by_cpu(struct dpaa2_io *d,
+@@ -83,7 +58,7 @@ static inline struct dpaa2_io *service_s
  	 * If cpu == -1, choose the current cpu, with no guarantees about
  	 * potentially being migrated away.
  	 */
@@ -604,7 +580,7 @@ index a609ec82d..912a60111 100644
  		cpu = smp_processor_id();
  
  	/* If a specific cpu was requested, pick it up immediately */
-@@ -95,6 +70,10 @@ static inline struct dpaa2_io *service_select(struct dpaa2_io *d)
+@@ -95,6 +70,10 @@ static inline struct dpaa2_io *service_s
  	if (d)
  		return d;
  
@@ -615,11 +591,10 @@ index a609ec82d..912a60111 100644
  	spin_lock(&dpio_list_lock);
  	d = list_entry(dpio_list.next, struct dpaa2_io, node);
  	list_del(&d->node);
-@@ -104,16 +83,35 @@ static inline struct dpaa2_io *service_select(struct dpaa2_io *d)
- 	return d;
+@@ -105,15 +84,34 @@ static inline struct dpaa2_io *service_s
  }
  
-+/**
+ /**
 + * dpaa2_io_service_select() - return a dpaa2_io service affined to this cpu
 + * @cpu: the cpu id
 + *
@@ -636,7 +611,7 @@ index a609ec82d..912a60111 100644
 +}
 +EXPORT_SYMBOL_GPL(dpaa2_io_service_select);
 +
- /**
++/**
   * dpaa2_io_create() - create a dpaa2_io object.
   * @desc: the dpaa2_io descriptor
 + * @dev: the actual DPIO device
@@ -652,7 +627,7 @@ index a609ec82d..912a60111 100644
  {
  	struct dpaa2_io *obj = kmalloc(sizeof(*obj), GFP_KERNEL);
  
-@@ -126,7 +124,6 @@ struct dpaa2_io *dpaa2_io_create(const struct dpaa2_io_desc *desc)
+@@ -126,7 +124,6 @@ struct dpaa2_io *dpaa2_io_create(const s
  		return NULL;
  	}
  
@@ -660,7 +635,7 @@ index a609ec82d..912a60111 100644
  	obj->dpio_desc = *desc;
  	obj->swp_desc.cena_bar = obj->dpio_desc.regs_cena;
  	obj->swp_desc.cinh_bar = obj->dpio_desc.regs_cinh;
-@@ -156,9 +153,10 @@ struct dpaa2_io *dpaa2_io_create(const struct dpaa2_io_desc *desc)
+@@ -156,9 +153,10 @@ struct dpaa2_io *dpaa2_io_create(const s
  		dpio_by_cpu[desc->cpu] = obj;
  	spin_unlock(&dpio_list_lock);
  
@@ -684,7 +659,7 @@ index a609ec82d..912a60111 100644
  
  #define DPAA_POLL_MAX 32
  
-@@ -206,7 +201,7 @@ irqreturn_t dpaa2_io_irq(struct dpaa2_io *obj)
+@@ -206,7 +201,7 @@ irqreturn_t dpaa2_io_irq(struct dpaa2_io
  			u64 q64;
  
  			q64 = qbman_result_SCN_ctx(dq);
@@ -724,7 +699,7 @@ index a609ec82d..912a60111 100644
  {
  	unsigned long irqflags;
  
-@@ -251,8 +253,10 @@ int dpaa2_io_service_register(struct dpaa2_io *d,
+@@ -251,8 +253,10 @@ int dpaa2_io_service_register(struct dpa
  	if (!d)
  		return -ENODEV;
  
@@ -736,7 +711,7 @@ index a609ec82d..912a60111 100644
  	ctx->dpio_private = d;
  	spin_lock_irqsave(&d->lock_notifications, irqflags);
  	list_add(&ctx->node, &d->notifications);
-@@ -263,20 +267,23 @@ int dpaa2_io_service_register(struct dpaa2_io *d,
+@@ -263,20 +267,23 @@ int dpaa2_io_service_register(struct dpa
  		return qbman_swp_CDAN_set_context_enable(d->swp,
  							 (u16)ctx->id,
  							 ctx->qman64);
@@ -762,7 +737,7 @@ index a609ec82d..912a60111 100644
  {
  	struct dpaa2_io *d = ctx->dpio_private;
  	unsigned long irqflags;
-@@ -287,8 +294,10 @@ void dpaa2_io_service_deregister(struct dpaa2_io *service,
+@@ -287,8 +294,10 @@ void dpaa2_io_service_deregister(struct
  	spin_lock_irqsave(&d->lock_notifications, irqflags);
  	list_del(&ctx->node);
  	spin_unlock_irqrestore(&d->lock_notifications, irqflags);
@@ -774,7 +749,7 @@ index a609ec82d..912a60111 100644
  
  /**
   * dpaa2_io_service_rearm() - Rearm the notification for the given DPIO service.
-@@ -322,7 +331,7 @@ int dpaa2_io_service_rearm(struct dpaa2_io *d,
+@@ -322,7 +331,7 @@ int dpaa2_io_service_rearm(struct dpaa2_
  
  	return err;
  }
@@ -783,7 +758,7 @@ index a609ec82d..912a60111 100644
  
  /**
   * dpaa2_io_service_pull_fq() - pull dequeue functions from a fq.
-@@ -385,7 +394,7 @@ int dpaa2_io_service_pull_channel(struct dpaa2_io *d, u32 channelid,
+@@ -385,7 +394,7 @@ int dpaa2_io_service_pull_channel(struct
  
  	return err;
  }
@@ -792,7 +767,7 @@ index a609ec82d..912a60111 100644
  
  /**
   * dpaa2_io_service_enqueue_fq() - Enqueue a frame to a frame queue.
-@@ -441,7 +450,7 @@ int dpaa2_io_service_enqueue_qd(struct dpaa2_io *d,
+@@ -441,7 +450,7 @@ int dpaa2_io_service_enqueue_qd(struct d
  
  	return qbman_swp_enqueue(d->swp, &ed, fd);
  }
@@ -801,7 +776,7 @@ index a609ec82d..912a60111 100644
  
  /**
   * dpaa2_io_service_release() - Release buffers to a buffer pool.
-@@ -453,7 +462,7 @@ EXPORT_SYMBOL(dpaa2_io_service_enqueue_qd);
+@@ -453,7 +462,7 @@ EXPORT_SYMBOL(dpaa2_io_service_enqueue_q
   * Return 0 for success, and negative error code for failure.
   */
  int dpaa2_io_service_release(struct dpaa2_io *d,
@@ -810,7 +785,7 @@ index a609ec82d..912a60111 100644
  			     const u64 *buffers,
  			     unsigned int num_buffers)
  {
-@@ -468,7 +477,7 @@ int dpaa2_io_service_release(struct dpaa2_io *d,
+@@ -468,7 +477,7 @@ int dpaa2_io_service_release(struct dpaa
  
  	return qbman_swp_release(d->swp, &rd, buffers, num_buffers);
  }
@@ -828,7 +803,7 @@ index a609ec82d..912a60111 100644
  			     u64 *buffers,
  			     unsigned int num_buffers)
  {
-@@ -499,7 +508,7 @@ int dpaa2_io_service_acquire(struct dpaa2_io *d,
+@@ -499,7 +508,7 @@ int dpaa2_io_service_acquire(struct dpaa
  
  	return err;
  }
@@ -837,7 +812,7 @@ index a609ec82d..912a60111 100644
  
  /*
   * 'Stores' are reusable memory blocks for holding dequeue results, and to
-@@ -553,7 +562,7 @@ struct dpaa2_io_store *dpaa2_io_store_create(unsigned int max_frames,
+@@ -553,7 +562,7 @@ struct dpaa2_io_store *dpaa2_io_store_cr
  
  	return ret;
  }
@@ -846,7 +821,7 @@ index a609ec82d..912a60111 100644
  
  /**
   * dpaa2_io_store_destroy() - Frees the dma memory storage for dequeue
-@@ -567,7 +576,7 @@ void dpaa2_io_store_destroy(struct dpaa2_io_store *s)
+@@ -567,7 +576,7 @@ void dpaa2_io_store_destroy(struct dpaa2
  	kfree(s->alloced_addr);
  	kfree(s);
  }
@@ -855,7 +830,7 @@ index a609ec82d..912a60111 100644
  
  /**
   * dpaa2_io_store_next() - Determine when the next dequeue result is available.
-@@ -610,9 +619,193 @@ struct dpaa2_dq *dpaa2_io_store_next(struct dpaa2_io_store *s, int *is_last)
+@@ -610,9 +619,193 @@ struct dpaa2_dq *dpaa2_io_store_next(str
  		if (!(dpaa2_dq_flags(ret) & DPAA2_DQ_STAT_VALIDFRAME))
  			ret = NULL;
  	} else {
@@ -1050,8 +1025,6 @@ index a609ec82d..912a60111 100644
 +	return qbman_swp_enqueue(d->swp, &ed, &fd);
 +}
 +EXPORT_SYMBOL_GPL(dpaa2_io_service_orp_seqnum_drop);
-diff --git a/drivers/staging/fsl-mc/bus/dpio/dpio.c b/drivers/staging/fsl-mc/bus/dpio/dpio.c
-index 00eb22186..729bdef27 100644
 --- a/drivers/staging/fsl-mc/bus/dpio/dpio.c
 +++ b/drivers/staging/fsl-mc/bus/dpio/dpio.c
 @@ -1,34 +1,8 @@
@@ -1090,7 +1063,7 @@ index 00eb22186..729bdef27 100644
   */
  #include <linux/kernel.h>
  #include "../../include/mc.h"
-@@ -222,3 +196,26 @@ int dpio_get_api_version(struct fsl_mc_io *mc_io,
+@@ -222,3 +196,26 @@ int dpio_get_api_version(struct fsl_mc_i
  
  	return 0;
  }
@@ -1117,8 +1090,6 @@ index 00eb22186..729bdef27 100644
 +	/* send command to mc*/
 +	return mc_send_command(mc_io, &cmd);
 +}
-diff --git a/drivers/staging/fsl-mc/bus/dpio/dpio.h b/drivers/staging/fsl-mc/bus/dpio/dpio.h
-index ced1103d1..b2ac4ba4f 100644
 --- a/drivers/staging/fsl-mc/bus/dpio/dpio.h
 +++ b/drivers/staging/fsl-mc/bus/dpio/dpio.h
 @@ -1,34 +1,8 @@
@@ -1157,7 +1128,7 @@ index ced1103d1..b2ac4ba4f 100644
   */
  #ifndef __FSL_DPIO_H
  #define __FSL_DPIO_H
-@@ -106,4 +80,8 @@ int dpio_get_api_version(struct fsl_mc_io *mc_io,
+@@ -106,4 +80,8 @@ int dpio_get_api_version(struct fsl_mc_i
  			 u16 *major_ver,
  			 u16 *minor_ver);
  
@@ -1166,8 +1137,6 @@ index ced1103d1..b2ac4ba4f 100644
 +	       u16 token);
 +
  #endif /* __FSL_DPIO_H */
-diff --git a/drivers/staging/fsl-mc/bus/dpio/qbman-portal.c b/drivers/staging/fsl-mc/bus/dpio/qbman-portal.c
-index 163bdac6b..cd61f4a95 100644
 --- a/drivers/staging/fsl-mc/bus/dpio/qbman-portal.c
 +++ b/drivers/staging/fsl-mc/bus/dpio/qbman-portal.c
 @@ -1,33 +1,8 @@
@@ -1266,7 +1235,7 @@ index 163bdac6b..cd61f4a95 100644
  /* Portal Access */
  
  static inline u32 qbman_read_register(struct qbman_swp *p, u32 offset)
-@@ -121,10 +114,13 @@ static inline void *qbman_get_cmd(struct qbman_swp *p, u32 offset)
+@@ -121,10 +114,13 @@ static inline void *qbman_get_cmd(struct
  
  #define SWP_CFG_DQRR_MF_SHIFT 20
  #define SWP_CFG_EST_SHIFT     16
@@ -1280,7 +1249,7 @@ index 163bdac6b..cd61f4a95 100644
  #define SWP_CFG_SD_SHIFT      5
  #define SWP_CFG_SP_SHIFT      4
  #define SWP_CFG_SE_SHIFT      3
-@@ -150,6 +146,8 @@ static inline u32 qbman_set_swp_cfg(u8 max_fill, u8 wn,	u8 est, u8 rpm, u8 dcm,
+@@ -150,6 +146,8 @@ static inline u32 qbman_set_swp_cfg(u8 m
  		ep << SWP_CFG_EP_SHIFT);
  }
  
@@ -1289,7 +1258,7 @@ index 163bdac6b..cd61f4a95 100644
  /**
   * qbman_swp_init() - Create a functional object representing the given
   *                    QBMan portal descriptor.
-@@ -171,6 +169,8 @@ struct qbman_swp *qbman_swp_init(const struct qbman_swp_desc *d)
+@@ -171,6 +169,8 @@ struct qbman_swp *qbman_swp_init(const s
  	p->sdq |= qbman_sdqcr_dct_prio_ics << QB_SDQCR_DCT_SHIFT;
  	p->sdq |= qbman_sdqcr_fc_up_to_3 << QB_SDQCR_FC_SHIFT;
  	p->sdq |= QMAN_SDQCR_TOKEN << QB_SDQCR_TOK_SHIFT;
@@ -1298,7 +1267,7 @@ index 163bdac6b..cd61f4a95 100644
  
  	atomic_set(&p->vdq.available, 1);
  	p->vdq.valid_bit = QB_VALID_BIT;
-@@ -188,8 +188,11 @@ struct qbman_swp *qbman_swp_init(const struct qbman_swp_desc *d)
+@@ -188,8 +188,11 @@ struct qbman_swp *qbman_swp_init(const s
  	p->addr_cena = d->cena_bar;
  	p->addr_cinh = d->cinh_bar;
  
@@ -1311,7 +1280,7 @@ index 163bdac6b..cd61f4a95 100644
  				0, /* EQCR_CI stashing threshold */
  				3, /* RPM: Valid bit mode, RCR in array mode */
  				2, /* DCM: Discrete consumption ack mode */
-@@ -200,6 +203,10 @@ struct qbman_swp *qbman_swp_init(const struct qbman_swp_desc *d)
+@@ -200,6 +203,10 @@ struct qbman_swp *qbman_swp_init(const s
  				1, /* dequeue stashing priority == TRUE */
  				0, /* dequeue stashing enable == FALSE */
  				0); /* EQCR_CI stashing priority == FALSE */
@@ -1322,7 +1291,7 @@ index 163bdac6b..cd61f4a95 100644
  
  	qbman_write_register(p, QBMAN_CINH_SWP_CFG, reg);
  	reg = qbman_read_register(p, QBMAN_CINH_SWP_CFG);
-@@ -208,6 +215,10 @@ struct qbman_swp *qbman_swp_init(const struct qbman_swp_desc *d)
+@@ -208,6 +215,10 @@ struct qbman_swp *qbman_swp_init(const s
  		return NULL;
  	}
  
@@ -1333,7 +1302,7 @@ index 163bdac6b..cd61f4a95 100644
  	/*
  	 * SDQCR needs to be initialized to 0 when no channels are
  	 * being dequeued from or else the QMan HW will indicate an
-@@ -302,7 +313,10 @@ void qbman_swp_interrupt_set_inhibit(struct qbman_swp *p, int inhibit)
+@@ -302,7 +313,10 @@ void qbman_swp_interrupt_set_inhibit(str
   */
  void *qbman_swp_mc_start(struct qbman_swp *p)
  {
@@ -1345,7 +1314,7 @@ index 163bdac6b..cd61f4a95 100644
  }
  
  /*
-@@ -313,8 +327,15 @@ void qbman_swp_mc_submit(struct qbman_swp *p, void *cmd, u8 cmd_verb)
+@@ -313,8 +327,15 @@ void qbman_swp_mc_submit(struct qbman_sw
  {
  	u8 *v = cmd;
  
@@ -1363,7 +1332,7 @@ index 163bdac6b..cd61f4a95 100644
  }
  
  /*
-@@ -325,13 +346,28 @@ void *qbman_swp_mc_result(struct qbman_swp *p)
+@@ -325,13 +346,28 @@ void *qbman_swp_mc_result(struct qbman_s
  {
  	u32 *ret, verb;
  
@@ -1398,7 +1367,7 @@ index 163bdac6b..cd61f4a95 100644
  	return ret;
  }
  
-@@ -370,6 +406,43 @@ void qbman_eq_desc_set_no_orp(struct qbman_eq_desc *d, int respond_success)
+@@ -370,6 +406,43 @@ void qbman_eq_desc_set_no_orp(struct qbm
  		d->verb |= enqueue_rejects_to_fq;
  }
  
@@ -1442,7 +1411,7 @@ index 163bdac6b..cd61f4a95 100644
  /*
   * Exactly one of the following descriptor "targets" should be set. (Calling any
   * one of these will replace the effect of any prior call to one of these.)
-@@ -408,6 +481,18 @@ void qbman_eq_desc_set_qd(struct qbman_eq_desc *d, u32 qdid,
+@@ -408,6 +481,18 @@ void qbman_eq_desc_set_qd(struct qbman_e
  #define EQAR_VB(eqar)      ((eqar) & 0x80)
  #define EQAR_SUCCESS(eqar) ((eqar) & 0x100)
  
@@ -1461,7 +1430,7 @@ index 163bdac6b..cd61f4a95 100644
  /**
   * qbman_swp_enqueue() - Issue an enqueue command
   * @s:  the software portal used for enqueue
-@@ -429,12 +514,29 @@ int qbman_swp_enqueue(struct qbman_swp *s, const struct qbman_eq_desc *d,
+@@ -429,12 +514,29 @@ int qbman_swp_enqueue(struct qbman_swp *
  		return -EBUSY;
  
  	p = qbman_get_cmd(s, QBMAN_CENA_SWP_EQCR(EQAR_IDX(eqar)));
@@ -1495,7 +1464,7 @@ index 163bdac6b..cd61f4a95 100644
  
  	return 0;
  }
-@@ -522,7 +624,7 @@ void qbman_pull_desc_set_storage(struct qbman_pull_desc *d,
+@@ -522,7 +624,7 @@ void qbman_pull_desc_set_storage(struct
  				 int stash)
  {
  	/* save the virtual address */
@@ -1504,7 +1473,7 @@ index 163bdac6b..cd61f4a95 100644
  
  	if (!storage) {
  		d->verb &= ~(1 << QB_VDQCR_VERB_RLS_SHIFT);
-@@ -615,18 +717,28 @@ int qbman_swp_pull(struct qbman_swp *s, struct qbman_pull_desc *d)
+@@ -615,18 +717,28 @@ int qbman_swp_pull(struct qbman_swp *s,
  		atomic_inc(&s->vdq.available);
  		return -EBUSY;
  	}
@@ -1540,7 +1509,7 @@ index 163bdac6b..cd61f4a95 100644
  
  	return 0;
  }
-@@ -680,11 +792,13 @@ const struct dpaa2_dq *qbman_swp_dqrr_next(struct qbman_swp *s)
+@@ -680,11 +792,13 @@ const struct dpaa2_dq *qbman_swp_dqrr_ne
  				 s->dqrr.next_idx, pi);
  			s->dqrr.reset_bug = 0;
  		}
@@ -1557,7 +1526,7 @@ index 163bdac6b..cd61f4a95 100644
  	verb = p->dq.verb;
  
  	/*
-@@ -696,8 +810,7 @@ const struct dpaa2_dq *qbman_swp_dqrr_next(struct qbman_swp *s)
+@@ -696,8 +810,7 @@ const struct dpaa2_dq *qbman_swp_dqrr_ne
  	 * knew from reading PI.
  	 */
  	if ((verb & QB_VALID_BIT) != s->dqrr.valid_bit) {
@@ -1567,7 +1536,7 @@ index 163bdac6b..cd61f4a95 100644
  		return NULL;
  	}
  	/*
-@@ -720,7 +833,7 @@ const struct dpaa2_dq *qbman_swp_dqrr_next(struct qbman_swp *s)
+@@ -720,7 +833,7 @@ const struct dpaa2_dq *qbman_swp_dqrr_ne
  	    (flags & DPAA2_DQ_STAT_EXPIRED))
  		atomic_inc(&s->vdq.available);
  
@@ -1576,7 +1545,7 @@ index 163bdac6b..cd61f4a95 100644
  
  	return p;
  }
-@@ -836,18 +949,29 @@ int qbman_swp_release(struct qbman_swp *s, const struct qbman_release_desc *d,
+@@ -836,18 +949,29 @@ int qbman_swp_release(struct qbman_swp *
  		return -EBUSY;
  
  	/* Start the release command */
@@ -1613,7 +1582,7 @@ index 163bdac6b..cd61f4a95 100644
  
  	return 0;
  }
-@@ -855,7 +979,7 @@ int qbman_swp_release(struct qbman_swp *s, const struct qbman_release_desc *d,
+@@ -855,7 +979,7 @@ int qbman_swp_release(struct qbman_swp *
  struct qbman_acquire_desc {
  	u8 verb;
  	u8 reserved;
@@ -1635,7 +1604,7 @@ index 163bdac6b..cd61f4a95 100644
  };
  
  /**
-@@ -929,7 +1053,7 @@ int qbman_swp_acquire(struct qbman_swp *s, u16 bpid, u64 *buffers,
+@@ -929,7 +1053,7 @@ int qbman_swp_acquire(struct qbman_swp *
  struct qbman_alt_fq_state_desc {
  	u8 verb;
  	u8 reserved[3];
@@ -1644,7 +1613,7 @@ index 163bdac6b..cd61f4a95 100644
  	u8 reserved2[56];
  };
  
-@@ -952,7 +1076,7 @@ int qbman_swp_alt_fq_state(struct qbman_swp *s, u32 fqid,
+@@ -952,7 +1076,7 @@ int qbman_swp_alt_fq_state(struct qbman_
  	if (!p)
  		return -EBUSY;
  
@@ -1653,7 +1622,7 @@ index 163bdac6b..cd61f4a95 100644
  
  	/* Complete the management command */
  	r = qbman_swp_mc_complete(s, p, alt_fq_verb);
-@@ -978,11 +1102,11 @@ int qbman_swp_alt_fq_state(struct qbman_swp *s, u32 fqid,
+@@ -978,11 +1102,11 @@ int qbman_swp_alt_fq_state(struct qbman_
  struct qbman_cdan_ctrl_desc {
  	u8 verb;
  	u8 reserved;
@@ -1677,10 +1646,12 @@ index 163bdac6b..cd61f4a95 100644
  	u8 reserved[60];
  };
  
-@@ -1033,3 +1157,150 @@ int qbman_swp_CDAN_set(struct qbman_swp *s, u16 channelid,
+@@ -1031,5 +1155,152 @@ int qbman_swp_CDAN_set(struct qbman_swp
+ 		return -EIO;
+ 	}
  
- 	return 0;
- }
++	return 0;
++}
 +
 +#define QBMAN_RESPONSE_VERB_MASK	0x7f
 +#define QBMAN_FQ_QUERY_NP		0x45
@@ -1826,10 +1797,8 @@ index 163bdac6b..cd61f4a95 100644
 +		return -EIO;
 +	}
 +
-+	return 0;
-+}
-diff --git a/drivers/staging/fsl-mc/bus/dpio/qbman-portal.h b/drivers/staging/fsl-mc/bus/dpio/qbman-portal.h
-index 842855971..88e7d6fda 100644
+ 	return 0;
+ }
 --- a/drivers/staging/fsl-mc/bus/dpio/qbman-portal.h
 +++ b/drivers/staging/fsl-mc/bus/dpio/qbman-portal.h
 @@ -1,46 +1,28 @@
@@ -1959,7 +1928,7 @@ index 842855971..88e7d6fda 100644
  	/* Push dequeues */
  	u32 sdq;
  
-@@ -187,6 +174,9 @@ int qbman_result_has_new_result(struct qbman_swp *p, const struct dpaa2_dq *dq);
+@@ -187,6 +174,9 @@ int qbman_result_has_new_result(struct q
  
  void qbman_eq_desc_clear(struct qbman_eq_desc *d);
  void qbman_eq_desc_set_no_orp(struct qbman_eq_desc *d, int respond_success);
@@ -1969,7 +1938,7 @@ index 842855971..88e7d6fda 100644
  void qbman_eq_desc_set_token(struct qbman_eq_desc *d, u8 token);
  void qbman_eq_desc_set_fq(struct qbman_eq_desc *d, u32 fqid);
  void qbman_eq_desc_set_qd(struct qbman_eq_desc *d, u32 qdid,
-@@ -195,6 +185,8 @@ void qbman_eq_desc_set_qd(struct qbman_eq_desc *d, u32 qdid,
+@@ -195,6 +185,8 @@ void qbman_eq_desc_set_qd(struct qbman_e
  int qbman_swp_enqueue(struct qbman_swp *p, const struct qbman_eq_desc *d,
  		      const struct dpaa2_fd *fd);
  
@@ -1978,7 +1947,7 @@ index 842855971..88e7d6fda 100644
  void qbman_release_desc_clear(struct qbman_release_desc *d);
  void qbman_release_desc_set_bpid(struct qbman_release_desc *d, u16 bpid);
  void qbman_release_desc_set_rcdi(struct qbman_release_desc *d, int enable);
-@@ -453,7 +445,7 @@ static inline int qbman_swp_CDAN_set_context_enable(struct qbman_swp *s,
+@@ -453,7 +445,7 @@ static inline int qbman_swp_CDAN_set_con
  static inline void *qbman_swp_mc_complete(struct qbman_swp *swp, void *cmd,
  					  u8 cmd_verb)
  {
@@ -1987,7 +1956,7 @@ index 842855971..88e7d6fda 100644
  
  	qbman_swp_mc_submit(swp, cmd, cmd_verb);
  
-@@ -466,4 +458,62 @@ static inline void *qbman_swp_mc_complete(struct qbman_swp *swp, void *cmd,
+@@ -466,4 +458,62 @@ static inline void *qbman_swp_mc_complet
  	return cmd;
  }
  
@@ -2050,8 +2019,6 @@ index 842855971..88e7d6fda 100644
 +u32 qbman_bp_info_num_free_bufs(struct qbman_bp_query_rslt *a);
 +
  #endif /* __FSL_QBMAN_PORTAL_H */
-diff --git a/drivers/staging/fsl-mc/bus/dpmcp.c b/drivers/staging/fsl-mc/bus/dpmcp.c
-index eea42f61a..73c3ddcca 100644
 --- a/drivers/staging/fsl-mc/bus/dpmcp.c
 +++ b/drivers/staging/fsl-mc/bus/dpmcp.c
 @@ -1,33 +1,7 @@
@@ -2089,8 +2056,6 @@ index eea42f61a..73c3ddcca 100644
   */
  #include <linux/kernel.h>
  #include "../include/mc.h"
-diff --git a/drivers/staging/fsl-mc/bus/dprc-driver.c b/drivers/staging/fsl-mc/bus/dprc-driver.c
-index 06df528f4..6fa9f0a99 100644
 --- a/drivers/staging/fsl-mc/bus/dprc-driver.c
 +++ b/drivers/staging/fsl-mc/bus/dprc-driver.c
 @@ -1,12 +1,10 @@
@@ -2107,8 +2072,6 @@ index 06df528f4..6fa9f0a99 100644
   */
  
  #include <linux/module.h>
-diff --git a/drivers/staging/fsl-mc/bus/dprc.c b/drivers/staging/fsl-mc/bus/dprc.c
-index 6f6c65a42..66ef40b16 100644
 --- a/drivers/staging/fsl-mc/bus/dprc.c
 +++ b/drivers/staging/fsl-mc/bus/dprc.c
 @@ -1,33 +1,7 @@
@@ -2146,8 +2109,6 @@ index 6f6c65a42..66ef40b16 100644
   */
  #include <linux/kernel.h>
  #include "../include/mc.h"
-diff --git a/drivers/staging/fsl-mc/bus/fsl-mc-allocator.c b/drivers/staging/fsl-mc/bus/fsl-mc-allocator.c
-index 8ea392040..75cdd5568 100644
 --- a/drivers/staging/fsl-mc/bus/fsl-mc-allocator.c
 +++ b/drivers/staging/fsl-mc/bus/fsl-mc-allocator.c
 @@ -1,11 +1,9 @@
@@ -2163,8 +2124,6 @@ index 8ea392040..75cdd5568 100644
   */
  
  #include <linux/module.h>
-diff --git a/drivers/staging/fsl-mc/bus/fsl-mc-bus.c b/drivers/staging/fsl-mc/bus/fsl-mc-bus.c
-index 409f2b9e7..1fcbf8017 100644
 --- a/drivers/staging/fsl-mc/bus/fsl-mc-bus.c
 +++ b/drivers/staging/fsl-mc/bus/fsl-mc-bus.c
 @@ -1,12 +1,10 @@
@@ -2181,8 +2140,6 @@ index 409f2b9e7..1fcbf8017 100644
   */
  
  #define pr_fmt(fmt) "fsl-mc: " fmt
-diff --git a/drivers/staging/fsl-mc/bus/fsl-mc-msi.c b/drivers/staging/fsl-mc/bus/fsl-mc-msi.c
-index 038da4d1e..e7f528131 100644
 --- a/drivers/staging/fsl-mc/bus/fsl-mc-msi.c
 +++ b/drivers/staging/fsl-mc/bus/fsl-mc-msi.c
 @@ -1,12 +1,10 @@
@@ -2199,8 +2156,6 @@ index 038da4d1e..e7f528131 100644
   */
  
  #include <linux/of_device.h>
-diff --git a/drivers/staging/fsl-mc/bus/fsl-mc-private.h b/drivers/staging/fsl-mc/bus/fsl-mc-private.h
-index 62d398947..c336fec85 100644
 --- a/drivers/staging/fsl-mc/bus/fsl-mc-private.h
 +++ b/drivers/staging/fsl-mc/bus/fsl-mc-private.h
 @@ -1,11 +1,9 @@
@@ -2216,8 +2171,6 @@ index 62d398947..c336fec85 100644
   */
  #ifndef _FSL_MC_PRIVATE_H_
  #define _FSL_MC_PRIVATE_H_
-diff --git a/drivers/staging/fsl-mc/bus/irq-gic-v3-its-fsl-mc-msi.c b/drivers/staging/fsl-mc/bus/irq-gic-v3-its-fsl-mc-msi.c
-index 50260cb50..4825f5b52 100644
 --- a/drivers/staging/fsl-mc/bus/irq-gic-v3-its-fsl-mc-msi.c
 +++ b/drivers/staging/fsl-mc/bus/irq-gic-v3-its-fsl-mc-msi.c
 @@ -1,12 +1,10 @@
@@ -2234,8 +2187,6 @@ index 50260cb50..4825f5b52 100644
   */
  
  #include <linux/of_device.h>
-diff --git a/drivers/staging/fsl-mc/bus/mc-io.c b/drivers/staging/fsl-mc/bus/mc-io.c
-index f65c23ce8..0a26a9354 100644
 --- a/drivers/staging/fsl-mc/bus/mc-io.c
 +++ b/drivers/staging/fsl-mc/bus/mc-io.c
 @@ -1,33 +1,7 @@
@@ -2273,8 +2224,6 @@ index f65c23ce8..0a26a9354 100644
   */
  
  #include <linux/io.h>
-diff --git a/drivers/staging/fsl-mc/bus/mc-sys.c b/drivers/staging/fsl-mc/bus/mc-sys.c
-index 7ce105bd3..c370c62c8 100644
 --- a/drivers/staging/fsl-mc/bus/mc-sys.c
 +++ b/drivers/staging/fsl-mc/bus/mc-sys.c
 @@ -1,35 +1,9 @@
@@ -2314,8 +2263,6 @@ index 7ce105bd3..c370c62c8 100644
   */
  
  #include <linux/delay.h>
-diff --git a/drivers/staging/fsl-mc/include/dpaa2-fd.h b/drivers/staging/fsl-mc/include/dpaa2-fd.h
-index cf7857f00..457c38533 100644
 --- a/drivers/staging/fsl-mc/include/dpaa2-fd.h
 +++ b/drivers/staging/fsl-mc/include/dpaa2-fd.h
 @@ -1,33 +1,8 @@
@@ -2390,7 +2337,7 @@ index cf7857f00..457c38533 100644
  }
  
  /**
-@@ -443,9 +439,243 @@ static inline bool dpaa2_sg_is_final(const struct dpaa2_sg_entry *sg)
+@@ -443,9 +439,243 @@ static inline bool dpaa2_sg_is_final(con
   */
  static inline void dpaa2_sg_set_final(struct dpaa2_sg_entry *sg, bool final)
  {
@@ -2636,8 +2583,6 @@ index cf7857f00..457c38533 100644
 +}
 +
  #endif /* __FSL_DPAA2_FD_H */
-diff --git a/drivers/staging/fsl-mc/include/dpaa2-global.h b/drivers/staging/fsl-mc/include/dpaa2-global.h
-index 0326447fd..9bc071334 100644
 --- a/drivers/staging/fsl-mc/include/dpaa2-global.h
 +++ b/drivers/staging/fsl-mc/include/dpaa2-global.h
 @@ -1,33 +1,8 @@
@@ -2675,8 +2620,6 @@ index 0326447fd..9bc071334 100644
   */
  #ifndef __FSL_DPAA2_GLOBAL_H
  #define __FSL_DPAA2_GLOBAL_H
-diff --git a/drivers/staging/fsl-mc/include/dpaa2-io.h b/drivers/staging/fsl-mc/include/dpaa2-io.h
-index afc2d060d..f897a11ed 100644
 --- a/drivers/staging/fsl-mc/include/dpaa2-io.h
 +++ b/drivers/staging/fsl-mc/include/dpaa2-io.h
 @@ -1,33 +1,8 @@
@@ -2738,7 +2681,7 @@ index afc2d060d..f897a11ed 100644
  /**
   * struct dpaa2_io_notification_ctx - The DPIO notification context structure
   * @cb:           The callback to be invoked when the notification arrives
-@@ -103,7 +81,7 @@ irqreturn_t dpaa2_io_irq(struct dpaa2_io *obj);
+@@ -103,7 +81,7 @@ irqreturn_t dpaa2_io_irq(struct dpaa2_io
   * Used when a FQDAN/CDAN registration is made by drivers.
   */
  struct dpaa2_io_notification_ctx {
@@ -2764,7 +2707,7 @@ index afc2d060d..f897a11ed 100644
  int dpaa2_io_service_rearm(struct dpaa2_io *service,
  			   struct dpaa2_io_notification_ctx *ctx);
  
-@@ -129,9 +111,9 @@ int dpaa2_io_service_enqueue_fq(struct dpaa2_io *d, u32 fqid,
+@@ -129,9 +111,9 @@ int dpaa2_io_service_enqueue_fq(struct d
  				const struct dpaa2_fd *fd);
  int dpaa2_io_service_enqueue_qd(struct dpaa2_io *d, u32 qdid, u8 prio,
  				u16 qdbin, const struct dpaa2_fd *fd);
@@ -2776,7 +2719,7 @@ index afc2d060d..f897a11ed 100644
  			     u64 *buffers, unsigned int num_buffers);
  
  struct dpaa2_io_store *dpaa2_io_store_create(unsigned int max_frames,
-@@ -139,4 +121,64 @@ struct dpaa2_io_store *dpaa2_io_store_create(unsigned int max_frames,
+@@ -139,4 +121,64 @@ struct dpaa2_io_store *dpaa2_io_store_cr
  void dpaa2_io_store_destroy(struct dpaa2_io_store *s);
  struct dpaa2_dq *dpaa2_io_store_next(struct dpaa2_io_store *s, int *is_last);
  
@@ -2841,8 +2784,6 @@ index afc2d060d..f897a11ed 100644
 +			    u32 *num);
 +
  #endif /* __FSL_DPAA2_IO_H */
-diff --git a/drivers/staging/fsl-mc/include/dpbp.h b/drivers/staging/fsl-mc/include/dpbp.h
-index e9e04ccea..4a1809604 100644
 --- a/drivers/staging/fsl-mc/include/dpbp.h
 +++ b/drivers/staging/fsl-mc/include/dpbp.h
 @@ -1,34 +1,7 @@
@@ -2881,8 +2822,6 @@ index e9e04ccea..4a1809604 100644
   */
  #ifndef __FSL_DPBP_H
  #define __FSL_DPBP_H
-diff --git a/drivers/staging/fsl-mc/include/dpcon.h b/drivers/staging/fsl-mc/include/dpcon.h
-index efa23906b..6379da234 100644
 --- a/drivers/staging/fsl-mc/include/dpcon.h
 +++ b/drivers/staging/fsl-mc/include/dpcon.h
 @@ -1,33 +1,7 @@
@@ -2922,9 +2861,6 @@ index efa23906b..6379da234 100644
   */
  #ifndef __FSL_DPCON_H
  #define __FSL_DPCON_H
-diff --git a/drivers/staging/fsl-mc/include/dpopr.h b/drivers/staging/fsl-mc/include/dpopr.h
-new file mode 100644
-index 000000000..e1110af2f
 --- /dev/null
 +++ b/drivers/staging/fsl-mc/include/dpopr.h
 @@ -0,0 +1,110 @@
@@ -3038,8 +2974,6 @@ index 000000000..e1110af2f
 +};
 +
 +#endif /* __FSL_DPOPR_H_ */
-diff --git a/drivers/staging/fsl-mc/include/mc.h b/drivers/staging/fsl-mc/include/mc.h
-index aafe63a21..5a27412b3 100644
 --- a/drivers/staging/fsl-mc/include/mc.h
 +++ b/drivers/staging/fsl-mc/include/mc.h
 @@ -1,12 +1,10 @@
@@ -3056,6 +2990,3 @@ index aafe63a21..5a27412b3 100644
   */
  #ifndef _FSL_MC_H_
  #define _FSL_MC_H_
--- 
-2.17.1
-

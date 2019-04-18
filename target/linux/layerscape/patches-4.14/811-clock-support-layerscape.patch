@@ -14,8 +14,6 @@ Signed-off-by: Yogesh Gaur <yogeshnarayan.gaur@nxp.com>
  drivers/cpufreq/qoriq-cpufreq.c |  1 +
  2 files changed, 23 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/clk/clk-qoriq.c b/drivers/clk/clk-qoriq.c
-index b0ea753b8..4ddec2b9e 100644
 --- a/drivers/clk/clk-qoriq.c
 +++ b/drivers/clk/clk-qoriq.c
 @@ -41,7 +41,7 @@ struct clockgen_pll_div {
@@ -36,11 +34,10 @@ index b0ea753b8..4ddec2b9e 100644
  	u32 pll_mask;	/* 1 << n bit set if PLL n is valid */
  	u32 flags;	/* CG_xxx */
  };
-@@ -569,6 +569,17 @@ static const struct clockgen_chipinfo chipinfo[] = {
- 		.pll_mask = 0x37,
+@@ -570,6 +570,17 @@ static const struct clockgen_chipinfo ch
  		.flags = CG_VER3 | CG_LITTLE_ENDIAN,
  	},
-+	{
+ 	{
 +		.compat = "fsl,lx2160a-clockgen",
 +		.cmux_groups = {
 +			&clockgen2_cmux_cga12, &clockgen2_cmux_cgb
@@ -51,10 +48,11 @@ index b0ea753b8..4ddec2b9e 100644
 +		.pll_mask = 0x37,
 +		.flags = CG_VER3 | CG_LITTLE_ENDIAN,
 +	},
- 	{
++	{
  		.compat = "fsl,p2041-clockgen",
  		.guts_compat = "fsl,qoriq-device-config-1.0",
-@@ -601,7 +612,7 @@ static const struct clockgen_chipinfo chipinfo[] = {
+ 		.init_periph = p2041_init_periph,
+@@ -601,7 +612,7 @@ static const struct clockgen_chipinfo ch
  			&p4080_cmux_grp1, &p4080_cmux_grp2
  		},
  		.cmux_to_group = {
@@ -63,7 +61,7 @@ index b0ea753b8..4ddec2b9e 100644
  		},
  		.pll_mask = 0x1f,
  	},
-@@ -1127,6 +1138,13 @@ static void __init create_one_pll(struct clockgen *cg, int idx)
+@@ -1127,6 +1138,13 @@ static void __init create_one_pll(struct
  		struct clk *clk;
  		int ret;
  
@@ -77,7 +75,7 @@ index b0ea753b8..4ddec2b9e 100644
  		snprintf(pll->div[i].name, sizeof(pll->div[i].name),
  			 "cg-pll%d-div%d", idx, i + 1);
  
-@@ -1417,6 +1435,7 @@ CLK_OF_DECLARE(qoriq_clockgen_ls1043a, "fsl,ls1043a-clockgen", clockgen_init);
+@@ -1417,6 +1435,7 @@ CLK_OF_DECLARE(qoriq_clockgen_ls1043a, "
  CLK_OF_DECLARE(qoriq_clockgen_ls1046a, "fsl,ls1046a-clockgen", clockgen_init);
  CLK_OF_DECLARE(qoriq_clockgen_ls1088a, "fsl,ls1088a-clockgen", clockgen_init);
  CLK_OF_DECLARE(qoriq_clockgen_ls2080a, "fsl,ls2080a-clockgen", clockgen_init);
@@ -85,11 +83,9 @@ index b0ea753b8..4ddec2b9e 100644
  
  /* Legacy nodes */
  CLK_OF_DECLARE(qoriq_sysclk_1, "fsl,qoriq-sysclk-1.0", sysclk_init);
-diff --git a/drivers/cpufreq/qoriq-cpufreq.c b/drivers/cpufreq/qoriq-cpufreq.c
-index 4ada55b88..9fc4e5f2b 100644
 --- a/drivers/cpufreq/qoriq-cpufreq.c
 +++ b/drivers/cpufreq/qoriq-cpufreq.c
-@@ -320,6 +320,7 @@ static const struct of_device_id node_matches[] __initconst = {
+@@ -320,6 +320,7 @@ static const struct of_device_id node_ma
  	{ .compatible = "fsl,ls1046a-clockgen", },
  	{ .compatible = "fsl,ls1088a-clockgen", },
  	{ .compatible = "fsl,ls2080a-clockgen", },
@@ -97,6 +93,3 @@ index 4ada55b88..9fc4e5f2b 100644
  	{ .compatible = "fsl,p4080-clockgen", },
  	{ .compatible = "fsl,qoriq-clockgen-1.0", },
  	{ .compatible = "fsl,qoriq-clockgen-2.0", },
--- 
-2.17.1
-

@@ -21,8 +21,6 @@ Signed-off-by: Yogesh Gaur <yogeshnarayan.gaur@nxp.com>
  drivers/spi/spi-fsl-dspi.c        |   4 +-
  3 files changed, 291 insertions(+), 162 deletions(-)
 
-diff --git a/drivers/mtd/spi-nor/fsl-quadspi.c b/drivers/mtd/spi-nor/fsl-quadspi.c
-index 62f576348..8305b76a1 100644
 --- a/drivers/mtd/spi-nor/fsl-quadspi.c
 +++ b/drivers/mtd/spi-nor/fsl-quadspi.c
 @@ -41,6 +41,7 @@
@@ -84,7 +82,7 @@ index 62f576348..8305b76a1 100644
  };
  
  struct fsl_qspi_devtype_data {
-@@ -267,6 +270,15 @@ static struct fsl_qspi_devtype_data ls1021a_data = {
+@@ -267,6 +270,15 @@ static struct fsl_qspi_devtype_data ls10
  	.driver_data = 0,
  };
  
@@ -100,11 +98,10 @@ index 62f576348..8305b76a1 100644
  #define FSL_QSPI_MAX_CHIP	4
  struct fsl_qspi {
  	struct spi_nor nor[FSL_QSPI_MAX_CHIP];
-@@ -309,6 +321,22 @@ static inline int needs_wakeup_wait_mode(struct fsl_qspi *q)
- 	return q->devtype_data->driver_data & QUADSPI_QUIRK_TKT245618;
+@@ -310,6 +322,22 @@ static inline int needs_wakeup_wait_mode
  }
  
-+/*
+ /*
 + * QSPI memory regions split into two parts: a 256MB region that is located
 + * in the least significant 4GB of the SoC address space and a 3.75GB region
 + * that is located above the least significant 4GB of the SoC address space.
@@ -120,16 +117,17 @@ index 62f576348..8305b76a1 100644
 +	return q->devtype_data->driver_data & QUADSPI_ADDR_REMAP;
 +}
 +
- /*
++/*
   * R/W functions for big- or little-endian registers:
   * The qSPI controller's endian is independent of the CPU core's endian.
-@@ -368,137 +396,160 @@ static irqreturn_t fsl_qspi_irq_handler(int irq, void *dev_id)
+  * So far, although the CPU core is little-endian but the qSPI have two
+@@ -368,137 +396,160 @@ static irqreturn_t fsl_qspi_irq_handler(
  	return IRQ_HANDLED;
  }
  
 -static void fsl_qspi_init_lut(struct fsl_qspi *q)
 +static inline s8 pad_count(s8 pad_val)
-+{
+ {
 +	s8 count = -1;
 +
 +	if (!pad_val)
@@ -149,7 +147,7 @@ index 62f576348..8305b76a1 100644
 + */
 +static void fsl_qspi_prepare_lut(struct spi_nor *nor,
 +				 enum fsl_qspi_ops ops, u8 cmd)
- {
++{
 +	struct fsl_qspi *q = nor->priv;
  	void __iomem *base = q->iobase;
  	int rxfifo = q->devtype_data->rxfifo;
@@ -187,11 +185,7 @@ index 62f576348..8305b76a1 100644
 +		dev_err(q->dev, "Unsupported operation 0x%.2x\n", ops);
 +		return;
 +	}
- 
--	struct spi_nor *nor = &q->nor[0];
--	u8 addrlen = (nor->addr_width == 3) ? ADDR24BIT : ADDR32BIT;
--	u8 read_op = nor->read_opcode;
--	u8 read_dm = nor->read_dummy;
++
 +	if (protocol) {
 +		cmd_pad = spi_nor_get_protocol_inst_nbits(protocol);
 +		addr_pad = spi_nor_get_protocol_addr_nbits(protocol);
@@ -199,7 +193,11 @@ index 62f576348..8305b76a1 100644
 +	}
 +
 +	dummy_pad = data_pad;
-+
+ 
+-	struct spi_nor *nor = &q->nor[0];
+-	u8 addrlen = (nor->addr_width == 3) ? ADDR24BIT : ADDR32BIT;
+-	u8 read_op = nor->read_opcode;
+-	u8 read_dm = nor->read_dummy;
 +	dev_dbg(q->dev, "ops:%x opcode:%x pad[cmd:%d, addr:%d, data:%d]\n",
 +			ops, opcode, cmd_pad, addr_pad, data_pad);
  
@@ -308,10 +306,20 @@ index 62f576348..8305b76a1 100644
 +	case FSL_QSPI_OPS_WRITE:
 +	case FSL_QSPI_OPS_ERASE:
 +		/* Common for Read, Write and Erase ops. */
++
++		addrlen = (nor->addr_width == 3) ? ADDR24BIT : ADDR32BIT;
++
++		qspi_writel(q, LUT0(CMD, pad_count(cmd_pad), opcode) |
++				LUT1(ADDR, pad_count(addr_pad), addrlen),
++				base + QUADSPI_LUT(lut_base));
++		/*
++		 * For Erase ops - Data and Dummy not required.
++		 * For Write ops - Dummy not required.
++		 */
  
 -	fsl_qspi_lock_lut(q);
 -}
-+		addrlen = (nor->addr_width == 3) ? ADDR24BIT : ADDR32BIT;
++		if (ops == FSL_QSPI_OPS_READ) {
  
 -/* Get the SEQID for the command */
 -static int fsl_qspi_get_seqid(struct fsl_qspi *q, u8 cmd)
@@ -342,16 +350,6 @@ index 62f576348..8305b76a1 100644
 -		return SEQID_EN4B;
 -	case SPINOR_OP_BRWR:
 -		return SEQID_BRWR;
-+		qspi_writel(q, LUT0(CMD, pad_count(cmd_pad), opcode) |
-+				LUT1(ADDR, pad_count(addr_pad), addrlen),
-+				base + QUADSPI_LUT(lut_base));
-+		/*
-+		 * For Erase ops - Data and Dummy not required.
-+		 * For Write ops - Dummy not required.
-+		 */
-+
-+		if (ops == FSL_QSPI_OPS_READ) {
-+
 +			/*
 +			 * For cmds SPINOR_OP_READ and SPINOR_OP_READ_4B value
 +			 * of dummy cycles are 0.
@@ -402,7 +400,7 @@ index 62f576348..8305b76a1 100644
  }
  
  static int
-@@ -508,6 +559,10 @@ fsl_qspi_runcmd(struct fsl_qspi *q, u8 cmd, unsigned int addr, int len)
+@@ -508,6 +559,10 @@ fsl_qspi_runcmd(struct fsl_qspi *q, u8 c
  	int seqid;
  	u32 reg, reg2;
  	int err;
@@ -413,7 +411,7 @@ index 62f576348..8305b76a1 100644
  
  	init_completion(&q->c);
  	dev_dbg(q->dev, "to 0x%.8x:0x%.8x, len:%d, cmd:%.2x\n",
-@@ -516,7 +571,7 @@ fsl_qspi_runcmd(struct fsl_qspi *q, u8 cmd, unsigned int addr, int len)
+@@ -516,7 +571,7 @@ fsl_qspi_runcmd(struct fsl_qspi *q, u8 c
  	/* save the reg */
  	reg = qspi_readl(q, base + QUADSPI_MCR);
  
@@ -422,7 +420,7 @@ index 62f576348..8305b76a1 100644
  			base + QUADSPI_SFAR);
  	qspi_writel(q, QUADSPI_RBCT_WMRK_MASK | QUADSPI_RBCT_RXBRD_USEIPS,
  			base + QUADSPI_RBCT);
-@@ -533,7 +588,7 @@ fsl_qspi_runcmd(struct fsl_qspi *q, u8 cmd, unsigned int addr, int len)
+@@ -533,7 +588,7 @@ fsl_qspi_runcmd(struct fsl_qspi *q, u8 c
  	} while (1);
  
  	/* trigger the LUT now */
@@ -431,7 +429,7 @@ index 62f576348..8305b76a1 100644
  	qspi_writel(q, (seqid << QUADSPI_IPCR_SEQID_SHIFT) | len,
  			base + QUADSPI_IPCR);
  
-@@ -609,6 +664,7 @@ static ssize_t fsl_qspi_nor_write(struct fsl_qspi *q, struct spi_nor *nor,
+@@ -609,6 +664,7 @@ static ssize_t fsl_qspi_nor_write(struct
  {
  	int ret, i, j;
  	u32 tmp;
@@ -439,7 +437,7 @@ index 62f576348..8305b76a1 100644
  
  	dev_dbg(q->dev, "to 0x%.8x:0x%.8x, len : %d\n",
  		q->chip_base_addr, to, count);
-@@ -618,10 +674,18 @@ static ssize_t fsl_qspi_nor_write(struct fsl_qspi *q, struct spi_nor *nor,
+@@ -618,10 +674,18 @@ static ssize_t fsl_qspi_nor_write(struct
  	qspi_writel(q, tmp | QUADSPI_MCR_CLR_TXF_MASK, q->iobase + QUADSPI_MCR);
  
  	/* fill the TX data to the FIFO */
@@ -459,7 +457,7 @@ index 62f576348..8305b76a1 100644
  	}
  
  	/* fill the TXFIFO upto 16 bytes for i.MX7d */
-@@ -642,11 +706,15 @@ static void fsl_qspi_set_map_addr(struct fsl_qspi *q)
+@@ -642,11 +706,15 @@ static void fsl_qspi_set_map_addr(struct
  {
  	int nor_size = q->nor_size;
  	void __iomem *base = q->iobase;
@@ -479,7 +477,7 @@ index 62f576348..8305b76a1 100644
  }
  
  /*
-@@ -662,7 +730,7 @@ static void fsl_qspi_set_map_addr(struct fsl_qspi *q)
+@@ -662,7 +730,7 @@ static void fsl_qspi_set_map_addr(struct
   * causes the controller to clear the buffer, and use the sequence pointed
   * by the QUADSPI_BFGENCR[SEQID] to initiate a read from the flash.
   */
@@ -488,7 +486,7 @@ index 62f576348..8305b76a1 100644
  {
  	void __iomem *base = q->iobase;
  	int seqid;
-@@ -685,8 +753,8 @@ static void fsl_qspi_init_abh_read(struct fsl_qspi *q)
+@@ -685,8 +753,8 @@ static void fsl_qspi_init_abh_read(struc
  	qspi_writel(q, 0, base + QUADSPI_BUF1IND);
  	qspi_writel(q, 0, base + QUADSPI_BUF2IND);
  
@@ -499,7 +497,7 @@ index 62f576348..8305b76a1 100644
  	qspi_writel(q, seqid << QUADSPI_BFGENCR_SEQID_SHIFT,
  		q->iobase + QUADSPI_BFGENCR);
  }
-@@ -729,7 +797,6 @@ static int fsl_qspi_nor_setup(struct fsl_qspi *q)
+@@ -729,7 +797,6 @@ static int fsl_qspi_nor_setup(struct fsl
  	void __iomem *base = q->iobase;
  	u32 reg;
  	int ret;
@@ -507,7 +505,7 @@ index 62f576348..8305b76a1 100644
  	/* disable and unprepare clock to avoid glitch pass to controller */
  	fsl_qspi_clk_disable_unprep(q);
  
-@@ -747,9 +814,6 @@ static int fsl_qspi_nor_setup(struct fsl_qspi *q)
+@@ -747,9 +814,6 @@ static int fsl_qspi_nor_setup(struct fsl
  		base + QUADSPI_MCR);
  	udelay(1);
  
@@ -517,7 +515,7 @@ index 62f576348..8305b76a1 100644
  	/* Disable the module */
  	qspi_writel(q, QUADSPI_MCR_MDIS_MASK | QUADSPI_MCR_RESERVED_MASK,
  			base + QUADSPI_MCR);
-@@ -770,6 +834,9 @@ static int fsl_qspi_nor_setup(struct fsl_qspi *q)
+@@ -770,6 +834,9 @@ static int fsl_qspi_nor_setup(struct fsl
  	/* enable the interrupt */
  	qspi_writel(q, QUADSPI_RSER_TFIE, q->iobase + QUADSPI_RSER);
  
@@ -527,7 +525,7 @@ index 62f576348..8305b76a1 100644
  	return 0;
  }
  
-@@ -792,12 +859,6 @@ static int fsl_qspi_nor_setup_last(struct fsl_qspi *q)
+@@ -792,12 +859,6 @@ static int fsl_qspi_nor_setup_last(struc
  	if (ret)
  		return ret;
  
@@ -540,7 +538,7 @@ index 62f576348..8305b76a1 100644
  	return 0;
  }
  
-@@ -807,6 +868,7 @@ static const struct of_device_id fsl_qspi_dt_ids[] = {
+@@ -807,6 +868,7 @@ static const struct of_device_id fsl_qsp
  	{ .compatible = "fsl,imx7d-qspi", .data = (void *)&imx7d_data, },
  	{ .compatible = "fsl,imx6ul-qspi", .data = (void *)&imx6ul_data, },
  	{ .compatible = "fsl,ls1021a-qspi", .data = (void *)&ls1021a_data, },
@@ -548,7 +546,7 @@ index 62f576348..8305b76a1 100644
  	{ /* sentinel */ }
  };
  MODULE_DEVICE_TABLE(of, fsl_qspi_dt_ids);
-@@ -821,6 +883,7 @@ static int fsl_qspi_read_reg(struct spi_nor *nor, u8 opcode, u8 *buf, int len)
+@@ -821,6 +883,7 @@ static int fsl_qspi_read_reg(struct spi_
  	int ret;
  	struct fsl_qspi *q = nor->priv;
  
@@ -556,7 +554,7 @@ index 62f576348..8305b76a1 100644
  	ret = fsl_qspi_runcmd(q, opcode, 0, len);
  	if (ret)
  		return ret;
-@@ -835,6 +898,8 @@ static int fsl_qspi_write_reg(struct spi_nor *nor, u8 opcode, u8 *buf, int len)
+@@ -835,6 +898,8 @@ static int fsl_qspi_write_reg(struct spi
  	int ret;
  
  	if (!buf) {
@@ -565,7 +563,7 @@ index 62f576348..8305b76a1 100644
  		ret = fsl_qspi_runcmd(q, opcode, 0, 1);
  		if (ret)
  			return ret;
-@@ -843,6 +908,8 @@ static int fsl_qspi_write_reg(struct spi_nor *nor, u8 opcode, u8 *buf, int len)
+@@ -843,6 +908,8 @@ static int fsl_qspi_write_reg(struct spi
  			fsl_qspi_invalid(q);
  
  	} else if (len > 0) {
@@ -574,7 +572,7 @@ index 62f576348..8305b76a1 100644
  		ret = fsl_qspi_nor_write(q, nor, opcode, 0,
  					(u32 *)buf, len);
  		if (ret > 0)
-@@ -859,8 +926,11 @@ static ssize_t fsl_qspi_write(struct spi_nor *nor, loff_t to,
+@@ -859,8 +926,11 @@ static ssize_t fsl_qspi_write(struct spi
  			      size_t len, const u_char *buf)
  {
  	struct fsl_qspi *q = nor->priv;
@@ -588,7 +586,7 @@ index 62f576348..8305b76a1 100644
  
  	/* invalid the data in the AHB buffer. */
  	fsl_qspi_invalid(q);
-@@ -873,6 +943,8 @@ static ssize_t fsl_qspi_read(struct spi_nor *nor, loff_t from,
+@@ -873,6 +943,8 @@ static ssize_t fsl_qspi_read(struct spi_
  	struct fsl_qspi *q = nor->priv;
  	u8 cmd = nor->read_opcode;
  
@@ -597,7 +595,7 @@ index 62f576348..8305b76a1 100644
  	/* if necessary,ioremap buffer before AHB read, */
  	if (!q->ahb_addr) {
  		q->memmap_offs = q->chip_base_addr + from;
-@@ -907,8 +979,9 @@ static ssize_t fsl_qspi_read(struct spi_nor *nor, loff_t from,
+@@ -907,8 +979,9 @@ static ssize_t fsl_qspi_read(struct spi_
  		len);
  
  	/* Read out the data directly from the AHB buffer.*/
@@ -609,7 +607,7 @@ index 62f576348..8305b76a1 100644
  
  	return len;
  }
-@@ -921,6 +994,7 @@ static int fsl_qspi_erase(struct spi_nor *nor, loff_t offs)
+@@ -921,6 +994,7 @@ static int fsl_qspi_erase(struct spi_nor
  	dev_dbg(nor->dev, "%dKiB at 0x%08x:0x%08x\n",
  		nor->mtd.erasesize / 1024, q->chip_base_addr, (u32)offs);
  
@@ -617,7 +615,7 @@ index 62f576348..8305b76a1 100644
  	ret = fsl_qspi_runcmd(q, nor->erase_opcode, offs, 0);
  	if (ret)
  		return ret;
-@@ -958,17 +1032,14 @@ static void fsl_qspi_unprep(struct spi_nor *nor, enum spi_nor_ops ops)
+@@ -958,17 +1032,14 @@ static void fsl_qspi_unprep(struct spi_n
  
  static int fsl_qspi_probe(struct platform_device *pdev)
  {
@@ -637,7 +635,7 @@ index 62f576348..8305b76a1 100644
  
  	q = devm_kzalloc(dev, sizeof(*q), GFP_KERNEL);
  	if (!q)
-@@ -1041,6 +1112,10 @@ static int fsl_qspi_probe(struct platform_device *pdev)
+@@ -1041,6 +1112,10 @@ static int fsl_qspi_probe(struct platfor
  
  	/* iterate the subnodes. */
  	for_each_available_child_of_node(dev->of_node, np) {
@@ -648,7 +646,7 @@ index 62f576348..8305b76a1 100644
  		/* skip the holes */
  		if (!q->has_second_chip)
  			i *= 2;
-@@ -1070,6 +1145,51 @@ static int fsl_qspi_probe(struct platform_device *pdev)
+@@ -1070,6 +1145,51 @@ static int fsl_qspi_probe(struct platfor
  		/* set the chip address for READID */
  		fsl_qspi_set_base_addr(q, nor);
  
@@ -700,7 +698,7 @@ index 62f576348..8305b76a1 100644
  		ret = spi_nor_scan(nor, NULL, &hwcaps);
  		if (ret)
  			goto mutex_failed;
-@@ -1098,6 +1218,8 @@ static int fsl_qspi_probe(struct platform_device *pdev)
+@@ -1098,6 +1218,8 @@ static int fsl_qspi_probe(struct platfor
  		if (nor->page_size > q->devtype_data->txfifo)
  			nor->page_size = q->devtype_data->txfifo;
  
@@ -709,7 +707,7 @@ index 62f576348..8305b76a1 100644
  		i++;
  	}
  
-@@ -1106,6 +1228,8 @@ static int fsl_qspi_probe(struct platform_device *pdev)
+@@ -1106,6 +1228,8 @@ static int fsl_qspi_probe(struct platfor
  	if (ret)
  		goto last_init_failed;
  
@@ -718,11 +716,9 @@ index 62f576348..8305b76a1 100644
  	fsl_qspi_clk_disable_unprep(q);
  	return 0;
  
-diff --git a/drivers/mtd/spi-nor/spi-nor.c b/drivers/mtd/spi-nor/spi-nor.c
-index a8db4b165..6593da9d2 100644
 --- a/drivers/mtd/spi-nor/spi-nor.c
 +++ b/drivers/mtd/spi-nor/spi-nor.c
-@@ -1154,6 +1154,11 @@ static const struct flash_info spi_nor_ids[] = {
+@@ -1154,6 +1154,11 @@ static const struct flash_info spi_nor_i
  	{ "w25x40", INFO(0xef3013, 0, 64 * 1024,  8,  SECT_4K) },
  	{ "w25x80", INFO(0xef3014, 0, 64 * 1024,  16, SECT_4K) },
  	{ "w25x16", INFO(0xef3015, 0, 64 * 1024,  32, SECT_4K) },
@@ -734,11 +730,9 @@ index a8db4b165..6593da9d2 100644
  	{ "w25x32", INFO(0xef3016, 0, 64 * 1024,  64, SECT_4K) },
  	{ "w25q20cl", INFO(0xef4012, 0, 64 * 1024,  4, SECT_4K) },
  	{ "w25q20bw", INFO(0xef5012, 0, 64 * 1024,  4, SECT_4K) },
-diff --git a/drivers/spi/spi-fsl-dspi.c b/drivers/spi/spi-fsl-dspi.c
-index ca013dd4f..3402bc2b5 100644
 --- a/drivers/spi/spi-fsl-dspi.c
 +++ b/drivers/spi/spi-fsl-dspi.c
-@@ -1024,8 +1024,8 @@ static int dspi_probe(struct platform_device *pdev)
+@@ -1024,8 +1024,8 @@ static int dspi_probe(struct platform_de
  		goto out_clk_put;
  	}
  
@@ -749,6 +743,3 @@ index ca013dd4f..3402bc2b5 100644
  	if (ret < 0) {
  		dev_err(&pdev->dev, "Unable to attach DSPI interrupt\n");
  		goto out_clk_put;
--- 
-2.17.1
-

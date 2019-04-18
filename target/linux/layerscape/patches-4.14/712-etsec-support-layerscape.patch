@@ -13,8 +13,6 @@ Signed-off-by: Yangbo Lu <yangbo.lu@nxp.com>
  .../net/ethernet/freescale/gianfar_ethtool.c  | 23 +++++++++++++++----
  2 files changed, 18 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/ethernet/freescale/gianfar.h b/drivers/net/ethernet/freescale/gianfar.h
-index 5aa814799..8e42c0246 100644
 --- a/drivers/net/ethernet/freescale/gianfar.h
 +++ b/drivers/net/ethernet/freescale/gianfar.h
 @@ -1372,7 +1372,4 @@ struct filer_table {
@@ -25,8 +23,6 @@ index 5aa814799..8e42c0246 100644
 -extern int gfar_phc_index;
 -
  #endif /* __GIANFAR_H */
-diff --git a/drivers/net/ethernet/freescale/gianfar_ethtool.c b/drivers/net/ethernet/freescale/gianfar_ethtool.c
-index a93e0199c..8cb98cae0 100644
 --- a/drivers/net/ethernet/freescale/gianfar_ethtool.c
 +++ b/drivers/net/ethernet/freescale/gianfar_ethtool.c
 @@ -41,6 +41,8 @@
@@ -38,7 +34,7 @@ index a93e0199c..8cb98cae0 100644
  
  #include "gianfar.h"
  
-@@ -1509,24 +1511,35 @@ static int gfar_get_nfc(struct net_device *dev, struct ethtool_rxnfc *cmd,
+@@ -1509,24 +1511,35 @@ static int gfar_get_nfc(struct net_devic
  	return ret;
  }
  
@@ -79,6 +75,3 @@ index a93e0199c..8cb98cae0 100644
  	info->tx_types = (1 << HWTSTAMP_TX_OFF) |
  			 (1 << HWTSTAMP_TX_ON);
  	info->rx_filters = (1 << HWTSTAMP_FILTER_NONE) |
--- 
-2.17.1
-

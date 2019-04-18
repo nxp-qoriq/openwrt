@@ -84,8 +84,6 @@ Signed-off-by: Zhang Ying-22455 <ying.zhang22455@nxp.com>
  create mode 100644 drivers/pci/mobiveil/pcie-mobiveil.c
  create mode 100644 drivers/pci/mobiveil/pcie-mobiveil.h
 
-diff --git a/Documentation/devicetree/bindings/pci/layerscape-pci.txt b/Documentation/devicetree/bindings/pci/layerscape-pci.txt
-index c0484da0f..c110cdbc3 100644
 --- a/Documentation/devicetree/bindings/pci/layerscape-pci.txt
 +++ b/Documentation/devicetree/bindings/pci/layerscape-pci.txt
 @@ -1,4 +1,6 @@
@@ -196,8 +194,6 @@ index c0484da0f..c110cdbc3 100644
 +				<0000 0 0 3 &gic 0 0 GIC_SPI 111 IRQ_TYPE_LEVEL_HIGH>,
 +				<0000 0 0 4 &gic 0 0 GIC_SPI 112 IRQ_TYPE_LEVEL_HIGH>;
 +	};
-diff --git a/arch/arm/kernel/bios32.c b/arch/arm/kernel/bios32.c
-index 0cd0aefb3..abfb176f4 100644
 --- a/arch/arm/kernel/bios32.c
 +++ b/arch/arm/kernel/bios32.c
 @@ -12,6 +12,8 @@
@@ -209,11 +205,10 @@ index 0cd0aefb3..abfb176f4 100644
  
  #include <asm/mach-types.h>
  #include <asm/mach/map.h>
-@@ -64,6 +66,47 @@ void pcibios_report_status(u_int status_mask, int warn)
- 		pcibios_bus_report_status(bus, status_mask, warn);
+@@ -65,6 +67,47 @@ void pcibios_report_status(u_int status_
  }
  
-+/*
+ /*
 + * Check device tree if the service interrupts are there
 + */
 +int pcibios_check_service_irqs(struct pci_dev *dev, int *irqs, int mask)
@@ -254,11 +249,10 @@ index 0cd0aefb3..abfb176f4 100644
 +	return count;
 +}
 +
- /*
++/*
   * We don't use this to fix the device, but initialisation of it.
   * It's not the correct use for this, but it works.
-diff --git a/arch/arm64/kernel/pci.c b/arch/arm64/kernel/pci.c
-index 0e2ea1c78..dc52da2cf 100644
+  * Note that the arbiter/ISA bridge appears to be buggy, specifically in
 --- a/arch/arm64/kernel/pci.c
 +++ b/arch/arm64/kernel/pci.c
 @@ -17,6 +17,8 @@
@@ -270,11 +264,10 @@ index 0e2ea1c78..dc52da2cf 100644
  #include <linux/pci.h>
  #include <linux/pci-acpi.h>
  #include <linux/pci-ecam.h>
-@@ -35,6 +37,47 @@ int pcibios_alloc_irq(struct pci_dev *dev)
- }
+@@ -36,6 +38,47 @@ int pcibios_alloc_irq(struct pci_dev *de
  #endif
  
-+/*
+ /*
 + * Check device tree if the service interrupts are there
 + */
 +int pcibios_check_service_irqs(struct pci_dev *dev, int *irqs, int mask)
@@ -315,11 +308,10 @@ index 0e2ea1c78..dc52da2cf 100644
 +	return count;
 +}
 +
- /*
++/*
   * raw_pci_read/write - Platform-specific PCI config space access.
   */
-diff --git a/drivers/misc/pci_endpoint_test.c b/drivers/misc/pci_endpoint_test.c
-index e089bb6dd..85d2db5f3 100644
+ int raw_pci_read(unsigned int domain, unsigned int bus,
 --- a/drivers/misc/pci_endpoint_test.c
 +++ b/drivers/misc/pci_endpoint_test.c
 @@ -35,38 +35,45 @@
@@ -327,32 +319,9 @@ index e089bb6dd..85d2db5f3 100644
  #include <uapi/linux/pcitest.h>
  
 -#define DRV_MODULE_NAME			"pci-endpoint-test"
--
--#define PCI_ENDPOINT_TEST_MAGIC		0x0
--
--#define PCI_ENDPOINT_TEST_COMMAND	0x4
--#define COMMAND_RAISE_LEGACY_IRQ	BIT(0)
--#define COMMAND_RAISE_MSI_IRQ		BIT(1)
--#define MSI_NUMBER_SHIFT		2
--/* 6 bits for MSI number */
--#define COMMAND_READ                    BIT(8)
--#define COMMAND_WRITE                   BIT(9)
--#define COMMAND_COPY                    BIT(10)
--
--#define PCI_ENDPOINT_TEST_STATUS	0x8
--#define STATUS_READ_SUCCESS             BIT(0)
--#define STATUS_READ_FAIL                BIT(1)
--#define STATUS_WRITE_SUCCESS            BIT(2)
--#define STATUS_WRITE_FAIL               BIT(3)
--#define STATUS_COPY_SUCCESS             BIT(4)
--#define STATUS_COPY_FAIL                BIT(5)
--#define STATUS_IRQ_RAISED               BIT(6)
--#define STATUS_SRC_ADDR_INVALID         BIT(7)
--#define STATUS_DST_ADDR_INVALID         BIT(8)
--
--#define PCI_ENDPOINT_TEST_LOWER_SRC_ADDR	0xc
 +#define DRV_MODULE_NAME				"pci-endpoint-test"
-+
+ 
+-#define PCI_ENDPOINT_TEST_MAGIC		0x0
 +#define IRQ_TYPE_UNDEFINED			-1
 +#define IRQ_TYPE_LEGACY				0
 +#define IRQ_TYPE_MSI				1
@@ -378,7 +347,28 @@ index e089bb6dd..85d2db5f3 100644
 +#define STATUS_IRQ_RAISED			BIT(6)
 +#define STATUS_SRC_ADDR_INVALID			BIT(7)
 +#define STATUS_DST_ADDR_INVALID			BIT(8)
-+
+ 
+-#define PCI_ENDPOINT_TEST_COMMAND	0x4
+-#define COMMAND_RAISE_LEGACY_IRQ	BIT(0)
+-#define COMMAND_RAISE_MSI_IRQ		BIT(1)
+-#define MSI_NUMBER_SHIFT		2
+-/* 6 bits for MSI number */
+-#define COMMAND_READ                    BIT(8)
+-#define COMMAND_WRITE                   BIT(9)
+-#define COMMAND_COPY                    BIT(10)
+-
+-#define PCI_ENDPOINT_TEST_STATUS	0x8
+-#define STATUS_READ_SUCCESS             BIT(0)
+-#define STATUS_READ_FAIL                BIT(1)
+-#define STATUS_WRITE_SUCCESS            BIT(2)
+-#define STATUS_WRITE_FAIL               BIT(3)
+-#define STATUS_COPY_SUCCESS             BIT(4)
+-#define STATUS_COPY_FAIL                BIT(5)
+-#define STATUS_IRQ_RAISED               BIT(6)
+-#define STATUS_SRC_ADDR_INVALID         BIT(7)
+-#define STATUS_DST_ADDR_INVALID         BIT(8)
+-
+-#define PCI_ENDPOINT_TEST_LOWER_SRC_ADDR	0xc
 +#define PCI_ENDPOINT_TEST_LOWER_SRC_ADDR	0x0c
  #define PCI_ENDPOINT_TEST_UPPER_SRC_ADDR	0x10
  
@@ -423,7 +413,7 @@ index e089bb6dd..85d2db5f3 100644
  };
  
  static inline u32 pci_endpoint_test_readl(struct pci_endpoint_test *test,
-@@ -146,6 +158,100 @@ static irqreturn_t pci_endpoint_test_irqhandler(int irq, void *dev_id)
+@@ -146,6 +158,100 @@ static irqreturn_t pci_endpoint_test_irq
  	return IRQ_HANDLED;
  }
  
@@ -524,7 +514,7 @@ index e089bb6dd..85d2db5f3 100644
  static bool pci_endpoint_test_bar(struct pci_endpoint_test *test,
  				  enum pci_barno barno)
  {
-@@ -178,6 +284,9 @@ static bool pci_endpoint_test_legacy_irq(struct pci_endpoint_test *test)
+@@ -178,6 +284,9 @@ static bool pci_endpoint_test_legacy_irq
  {
  	u32 val;
  
@@ -534,7 +524,7 @@ index e089bb6dd..85d2db5f3 100644
  	pci_endpoint_test_writel(test, PCI_ENDPOINT_TEST_COMMAND,
  				 COMMAND_RAISE_LEGACY_IRQ);
  	val = wait_for_completion_timeout(&test->irq_raised,
-@@ -189,20 +298,24 @@ static bool pci_endpoint_test_legacy_irq(struct pci_endpoint_test *test)
+@@ -189,20 +298,24 @@ static bool pci_endpoint_test_legacy_irq
  }
  
  static bool pci_endpoint_test_msi_irq(struct pci_endpoint_test *test,
@@ -563,7 +553,7 @@ index e089bb6dd..85d2db5f3 100644
  		return true;
  
  	return false;
-@@ -226,10 +339,18 @@ static bool pci_endpoint_test_copy(struct pci_endpoint_test *test, size_t size)
+@@ -226,10 +339,18 @@ static bool pci_endpoint_test_copy(struc
  	u32 src_crc32;
  	u32 dst_crc32;
  
@@ -583,7 +573,7 @@ index e089bb6dd..85d2db5f3 100644
  		ret = false;
  		goto err;
  	}
-@@ -255,7 +376,7 @@ static bool pci_endpoint_test_copy(struct pci_endpoint_test *test, size_t size)
+@@ -255,7 +376,7 @@ static bool pci_endpoint_test_copy(struc
  	orig_dst_addr = dma_alloc_coherent(dev, size + alignment,
  					   &orig_dst_phys_addr, GFP_KERNEL);
  	if (!orig_dst_addr) {
@@ -592,7 +582,7 @@ index e089bb6dd..85d2db5f3 100644
  		ret = false;
  		goto err_orig_src_addr;
  	}
-@@ -277,8 +398,10 @@ static bool pci_endpoint_test_copy(struct pci_endpoint_test *test, size_t size)
+@@ -277,8 +398,10 @@ static bool pci_endpoint_test_copy(struc
  	pci_endpoint_test_writel(test, PCI_ENDPOINT_TEST_SIZE,
  				 size);
  
@@ -604,7 +594,7 @@ index e089bb6dd..85d2db5f3 100644
  
  	wait_for_completion(&test->irq_raised);
  
-@@ -311,10 +434,18 @@ static bool pci_endpoint_test_write(struct pci_endpoint_test *test, size_t size)
+@@ -311,10 +434,18 @@ static bool pci_endpoint_test_write(stru
  	size_t alignment = test->alignment;
  	u32 crc32;
  
@@ -624,7 +614,7 @@ index e089bb6dd..85d2db5f3 100644
  		ret = false;
  		goto err;
  	}
-@@ -341,8 +472,10 @@ static bool pci_endpoint_test_write(struct pci_endpoint_test *test, size_t size)
+@@ -341,8 +472,10 @@ static bool pci_endpoint_test_write(stru
  
  	pci_endpoint_test_writel(test, PCI_ENDPOINT_TEST_SIZE, size);
  
@@ -636,7 +626,7 @@ index e089bb6dd..85d2db5f3 100644
  
  	wait_for_completion(&test->irq_raised);
  
-@@ -369,10 +502,18 @@ static bool pci_endpoint_test_read(struct pci_endpoint_test *test, size_t size)
+@@ -369,10 +502,18 @@ static bool pci_endpoint_test_read(struc
  	size_t alignment = test->alignment;
  	u32 crc32;
  
@@ -656,7 +646,7 @@ index e089bb6dd..85d2db5f3 100644
  		ret = false;
  		goto err;
  	}
-@@ -393,8 +534,10 @@ static bool pci_endpoint_test_read(struct pci_endpoint_test *test, size_t size)
+@@ -393,8 +534,10 @@ static bool pci_endpoint_test_read(struc
  
  	pci_endpoint_test_writel(test, PCI_ENDPOINT_TEST_SIZE, size);
  
@@ -707,7 +697,7 @@ index e089bb6dd..85d2db5f3 100644
  static long pci_endpoint_test_ioctl(struct file *file, unsigned int cmd,
  				    unsigned long arg)
  {
-@@ -426,7 +601,8 @@ static long pci_endpoint_test_ioctl(struct file *file, unsigned int cmd,
+@@ -426,7 +601,8 @@ static long pci_endpoint_test_ioctl(stru
  		ret = pci_endpoint_test_legacy_irq(test);
  		break;
  	case PCITEST_MSI:
@@ -717,7 +707,7 @@ index e089bb6dd..85d2db5f3 100644
  		break;
  	case PCITEST_WRITE:
  		ret = pci_endpoint_test_write(test, arg);
-@@ -437,6 +613,12 @@ static long pci_endpoint_test_ioctl(struct file *file, unsigned int cmd,
+@@ -437,6 +613,12 @@ static long pci_endpoint_test_ioctl(stru
  	case PCITEST_COPY:
  		ret = pci_endpoint_test_copy(test, arg);
  		break;
@@ -730,7 +720,7 @@ index e089bb6dd..85d2db5f3 100644
  	}
  
  ret:
-@@ -452,9 +634,7 @@ static const struct file_operations pci_endpoint_test_fops = {
+@@ -452,9 +634,7 @@ static const struct file_operations pci_
  static int pci_endpoint_test_probe(struct pci_dev *pdev,
  				   const struct pci_device_id *ent)
  {
@@ -740,7 +730,7 @@ index e089bb6dd..85d2db5f3 100644
  	int id;
  	char name[20];
  	enum pci_barno bar;
-@@ -476,11 +656,14 @@ static int pci_endpoint_test_probe(struct pci_dev *pdev,
+@@ -476,11 +656,14 @@ static int pci_endpoint_test_probe(struc
  	test->alignment = 0;
  	test->pdev = pdev;
  
@@ -756,7 +746,7 @@ index e089bb6dd..85d2db5f3 100644
  	}
  
  	init_completion(&test->irq_raised);
-@@ -500,35 +683,21 @@ static int pci_endpoint_test_probe(struct pci_dev *pdev,
+@@ -500,35 +683,21 @@ static int pci_endpoint_test_probe(struc
  
  	pci_set_master(pdev);
  
@@ -803,7 +793,7 @@ index e089bb6dd..85d2db5f3 100644
  	}
  
  	test->base = test->bar[test_reg_bar];
-@@ -544,24 +713,31 @@ static int pci_endpoint_test_probe(struct pci_dev *pdev,
+@@ -544,24 +713,31 @@ static int pci_endpoint_test_probe(struc
  	id = ida_simple_get(&pci_endpoint_test_ida, 0, 0, GFP_KERNEL);
  	if (id < 0) {
  		err = id;
@@ -852,7 +842,7 @@ index e089bb6dd..85d2db5f3 100644
  	pci_release_regions(pdev);
  
  err_disable_pdev:
-@@ -594,12 +771,16 @@ static void pci_endpoint_test_remove(struct pci_dev *pdev)
+@@ -594,12 +771,16 @@ static void pci_endpoint_test_remove(str
  		return;
  
  	misc_deregister(&test->miscdev);
@@ -870,7 +860,7 @@ index e089bb6dd..85d2db5f3 100644
  	pci_release_regions(pdev);
  	pci_disable_device(pdev);
  }
-@@ -607,6 +788,7 @@ static void pci_endpoint_test_remove(struct pci_dev *pdev)
+@@ -607,6 +788,7 @@ static void pci_endpoint_test_remove(str
  static const struct pci_device_id pci_endpoint_test_tbl[] = {
  	{ PCI_DEVICE(PCI_VENDOR_ID_TI, PCI_DEVICE_ID_TI_DRA74x) },
  	{ PCI_DEVICE(PCI_VENDOR_ID_TI, PCI_DEVICE_ID_TI_DRA72x) },
@@ -878,8 +868,6 @@ index e089bb6dd..85d2db5f3 100644
  	{ }
  };
  MODULE_DEVICE_TABLE(pci, pci_endpoint_test_tbl);
-diff --git a/drivers/pci/Kconfig b/drivers/pci/Kconfig
-index 1044620fc..7a76b3e07 100644
 --- a/drivers/pci/Kconfig
 +++ b/drivers/pci/Kconfig
 @@ -142,6 +142,7 @@ config PCI_HYPERV
@@ -890,8 +878,6 @@ index 1044620fc..7a76b3e07 100644
  source "drivers/pci/host/Kconfig"
  source "drivers/pci/endpoint/Kconfig"
  source "drivers/pci/switch/Kconfig"
-diff --git a/drivers/pci/dwc/Kconfig b/drivers/pci/dwc/Kconfig
-index 22ec82fcd..17ea23cad 100644
 --- a/drivers/pci/dwc/Kconfig
 +++ b/drivers/pci/dwc/Kconfig
 @@ -50,17 +50,36 @@ config PCI_DRA7XX_EP
@@ -905,11 +891,9 @@ index 22ec82fcd..17ea23cad 100644
 -	---help---
 -	 This selects the DesignWare PCIe controller support. Select this if
 -	 you have a PCIe controller on Platform bus.
--
--	 If you have a controller with this interface, say Y or M here.
 +	bool
  
--	 If unsure, say N.
+-	 If you have a controller with this interface, say Y or M here.
 +config PCIE_DW_PLAT_HOST
 +	bool "Platform bus based DesignWare PCIe Controller - Host mode"
 +	depends on PCI && PCI_MSI_IRQ_DOMAIN
@@ -923,7 +907,8 @@ index 22ec82fcd..17ea23cad 100644
 +	  host-specific features PCIE_DW_PLAT_HOST must be selected and in
 +	  order to enable device-specific features PCI_DW_PLAT_EP must be
 +	  selected.
-+
+ 
+-	 If unsure, say N.
 +config PCIE_DW_PLAT_EP
 +	bool "Platform bus based DesignWare PCIe Controller - Endpoint mode"
 +	depends on PCI && PCI_MSI_IRQ_DOMAIN
@@ -941,8 +926,6 @@ index 22ec82fcd..17ea23cad 100644
  
  config PCI_EXYNOS
  	bool "Samsung Exynos PCIe controller"
-diff --git a/drivers/pci/dwc/Makefile b/drivers/pci/dwc/Makefile
-index e73661182..9270a115c 100644
 --- a/drivers/pci/dwc/Makefile
 +++ b/drivers/pci/dwc/Makefile
 @@ -10,7 +10,7 @@ obj-$(CONFIG_PCI_EXYNOS) += pci-exynos.o
@@ -954,11 +937,9 @@ index e73661182..9270a115c 100644
  obj-$(CONFIG_PCIE_QCOM) += pcie-qcom.o
  obj-$(CONFIG_PCIE_ARMADA_8K) += pcie-armada8k.o
  obj-$(CONFIG_PCIE_ARTPEC6) += pcie-artpec6.o
-diff --git a/drivers/pci/dwc/pci-dra7xx.c b/drivers/pci/dwc/pci-dra7xx.c
-index 06eae132a..e6b295238 100644
 --- a/drivers/pci/dwc/pci-dra7xx.c
 +++ b/drivers/pci/dwc/pci-dra7xx.c
-@@ -337,15 +337,6 @@ static irqreturn_t dra7xx_pcie_irq_handler(int irq, void *arg)
+@@ -337,15 +337,6 @@ static irqreturn_t dra7xx_pcie_irq_handl
  	return IRQ_HANDLED;
  }
  
@@ -974,9 +955,6 @@ index 06eae132a..e6b295238 100644
  static void dra7xx_pcie_ep_init(struct dw_pcie_ep *ep)
  {
  	struct dw_pcie *pci = to_dw_pcie_from_ep(ep);
-diff --git a/drivers/pci/dwc/pci-layerscape-ep.c b/drivers/pci/dwc/pci-layerscape-ep.c
-new file mode 100644
-index 000000000..dafb528d9
 --- /dev/null
 +++ b/drivers/pci/dwc/pci-layerscape-ep.c
 @@ -0,0 +1,146 @@
@@ -1126,8 +1104,6 @@ index 000000000..dafb528d9
 +	},
 +};
 +builtin_platform_driver_probe(ls_pcie_ep_driver, ls_pcie_ep_probe);
-diff --git a/drivers/pci/dwc/pci-layerscape.c b/drivers/pci/dwc/pci-layerscape.c
-index 1ede4b60a..358bd73c1 100644
 --- a/drivers/pci/dwc/pci-layerscape.c
 +++ b/drivers/pci/dwc/pci-layerscape.c
 @@ -33,6 +33,8 @@
@@ -1139,7 +1115,7 @@ index 1ede4b60a..358bd73c1 100644
  
  #define PCIE_IATU_NUM		6
  
-@@ -124,6 +126,14 @@ static int ls_pcie_link_up(struct dw_pcie *pci)
+@@ -124,6 +126,14 @@ static int ls_pcie_link_up(struct dw_pci
  	return 1;
  }
  
@@ -1154,7 +1130,7 @@ index 1ede4b60a..358bd73c1 100644
  static int ls_pcie_host_init(struct pcie_port *pp)
  {
  	struct dw_pcie *pci = to_dw_pcie_from_pp(pp);
-@@ -135,6 +145,7 @@ static int ls_pcie_host_init(struct pcie_port *pp)
+@@ -135,6 +145,7 @@ static int ls_pcie_host_init(struct pcie
  	 * dw_pcie_setup_rc() will reconfigure the outbound windows.
  	 */
  	ls_pcie_disable_outbound_atus(pcie);
@@ -1162,7 +1138,7 @@ index 1ede4b60a..358bd73c1 100644
  
  	dw_pcie_dbi_ro_wr_en(pci);
  	ls_pcie_clear_multifunction(pcie);
-@@ -253,6 +264,7 @@ static struct ls_pcie_drvdata ls2088_drvdata = {
+@@ -253,6 +264,7 @@ static struct ls_pcie_drvdata ls2088_drv
  };
  
  static const struct of_device_id ls_pcie_of_match[] = {
@@ -1170,8 +1146,6 @@ index 1ede4b60a..358bd73c1 100644
  	{ .compatible = "fsl,ls1021a-pcie", .data = &ls1021_drvdata },
  	{ .compatible = "fsl,ls1043a-pcie", .data = &ls1043_drvdata },
  	{ .compatible = "fsl,ls1046a-pcie", .data = &ls1046_drvdata },
-diff --git a/drivers/pci/dwc/pcie-designware-ep.c b/drivers/pci/dwc/pcie-designware-ep.c
-index 7c621877a..1fd077192 100644
 --- a/drivers/pci/dwc/pcie-designware-ep.c
 +++ b/drivers/pci/dwc/pcie-designware-ep.c
 @@ -1,20 +1,9 @@
@@ -1196,7 +1170,7 @@ index 7c621877a..1fd077192 100644
   */
  
  #include <linux/of.h>
-@@ -30,21 +19,67 @@ void dw_pcie_ep_linkup(struct dw_pcie_ep *ep)
+@@ -30,21 +19,67 @@ void dw_pcie_ep_linkup(struct dw_pcie_ep
  	pci_epc_linkup(epc);
  }
  
@@ -1266,7 +1240,7 @@ index 7c621877a..1fd077192 100644
  	dw_pcie_writew_dbi(pci, PCI_VENDOR_ID, hdr->vendorid);
  	dw_pcie_writew_dbi(pci, PCI_DEVICE_ID, hdr->deviceid);
  	dw_pcie_writeb_dbi(pci, PCI_REVISION_ID, hdr->revid);
-@@ -58,6 +93,7 @@ static int dw_pcie_ep_write_header(struct pci_epc *epc,
+@@ -58,6 +93,7 @@ static int dw_pcie_ep_write_header(struc
  	dw_pcie_writew_dbi(pci, PCI_SUBSYSTEM_ID, hdr->subsys_id);
  	dw_pcie_writeb_dbi(pci, PCI_INTERRUPT_PIN,
  			   hdr->interrupt_pin);
@@ -1274,7 +1248,7 @@ index 7c621877a..1fd077192 100644
  
  	return 0;
  }
-@@ -70,8 +106,7 @@ static int dw_pcie_ep_inbound_atu(struct dw_pcie_ep *ep, enum pci_barno bar,
+@@ -70,8 +106,7 @@ static int dw_pcie_ep_inbound_atu(struct
  	u32 free_win;
  	struct dw_pcie *pci = to_dw_pcie_from_ep(ep);
  
@@ -1284,7 +1258,7 @@ index 7c621877a..1fd077192 100644
  	if (free_win >= ep->num_ib_windows) {
  		dev_err(pci->dev, "no free inbound window\n");
  		return -EINVAL;
-@@ -85,7 +120,7 @@ static int dw_pcie_ep_inbound_atu(struct dw_pcie_ep *ep, enum pci_barno bar,
+@@ -85,7 +120,7 @@ static int dw_pcie_ep_inbound_atu(struct
  	}
  
  	ep->bar_to_atu[bar] = free_win;
@@ -1293,7 +1267,7 @@ index 7c621877a..1fd077192 100644
  
  	return 0;
  }
-@@ -96,8 +131,7 @@ static int dw_pcie_ep_outbound_atu(struct dw_pcie_ep *ep, phys_addr_t phys_addr,
+@@ -96,8 +131,7 @@ static int dw_pcie_ep_outbound_atu(struc
  	u32 free_win;
  	struct dw_pcie *pci = to_dw_pcie_from_ep(ep);
  
@@ -1303,7 +1277,7 @@ index 7c621877a..1fd077192 100644
  	if (free_win >= ep->num_ob_windows) {
  		dev_err(pci->dev, "no free outbound window\n");
  		return -EINVAL;
-@@ -106,30 +140,35 @@ static int dw_pcie_ep_outbound_atu(struct dw_pcie_ep *ep, phys_addr_t phys_addr,
+@@ -106,30 +140,35 @@ static int dw_pcie_ep_outbound_atu(struc
  	dw_pcie_prog_outbound_atu(pci, free_win, PCIE_ATU_TYPE_MEM,
  				  phys_addr, pci_addr, size);
  
@@ -1345,7 +1319,7 @@ index 7c621877a..1fd077192 100644
  	enum dw_pcie_as_type as_type;
  	u32 reg = PCI_BASE_ADDRESS_0 + (4 * bar);
  
-@@ -138,13 +177,22 @@ static int dw_pcie_ep_set_bar(struct pci_epc *epc, enum pci_barno bar,
+@@ -138,13 +177,22 @@ static int dw_pcie_ep_set_bar(struct pci
  	else
  		as_type = DW_PCIE_AS_IO;
  
@@ -1370,7 +1344,7 @@ index 7c621877a..1fd077192 100644
  	return 0;
  }
  
-@@ -163,7 +211,8 @@ static int dw_pcie_find_index(struct dw_pcie_ep *ep, phys_addr_t addr,
+@@ -163,7 +211,8 @@ static int dw_pcie_find_index(struct dw_
  	return -EINVAL;
  }
  
@@ -1380,7 +1354,7 @@ index 7c621877a..1fd077192 100644
  {
  	int ret;
  	u32 atu_index;
-@@ -175,10 +224,11 @@ static void dw_pcie_ep_unmap_addr(struct pci_epc *epc, phys_addr_t addr)
+@@ -175,10 +224,11 @@ static void dw_pcie_ep_unmap_addr(struct
  		return;
  
  	dw_pcie_disable_atu(pci, atu_index, DW_PCIE_REGION_OUTBOUND);
@@ -1394,7 +1368,7 @@ index 7c621877a..1fd077192 100644
  			       u64 pci_addr, size_t size)
  {
  	int ret;
-@@ -194,41 +244,93 @@ static int dw_pcie_ep_map_addr(struct pci_epc *epc, phys_addr_t addr,
+@@ -194,41 +244,93 @@ static int dw_pcie_ep_map_addr(struct pc
  	return 0;
  }
  
@@ -1500,7 +1474,7 @@ index 7c621877a..1fd077192 100644
  }
  
  static void dw_pcie_ep_stop(struct pci_epc *epc)
-@@ -261,15 +363,130 @@ static const struct pci_epc_ops epc_ops = {
+@@ -261,15 +363,130 @@ static const struct pci_epc_ops epc_ops
  	.unmap_addr		= dw_pcie_ep_unmap_addr,
  	.set_msi		= dw_pcie_ep_set_msi,
  	.get_msi		= dw_pcie_ep_get_msi,
@@ -1631,7 +1605,7 @@ index 7c621877a..1fd077192 100644
  	pci_epc_mem_exit(epc);
  }
  
-@@ -283,7 +500,7 @@ int dw_pcie_ep_init(struct dw_pcie_ep *ep)
+@@ -283,7 +500,7 @@ int dw_pcie_ep_init(struct dw_pcie_ep *e
  	struct device_node *np = dev->of_node;
  
  	if (!pci->dbi_base || !pci->dbi_base2) {
@@ -1640,7 +1614,7 @@ index 7c621877a..1fd077192 100644
  		return -EINVAL;
  	}
  
-@@ -292,12 +509,32 @@ int dw_pcie_ep_init(struct dw_pcie_ep *ep)
+@@ -292,12 +509,32 @@ int dw_pcie_ep_init(struct dw_pcie_ep *e
  		dev_err(dev, "unable to read *num-ib-windows* property\n");
  		return ret;
  	}
@@ -1673,7 +1647,7 @@ index 7c621877a..1fd077192 100644
  
  	addr = devm_kzalloc(dev, sizeof(phys_addr_t) * ep->num_ob_windows,
  			    GFP_KERNEL);
-@@ -305,15 +542,18 @@ int dw_pcie_ep_init(struct dw_pcie_ep *ep)
+@@ -305,15 +542,18 @@ int dw_pcie_ep_init(struct dw_pcie_ep *e
  		return -ENOMEM;
  	ep->outbound_addr = addr;
  
@@ -1695,7 +1669,7 @@ index 7c621877a..1fd077192 100644
  	ret = of_property_read_u8(np, "max-functions", &epc->max_functions);
  	if (ret < 0)
  		epc->max_functions = 1;
-@@ -325,8 +565,16 @@ int dw_pcie_ep_init(struct dw_pcie_ep *ep)
+@@ -325,8 +565,16 @@ int dw_pcie_ep_init(struct dw_pcie_ep *e
  		return ret;
  	}
  
@@ -1714,8 +1688,6 @@ index 7c621877a..1fd077192 100644
  	dw_pcie_setup(pci);
  
  	return 0;
-diff --git a/drivers/pci/dwc/pcie-designware-host.c b/drivers/pci/dwc/pcie-designware-host.c
-index 58b38c54a..baa6d5d66 100644
 --- a/drivers/pci/dwc/pcie-designware-host.c
 +++ b/drivers/pci/dwc/pcie-designware-host.c
 @@ -1,3 +1,4 @@
@@ -1734,8 +1706,6 @@ index 58b38c54a..baa6d5d66 100644
   */
  
  #include <linux/irqdomain.h>
-diff --git a/drivers/pci/dwc/pcie-designware-plat.c b/drivers/pci/dwc/pcie-designware-plat.c
-index 168e2380f..aca74d833 100644
 --- a/drivers/pci/dwc/pcie-designware-plat.c
 +++ b/drivers/pci/dwc/pcie-designware-plat.c
 @@ -1,13 +1,10 @@
@@ -1784,7 +1754,7 @@ index 168e2380f..aca74d833 100644
  static irqreturn_t dw_plat_pcie_msi_irq_handler(int irq, void *arg)
  {
  	struct pcie_port *pp = arg;
-@@ -52,9 +59,58 @@ static const struct dw_pcie_host_ops dw_plat_pcie_host_ops = {
+@@ -52,9 +59,58 @@ static const struct dw_pcie_host_ops dw_
  	.host_init = dw_plat_pcie_host_init,
  };
  
@@ -1844,7 +1814,7 @@ index 168e2380f..aca74d833 100644
  	struct device *dev = &pdev->dev;
  	int ret;
  
-@@ -82,15 +138,44 @@ static int dw_plat_add_pcie_port(struct pcie_port *pp,
+@@ -82,15 +138,44 @@ static int dw_plat_add_pcie_port(struct
  
  	ret = dw_pcie_host_init(pp);
  	if (ret) {
@@ -1892,7 +1862,7 @@ index 168e2380f..aca74d833 100644
  
  static int dw_plat_pcie_probe(struct platform_device *pdev)
  {
-@@ -99,6 +184,16 @@ static int dw_plat_pcie_probe(struct platform_device *pdev)
+@@ -99,6 +184,16 @@ static int dw_plat_pcie_probe(struct pla
  	struct dw_pcie *pci;
  	struct resource *res;  /* Resource from DT */
  	int ret;
@@ -1909,7 +1879,7 @@ index 168e2380f..aca74d833 100644
  
  	dw_plat_pcie = devm_kzalloc(dev, sizeof(*dw_plat_pcie), GFP_KERNEL);
  	if (!dw_plat_pcie)
-@@ -112,23 +207,59 @@ static int dw_plat_pcie_probe(struct platform_device *pdev)
+@@ -112,23 +207,59 @@ static int dw_plat_pcie_probe(struct pla
  	pci->ops = &dw_pcie_ops;
  
  	dw_plat_pcie->pci = pci;
@@ -1974,8 +1944,6 @@ index 168e2380f..aca74d833 100644
  	{},
  };
  
-diff --git a/drivers/pci/dwc/pcie-designware.c b/drivers/pci/dwc/pcie-designware.c
-index a06ad2c65..97e67cbfe 100644
 --- a/drivers/pci/dwc/pcie-designware.c
 +++ b/drivers/pci/dwc/pcie-designware.c
 @@ -1,3 +1,4 @@
@@ -1994,8 +1962,6 @@ index a06ad2c65..97e67cbfe 100644
   */
  
  #include <linux/delay.h>
-diff --git a/drivers/pci/dwc/pcie-designware.h b/drivers/pci/dwc/pcie-designware.h
-index 3551dd607..31c65b9d1 100644
 --- a/drivers/pci/dwc/pcie-designware.h
 +++ b/drivers/pci/dwc/pcie-designware.h
 @@ -1,3 +1,4 @@
@@ -2068,7 +2034,7 @@ index 3551dd607..31c65b9d1 100644
  };
  
  struct dw_pcie_ops {
-@@ -334,6 +331,12 @@ static inline int dw_pcie_host_init(struct pcie_port *pp)
+@@ -334,6 +331,12 @@ static inline int dw_pcie_host_init(stru
  void dw_pcie_ep_linkup(struct dw_pcie_ep *ep);
  int dw_pcie_ep_init(struct dw_pcie_ep *ep);
  void dw_pcie_ep_exit(struct dw_pcie_ep *ep);
@@ -2081,7 +2047,7 @@ index 3551dd607..31c65b9d1 100644
  #else
  static inline void dw_pcie_ep_linkup(struct dw_pcie_ep *ep)
  {
-@@ -347,5 +350,26 @@ static inline int dw_pcie_ep_init(struct dw_pcie_ep *ep)
+@@ -347,5 +350,26 @@ static inline int dw_pcie_ep_init(struct
  static inline void dw_pcie_ep_exit(struct dw_pcie_ep *ep)
  {
  }
@@ -2108,8 +2074,6 @@ index 3551dd607..31c65b9d1 100644
 +}
  #endif
  #endif /* _PCIE_DESIGNWARE_H */
-diff --git a/drivers/pci/endpoint/Kconfig b/drivers/pci/endpoint/Kconfig
-index c09623ca8..d1e7e4199 100644
 --- a/drivers/pci/endpoint/Kconfig
 +++ b/drivers/pci/endpoint/Kconfig
 @@ -1,3 +1,4 @@
@@ -2117,8 +2081,6 @@ index c09623ca8..d1e7e4199 100644
  #
  # PCI Endpoint Support
  #
-diff --git a/drivers/pci/endpoint/Makefile b/drivers/pci/endpoint/Makefile
-index 1041f80a4..95b2fe47e 100644
 --- a/drivers/pci/endpoint/Makefile
 +++ b/drivers/pci/endpoint/Makefile
 @@ -1,3 +1,4 @@
@@ -2126,8 +2088,6 @@ index 1041f80a4..95b2fe47e 100644
  #
  # Makefile for PCI Endpoint Support
  #
-diff --git a/drivers/pci/endpoint/functions/Kconfig b/drivers/pci/endpoint/functions/Kconfig
-index 294206660..8820d0f7e 100644
 --- a/drivers/pci/endpoint/functions/Kconfig
 +++ b/drivers/pci/endpoint/functions/Kconfig
 @@ -1,3 +1,4 @@
@@ -2135,8 +2095,6 @@ index 294206660..8820d0f7e 100644
  #
  # PCI Endpoint Functions
  #
-diff --git a/drivers/pci/endpoint/functions/Makefile b/drivers/pci/endpoint/functions/Makefile
-index 6d94a4801..d6fafff08 100644
 --- a/drivers/pci/endpoint/functions/Makefile
 +++ b/drivers/pci/endpoint/functions/Makefile
 @@ -1,3 +1,4 @@
@@ -2144,8 +2102,6 @@ index 6d94a4801..d6fafff08 100644
  #
  # Makefile for PCI Endpoint Functions
  #
-diff --git a/drivers/pci/endpoint/functions/pci-epf-test.c b/drivers/pci/endpoint/functions/pci-epf-test.c
-index f9308c2f2..3e86fa3c7 100644
 --- a/drivers/pci/endpoint/functions/pci-epf-test.c
 +++ b/drivers/pci/endpoint/functions/pci-epf-test.c
 @@ -1,20 +1,9 @@
@@ -2218,7 +2174,7 @@ index f9308c2f2..3e86fa3c7 100644
  
  static int pci_epf_test_copy(struct pci_epf_test *epf_test)
  {
-@@ -98,43 +93,45 @@ static int pci_epf_test_copy(struct pci_epf_test *epf_test)
+@@ -98,43 +93,45 @@ static int pci_epf_test_copy(struct pci_
  
  	src_addr = pci_epc_mem_alloc_addr(epc, &src_phys_addr, reg->size);
  	if (!src_addr) {
@@ -2272,7 +2228,7 @@ index f9308c2f2..3e86fa3c7 100644
  
  err_src_addr:
  	pci_epc_mem_free_addr(epc, src_phys_addr, src_addr, reg->size);
-@@ -158,15 +155,16 @@ static int pci_epf_test_read(struct pci_epf_test *epf_test)
+@@ -158,15 +155,16 @@ static int pci_epf_test_read(struct pci_
  
  	src_addr = pci_epc_mem_alloc_addr(epc, &phys_addr, reg->size);
  	if (!src_addr) {
@@ -2292,7 +2248,7 @@ index f9308c2f2..3e86fa3c7 100644
  		reg->status = STATUS_SRC_ADDR_INVALID;
  		goto err_addr;
  	}
-@@ -186,7 +184,7 @@ static int pci_epf_test_read(struct pci_epf_test *epf_test)
+@@ -186,7 +184,7 @@ static int pci_epf_test_read(struct pci_
  	kfree(buf);
  
  err_map_addr:
@@ -2301,7 +2257,7 @@ index f9308c2f2..3e86fa3c7 100644
  
  err_addr:
  	pci_epc_mem_free_addr(epc, phys_addr, src_addr, reg->size);
-@@ -209,15 +207,16 @@ static int pci_epf_test_write(struct pci_epf_test *epf_test)
+@@ -209,15 +207,16 @@ static int pci_epf_test_write(struct pci
  
  	dst_addr = pci_epc_mem_alloc_addr(epc, &phys_addr, reg->size);
  	if (!dst_addr) {
@@ -2321,7 +2277,7 @@ index f9308c2f2..3e86fa3c7 100644
  		reg->status = STATUS_DST_ADDR_INVALID;
  		goto err_addr;
  	}
-@@ -237,12 +236,12 @@ static int pci_epf_test_write(struct pci_epf_test *epf_test)
+@@ -237,12 +236,12 @@ static int pci_epf_test_write(struct pci
  	 * wait 1ms inorder for the write to complete. Without this delay L3
  	 * error in observed in the host system.
  	 */
@@ -2388,7 +2344,7 @@ index f9308c2f2..3e86fa3c7 100644
  	struct pci_epc *epc = epf->epc;
  	enum pci_barno test_reg_bar = epf_test->test_reg_bar;
  	struct pci_epf_test_reg *reg = epf_test->reg[test_reg_bar];
-@@ -287,11 +297,14 @@ static void pci_epf_test_cmd_handler(struct work_struct *work)
+@@ -287,11 +297,14 @@ static void pci_epf_test_cmd_handler(str
  	reg->command = 0;
  	reg->status = 0;
  
@@ -2405,7 +2361,7 @@ index f9308c2f2..3e86fa3c7 100644
  		goto reset_handler;
  	}
  
-@@ -301,7 +314,8 @@ static void pci_epf_test_cmd_handler(struct work_struct *work)
+@@ -301,7 +314,8 @@ static void pci_epf_test_cmd_handler(str
  			reg->status |= STATUS_WRITE_FAIL;
  		else
  			reg->status |= STATUS_WRITE_SUCCESS;
@@ -2415,7 +2371,7 @@ index f9308c2f2..3e86fa3c7 100644
  		goto reset_handler;
  	}
  
-@@ -311,7 +325,8 @@ static void pci_epf_test_cmd_handler(struct work_struct *work)
+@@ -311,7 +325,8 @@ static void pci_epf_test_cmd_handler(str
  			reg->status |= STATUS_READ_SUCCESS;
  		else
  			reg->status |= STATUS_READ_FAIL;
@@ -2425,7 +2381,7 @@ index f9308c2f2..3e86fa3c7 100644
  		goto reset_handler;
  	}
  
-@@ -321,16 +336,28 @@ static void pci_epf_test_cmd_handler(struct work_struct *work)
+@@ -321,16 +336,28 @@ static void pci_epf_test_cmd_handler(str
  			reg->status |= STATUS_COPY_SUCCESS;
  		else
  			reg->status |= STATUS_COPY_FAIL;
@@ -2458,7 +2414,7 @@ index f9308c2f2..3e86fa3c7 100644
  		goto reset_handler;
  	}
  
-@@ -351,21 +378,23 @@ static void pci_epf_test_unbind(struct pci_epf *epf)
+@@ -351,21 +378,23 @@ static void pci_epf_test_unbind(struct p
  {
  	struct pci_epf_test *epf_test = epf_get_drvdata(epf);
  	struct pci_epc *epc = epf->epc;
@@ -2484,7 +2440,7 @@ index f9308c2f2..3e86fa3c7 100644
  	int bar;
  	int ret;
  	struct pci_epf_bar *epf_bar;
-@@ -374,20 +403,27 @@ static int pci_epf_test_set_bar(struct pci_epf *epf)
+@@ -374,20 +403,27 @@ static int pci_epf_test_set_bar(struct p
  	struct pci_epf_test *epf_test = epf_get_drvdata(epf);
  	enum pci_barno test_reg_bar = epf_test->test_reg_bar;
  
@@ -2519,7 +2475,7 @@ index f9308c2f2..3e86fa3c7 100644
  	}
  
  	return 0;
-@@ -404,7 +440,7 @@ static int pci_epf_test_alloc_space(struct pci_epf *epf)
+@@ -404,7 +440,7 @@ static int pci_epf_test_alloc_space(stru
  	base = pci_epf_alloc_space(epf, sizeof(struct pci_epf_test_reg),
  				   test_reg_bar);
  	if (!base) {
@@ -2528,7 +2484,7 @@ index f9308c2f2..3e86fa3c7 100644
  		return -ENOMEM;
  	}
  	epf_test->reg[test_reg_bar] = base;
-@@ -414,7 +450,7 @@ static int pci_epf_test_alloc_space(struct pci_epf *epf)
+@@ -414,7 +450,7 @@ static int pci_epf_test_alloc_space(stru
  			continue;
  		base = pci_epf_alloc_space(epf, bar_size[bar], bar);
  		if (!base)
@@ -2537,7 +2493,7 @@ index f9308c2f2..3e86fa3c7 100644
  				bar);
  		epf_test->reg[bar] = base;
  	}
-@@ -433,9 +469,18 @@ static int pci_epf_test_bind(struct pci_epf *epf)
+@@ -433,9 +469,18 @@ static int pci_epf_test_bind(struct pci_
  	if (WARN_ON_ONCE(!epc))
  		return -EINVAL;
  
@@ -2558,7 +2514,7 @@ index f9308c2f2..3e86fa3c7 100644
  		return ret;
  	}
  
-@@ -447,9 +492,19 @@ static int pci_epf_test_bind(struct pci_epf *epf)
+@@ -447,9 +492,19 @@ static int pci_epf_test_bind(struct pci_
  	if (ret)
  		return ret;
  
@@ -2580,7 +2536,7 @@ index f9308c2f2..3e86fa3c7 100644
  
  	if (!epf_test->linkup_notifier)
  		queue_work(kpcitest_workqueue, &epf_test->cmd_handler.work);
-@@ -517,7 +572,7 @@ static int __init pci_epf_test_init(void)
+@@ -517,7 +572,7 @@ static int __init pci_epf_test_init(void
  					     WQ_MEM_RECLAIM | WQ_HIGHPRI, 0);
  	ret = pci_epf_register_driver(&test_driver);
  	if (ret) {
@@ -2589,8 +2545,6 @@ index f9308c2f2..3e86fa3c7 100644
  		return ret;
  	}
  
-diff --git a/drivers/pci/endpoint/pci-ep-cfs.c b/drivers/pci/endpoint/pci-ep-cfs.c
-index 8fdb9d07c..d1288a0bd 100644
 --- a/drivers/pci/endpoint/pci-ep-cfs.c
 +++ b/drivers/pci/endpoint/pci-ep-cfs.c
 @@ -1,35 +1,28 @@
@@ -2634,7 +2588,7 @@ index 8fdb9d07c..d1288a0bd 100644
  };
  
  struct pci_epc_group {
-@@ -151,7 +144,7 @@ static struct configfs_item_operations pci_epc_item_ops = {
+@@ -151,7 +144,7 @@ static struct configfs_item_operations p
  	.drop_link	= pci_epc_epf_unlink,
  };
  
@@ -2643,7 +2597,7 @@ index 8fdb9d07c..d1288a0bd 100644
  	.ct_item_ops	= &pci_epc_item_ops,
  	.ct_attrs	= pci_epc_attrs,
  	.ct_owner	= THIS_MODULE,
-@@ -293,6 +286,28 @@ static ssize_t pci_epf_msi_interrupts_show(struct config_item *item,
+@@ -293,6 +286,28 @@ static ssize_t pci_epf_msi_interrupts_sh
  		       to_pci_epf_group(item)->epf->msi_interrupts);
  }
  
@@ -2672,7 +2626,7 @@ index 8fdb9d07c..d1288a0bd 100644
  PCI_EPF_HEADER_R(vendorid)
  PCI_EPF_HEADER_W_u16(vendorid)
  
-@@ -334,6 +349,7 @@ CONFIGFS_ATTR(pci_epf_, subsys_vendor_id);
+@@ -334,6 +349,7 @@ CONFIGFS_ATTR(pci_epf_, subsys_vendor_id
  CONFIGFS_ATTR(pci_epf_, subsys_id);
  CONFIGFS_ATTR(pci_epf_, interrupt_pin);
  CONFIGFS_ATTR(pci_epf_, msi_interrupts);
@@ -2680,7 +2634,7 @@ index 8fdb9d07c..d1288a0bd 100644
  
  static struct configfs_attribute *pci_epf_attrs[] = {
  	&pci_epf_attr_vendorid,
-@@ -347,6 +363,7 @@ static struct configfs_attribute *pci_epf_attrs[] = {
+@@ -347,6 +363,7 @@ static struct configfs_attribute *pci_ep
  	&pci_epf_attr_subsys_id,
  	&pci_epf_attr_interrupt_pin,
  	&pci_epf_attr_msi_interrupts,
@@ -2688,7 +2642,7 @@ index 8fdb9d07c..d1288a0bd 100644
  	NULL,
  };
  
-@@ -354,6 +371,9 @@ static void pci_epf_release(struct config_item *item)
+@@ -354,6 +371,9 @@ static void pci_epf_release(struct confi
  {
  	struct pci_epf_group *epf_group = to_pci_epf_group(item);
  
@@ -2698,7 +2652,7 @@ index 8fdb9d07c..d1288a0bd 100644
  	pci_epf_destroy(epf_group->epf);
  	kfree(epf_group);
  }
-@@ -362,7 +382,7 @@ static struct configfs_item_operations pci_epf_ops = {
+@@ -362,7 +382,7 @@ static struct configfs_item_operations p
  	.release		= pci_epf_release,
  };
  
@@ -2707,7 +2661,7 @@ index 8fdb9d07c..d1288a0bd 100644
  	.ct_item_ops	= &pci_epf_ops,
  	.ct_attrs	= pci_epf_attrs,
  	.ct_owner	= THIS_MODULE,
-@@ -373,22 +393,57 @@ static struct config_group *pci_epf_make(struct config_group *group,
+@@ -373,22 +393,57 @@ static struct config_group *pci_epf_make
  {
  	struct pci_epf_group *epf_group;
  	struct pci_epf *epf;
@@ -2767,7 +2721,7 @@ index 8fdb9d07c..d1288a0bd 100644
  }
  
  static void pci_epf_drop(struct config_group *group, struct config_item *item)
-@@ -401,7 +456,7 @@ static struct configfs_group_operations pci_epf_group_ops = {
+@@ -401,7 +456,7 @@ static struct configfs_group_operations
  	.drop_item      = &pci_epf_drop,
  };
  
@@ -2776,7 +2730,7 @@ index 8fdb9d07c..d1288a0bd 100644
  	.ct_group_ops	= &pci_epf_group_ops,
  	.ct_owner	= THIS_MODULE,
  };
-@@ -429,15 +484,15 @@ void pci_ep_cfs_remove_epf_group(struct config_group *group)
+@@ -429,15 +484,15 @@ void pci_ep_cfs_remove_epf_group(struct
  }
  EXPORT_SYMBOL(pci_ep_cfs_remove_epf_group);
  
@@ -2795,8 +2749,6 @@ index 8fdb9d07c..d1288a0bd 100644
  	.ct_owner	= THIS_MODULE,
  };
  
-diff --git a/drivers/pci/endpoint/pci-epc-core.c b/drivers/pci/endpoint/pci-epc-core.c
-index 42c2a1156..094dcc320 100644
 --- a/drivers/pci/endpoint/pci-epc-core.c
 +++ b/drivers/pci/endpoint/pci-epc-core.c
 @@ -1,24 +1,12 @@
@@ -2908,7 +2860,7 @@ index 42c2a1156..094dcc320 100644
  		return -EINVAL;
  
  	if (!epc->ops->set_msi)
-@@ -219,32 +211,91 @@ int pci_epc_set_msi(struct pci_epc *epc, u8 interrupts)
+@@ -219,7 +211,7 @@ int pci_epc_set_msi(struct pci_epc *epc,
  	encode_int = order_base_2(interrupts);
  
  	spin_lock_irqsave(&epc->lock, flags);
@@ -2917,10 +2869,10 @@ index 42c2a1156..094dcc320 100644
  	spin_unlock_irqrestore(&epc->lock, flags);
  
  	return ret;
- }
+@@ -227,24 +219,83 @@ int pci_epc_set_msi(struct pci_epc *epc,
  EXPORT_SYMBOL_GPL(pci_epc_set_msi);
  
-+/**
+ /**
 + * pci_epc_get_msix() - get the number of MSI-X interrupt numbers allocated
 + * @epc: the EPC device to which MSI-X interrupts was requested
 + * @func_no: the endpoint function number in the EPC device
@@ -2977,7 +2929,7 @@ index 42c2a1156..094dcc320 100644
 +}
 +EXPORT_SYMBOL_GPL(pci_epc_set_msix);
 +
- /**
++/**
   * pci_epc_unmap_addr() - unmap CPU address from PCI address
   * @epc: the EPC device on which address is allocated
 + * @func_no: the endpoint function number in the EPC device
@@ -3086,10 +3038,9 @@ index 42c2a1156..094dcc320 100644
  {
  	int ret;
  	unsigned long irq_flags;
--
--	if (IS_ERR(epc))
 +	int flags = epf_bar->flags;
-+
+ 
+-	if (IS_ERR(epc))
 +	if (IS_ERR_OR_NULL(epc) || func_no >= epc->max_functions ||
 +	    (epf_bar->barno == BAR_5 &&
 +	     flags & PCI_BASE_ADDRESS_MEM_TYPE_64) ||
@@ -3148,7 +3099,7 @@ index 42c2a1156..094dcc320 100644
  
  	if (epf->epc)
  		return -EBUSY;
-@@ -383,12 +446,6 @@ int pci_epc_add_epf(struct pci_epc *epc, struct pci_epf *epf)
+@@ -383,12 +446,6 @@ int pci_epc_add_epf(struct pci_epc *epc,
  		return -EINVAL;
  
  	epf->epc = epc;
@@ -3161,7 +3112,7 @@ index 42c2a1156..094dcc320 100644
  
  	spin_lock_irqsave(&epc->lock, flags);
  	list_add_tail(&epf->list, &epc->pci_epf);
-@@ -503,9 +560,7 @@ __pci_epc_create(struct device *dev, const struct pci_epc_ops *ops,
+@@ -503,9 +560,7 @@ __pci_epc_create(struct device *dev, con
  	INIT_LIST_HEAD(&epc->pci_epf);
  
  	device_initialize(&epc->dev);
@@ -3171,8 +3122,6 @@ index 42c2a1156..094dcc320 100644
  	epc->dev.parent = dev;
  	epc->ops = ops;
  
-diff --git a/drivers/pci/endpoint/pci-epc-mem.c b/drivers/pci/endpoint/pci-epc-mem.c
-index 83b7d5d3f..2bf8bd1f0 100644
 --- a/drivers/pci/endpoint/pci-epc-mem.c
 +++ b/drivers/pci/endpoint/pci-epc-mem.c
 @@ -1,20 +1,9 @@
@@ -3197,8 +3146,6 @@ index 83b7d5d3f..2bf8bd1f0 100644
   */
  
  #include <linux/io.h>
-diff --git a/drivers/pci/endpoint/pci-epf-core.c b/drivers/pci/endpoint/pci-epf-core.c
-index ae1611a62..825fa2442 100644
 --- a/drivers/pci/endpoint/pci-epf-core.c
 +++ b/drivers/pci/endpoint/pci-epf-core.c
 @@ -1,20 +1,9 @@
@@ -3241,7 +3188,7 @@ index ae1611a62..825fa2442 100644
  
  	if (!addr)
  		return;
-@@ -109,6 +100,8 @@ void pci_epf_free_space(struct pci_epf *epf, void *addr, enum pci_barno bar)
+@@ -109,6 +100,8 @@ void pci_epf_free_space(struct pci_epf *
  
  	epf->bar[bar].phys_addr = 0;
  	epf->bar[bar].size = 0;
@@ -3259,7 +3206,7 @@ index ae1611a62..825fa2442 100644
  	dma_addr_t phys_addr;
  
  	if (size < 128)
-@@ -137,11 +130,27 @@ void *pci_epf_alloc_space(struct pci_epf *epf, size_t size, enum pci_barno bar)
+@@ -137,11 +130,27 @@ void *pci_epf_alloc_space(struct pci_epf
  
  	epf->bar[bar].phys_addr = phys_addr;
  	epf->bar[bar].size = size;
@@ -3327,7 +3274,7 @@ index ae1611a62..825fa2442 100644
  /**
   * __pci_epf_register_driver() - register a new PCI EPF driver
   * @driver: structure representing PCI EPF driver
-@@ -180,7 +216,7 @@ int __pci_epf_register_driver(struct pci_epf_driver *driver,
+@@ -180,7 +216,7 @@ int __pci_epf_register_driver(struct pci
  	if (ret)
  		return ret;
  
@@ -3336,7 +3283,7 @@ index ae1611a62..825fa2442 100644
  
  	return 0;
  }
-@@ -211,29 +247,17 @@ struct pci_epf *pci_epf_create(const char *name)
+@@ -211,29 +247,17 @@ struct pci_epf *pci_epf_create(const cha
  	int ret;
  	struct pci_epf *epf;
  	struct device *dev;
@@ -3349,15 +3296,15 @@ index ae1611a62..825fa2442 100644
 -		ret = -ENOMEM;
 -		goto err_ret;
 -	}
--
++	if (!epf)
++		return ERR_PTR(-ENOMEM);
+ 
 -	buf = kstrdup(name, GFP_KERNEL);
 -	if (!buf) {
 -		ret = -ENOMEM;
 -		goto free_epf;
 -	}
-+	if (!epf)
-+		return ERR_PTR(-ENOMEM);
- 
+-
 -	func_name = buf;
 -	buf = strchrnul(buf, '.');
 -	*buf = '\0';
@@ -3373,7 +3320,7 @@ index ae1611a62..825fa2442 100644
  	}
  
  	dev = &epf->dev;
-@@ -242,28 +266,18 @@ struct pci_epf *pci_epf_create(const char *name)
+@@ -242,28 +266,18 @@ struct pci_epf *pci_epf_create(const cha
  	dev->type = &pci_epf_type;
  
  	ret = dev_set_name(dev, "%s", name);
@@ -3410,8 +3357,6 @@ index ae1611a62..825fa2442 100644
  }
  EXPORT_SYMBOL_GPL(pci_epf_create);
  
-diff --git a/drivers/pci/host/pci-host-common.c b/drivers/pci/host/pci-host-common.c
-index 148896f73..c7b1fdebb 100644
 --- a/drivers/pci/host/pci-host-common.c
 +++ b/drivers/pci/host/pci-host-common.c
 @@ -113,9 +113,7 @@ err_out:
@@ -3424,7 +3369,7 @@ index 148896f73..c7b1fdebb 100644
  	struct pci_bus *bus, *child;
  	struct pci_host_bridge *bridge;
  	struct pci_config_window *cfg;
-@@ -126,12 +124,6 @@ int pci_host_common_probe(struct platform_device *pdev,
+@@ -126,12 +124,6 @@ int pci_host_common_probe(struct platfor
  	if (!bridge)
  		return -ENOMEM;
  
@@ -3437,11 +3382,9 @@ index 148896f73..c7b1fdebb 100644
  	of_pci_check_probe_only();
  
  	/* Parse and map our Configuration Space windows */
-diff --git a/drivers/pci/host/pcie-xilinx-nwl.c b/drivers/pci/host/pcie-xilinx-nwl.c
-index dd527ea55..6b445930a 100644
 --- a/drivers/pci/host/pcie-xilinx-nwl.c
 +++ b/drivers/pci/host/pcie-xilinx-nwl.c
-@@ -779,16 +779,7 @@ static int nwl_pcie_parse_dt(struct nwl_pcie *pcie,
+@@ -779,16 +779,7 @@ static int nwl_pcie_parse_dt(struct nwl_
  			     struct platform_device *pdev)
  {
  	struct device *dev = pcie->dev;
@@ -3458,11 +3401,9 @@ index dd527ea55..6b445930a 100644
  
  	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "breg");
  	pcie->breg_base = devm_ioremap_resource(dev, res);
-diff --git a/drivers/pci/host/pcie-xilinx.c b/drivers/pci/host/pcie-xilinx.c
-index 29f024f0e..b43dea177 100644
 --- a/drivers/pci/host/pcie-xilinx.c
 +++ b/drivers/pci/host/pcie-xilinx.c
-@@ -576,15 +576,8 @@ static int xilinx_pcie_parse_dt(struct xilinx_pcie_port *port)
+@@ -576,15 +576,8 @@ static int xilinx_pcie_parse_dt(struct x
  	struct device *dev = port->dev;
  	struct device_node *node = dev->of_node;
  	struct resource regs;
@@ -3478,9 +3419,6 @@ index 29f024f0e..b43dea177 100644
  	err = of_address_to_resource(node, 0, &regs);
  	if (err) {
  		dev_err(dev, "missing \"reg\" property\n");
-diff --git a/drivers/pci/mobiveil/Kconfig b/drivers/pci/mobiveil/Kconfig
-new file mode 100644
-index 000000000..16ee61781
 --- /dev/null
 +++ b/drivers/pci/mobiveil/Kconfig
 @@ -0,0 +1,50 @@
@@ -3534,9 +3472,6 @@ index 000000000..16ee61781
 +	  Layerscape SoCs. And the PCIe controller work in EP mode
 +	  by setting the RCW[HOST_AGT_PEX] to 1.
 +endmenu
-diff --git a/drivers/pci/mobiveil/Makefile b/drivers/pci/mobiveil/Makefile
-new file mode 100644
-index 000000000..cd907a7a5
 --- /dev/null
 +++ b/drivers/pci/mobiveil/Makefile
 @@ -0,0 +1,7 @@
@@ -3547,9 +3482,6 @@ index 000000000..cd907a7a5
 +obj-$(CONFIG_PCIE_MOBIVEIL_PLAT) += pcie-mobiveil-plat.o
 +obj-$(CONFIG_PCI_LAYERSCAPE_GEN4) += pci-layerscape-gen4.o
 +obj-$(CONFIG_PCI_LAYERSCAPE_GEN4_EP) += pci-layerscape-gen4-ep.o
-diff --git a/drivers/pci/mobiveil/pci-layerscape-gen4-ep.c b/drivers/pci/mobiveil/pci-layerscape-gen4-ep.c
-new file mode 100644
-index 000000000..3d980f552
 --- /dev/null
 +++ b/drivers/pci/mobiveil/pci-layerscape-gen4-ep.c
 @@ -0,0 +1,178 @@
@@ -3731,9 +3663,6 @@ index 000000000..3d980f552
 +	},
 +};
 +builtin_platform_driver_probe(ls_pcie_g4_ep_driver, ls_pcie_g4_ep_probe);
-diff --git a/drivers/pci/mobiveil/pci-layerscape-gen4.c b/drivers/pci/mobiveil/pci-layerscape-gen4.c
-new file mode 100644
-index 000000000..a52118e30
 --- /dev/null
 +++ b/drivers/pci/mobiveil/pci-layerscape-gen4.c
 @@ -0,0 +1,292 @@
@@ -4029,9 +3958,6 @@ index 000000000..a52118e30
 +};
 +
 +builtin_platform_driver_probe(ls_pcie_g4_driver, ls_pcie_g4_probe);
-diff --git a/drivers/pci/mobiveil/pcie-mobiveil-ep.c b/drivers/pci/mobiveil/pcie-mobiveil-ep.c
-new file mode 100644
-index 000000000..06c5a8ae7
 --- /dev/null
 +++ b/drivers/pci/mobiveil/pcie-mobiveil-ep.c
 @@ -0,0 +1,512 @@
@@ -4547,9 +4473,6 @@ index 000000000..06c5a8ae7
 +
 +	return 0;
 +}
-diff --git a/drivers/pci/mobiveil/pcie-mobiveil-host.c b/drivers/pci/mobiveil/pcie-mobiveil-host.c
-new file mode 100644
-index 000000000..e0c9edc71
 --- /dev/null
 +++ b/drivers/pci/mobiveil/pcie-mobiveil-host.c
 @@ -0,0 +1,640 @@
@@ -5193,9 +5116,6 @@ index 000000000..e0c9edc71
 +	pci_free_resource_list(pcie->resources);
 +	return ret;
 +}
-diff --git a/drivers/pci/mobiveil/pcie-mobiveil-plat.c b/drivers/pci/mobiveil/pcie-mobiveil-plat.c
-new file mode 100644
-index 000000000..216c62f35
 --- /dev/null
 +++ b/drivers/pci/mobiveil/pcie-mobiveil-plat.c
 @@ -0,0 +1,54 @@
@@ -5253,9 +5173,6 @@ index 000000000..216c62f35
 +MODULE_LICENSE("GPL v2");
 +MODULE_DESCRIPTION("Mobiveil PCIe host controller driver");
 +MODULE_AUTHOR("Subrahmanya Lingappa <l.subrahmanya@mobiveil.co.in>");
-diff --git a/drivers/pci/mobiveil/pcie-mobiveil.c b/drivers/pci/mobiveil/pcie-mobiveil.c
-new file mode 100644
-index 000000000..d1fdfedb4
 --- /dev/null
 +++ b/drivers/pci/mobiveil/pcie-mobiveil.c
 @@ -0,0 +1,334 @@
@@ -5593,9 +5510,6 @@ index 000000000..d1fdfedb4
 +	val |= 1 << 0;
 +	csr_writel(pcie, val, PAB_INTP_AMBA_MISC_ENB);
 +}
-diff --git a/drivers/pci/mobiveil/pcie-mobiveil.h b/drivers/pci/mobiveil/pcie-mobiveil.h
-new file mode 100644
-index 000000000..8c73a6d6f
 --- /dev/null
 +++ b/drivers/pci/mobiveil/pcie-mobiveil.h
 @@ -0,0 +1,296 @@
@@ -5895,15 +5809,12 @@ index 000000000..8c73a6d6f
 +void mobiveil_pcie_enable_engine_ppio(struct mobiveil_pcie *pci);
 +void mobiveil_pcie_enable_msi_ep(struct mobiveil_pcie *pci);
 +#endif /* _PCIE_MOBIVEIL_H */
-diff --git a/drivers/pci/pcie/portdrv_core.c b/drivers/pci/pcie/portdrv_core.c
-index ebc9d45bd..df78a3874 100644
 --- a/drivers/pci/pcie/portdrv_core.c
 +++ b/drivers/pci/pcie/portdrv_core.c
-@@ -44,6 +44,20 @@ static void release_pcie_device(struct device *dev)
- 	kfree(to_pcie_device(dev));
+@@ -45,6 +45,20 @@ static void release_pcie_device(struct d
  }
  
-+/**
+ /**
 + * pcibios_check_service_irqs - check irqs in the device tree
 + * @dev: PCI Express port to handle
 + * @irqs: Array of irqs to populate
@@ -5917,9 +5828,10 @@ index ebc9d45bd..df78a3874 100644
 +	return 0;
 +}
 +
- /**
++/**
   * pcie_port_enable_irq_vec - try to set up MSI-X or MSI as interrupt mode
   * for given port
+  * @dev: PCI Express port to handle
 @@ -185,10 +199,25 @@ out_free_irqs:
  static int pcie_init_service_irqs(struct pci_dev *dev, int *irqs, int mask)
  {
@@ -5946,11 +5858,9 @@ index ebc9d45bd..df78a3874 100644
  	/*
  	 * If we support PME or hotplug, but we can't use MSI/MSI-X for
  	 * them, we have to fall back to INTx or other interrupts, e.g., a
-diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
-index 5f8168c89..ea96084fc 100644
 --- a/drivers/pci/quirks.c
 +++ b/drivers/pci/quirks.c
-@@ -3376,6 +3376,13 @@ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_ATHEROS, 0x0032, quirk_no_bus_reset);
+@@ -3376,6 +3376,13 @@ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_A
  DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_ATHEROS, 0x003c, quirk_no_bus_reset);
  DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_ATHEROS, 0x0033, quirk_no_bus_reset);
  
@@ -5964,7 +5874,7 @@ index 5f8168c89..ea96084fc 100644
  static void quirk_no_pm_reset(struct pci_dev *dev)
  {
  	/*
-@@ -4857,3 +4864,11 @@ static void quirk_no_ats(struct pci_dev *pdev)
+@@ -4857,3 +4864,11 @@ static void quirk_no_ats(struct pci_dev
  /* AMD Stoney platform GPU */
  DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ATI, 0x98e4, quirk_no_ats);
  #endif /* CONFIG_PCI_ATS */
@@ -5976,8 +5886,6 @@ index 5f8168c89..ea96084fc 100644
 +		pdev->no_msi = 1;
 +}
 +DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_FREESCALE, PCI_ANY_ID, quirk_fsl_no_msi);
-diff --git a/include/linux/pci-ep-cfs.h b/include/linux/pci-ep-cfs.h
-index 263b89ea5..f42b0fd4b 100644
 --- a/include/linux/pci-ep-cfs.h
 +++ b/include/linux/pci-ep-cfs.h
 @@ -1,12 +1,9 @@
@@ -5994,8 +5902,6 @@ index 263b89ea5..f42b0fd4b 100644
   */
  
  #ifndef __LINUX_PCI_EP_CFS_H
-diff --git a/include/linux/pci-epc.h b/include/linux/pci-epc.h
-index f7a04e1af..e08d8af32 100644
 --- a/include/linux/pci-epc.h
 +++ b/include/linux/pci-epc.h
 @@ -1,12 +1,9 @@
@@ -6083,7 +5989,7 @@ index f7a04e1af..e08d8af32 100644
  #define to_pci_epc(device) container_of((device), struct pci_epc, dev)
  
  #define pci_epc_create(dev, ops)    \
-@@ -124,17 +139,23 @@ void pci_epc_destroy(struct pci_epc *epc);
+@@ -124,17 +139,23 @@ void pci_epc_destroy(struct pci_epc *epc
  int pci_epc_add_epf(struct pci_epc *epc, struct pci_epf *epf);
  void pci_epc_linkup(struct pci_epc *epc);
  void pci_epc_remove_epf(struct pci_epc *epc, struct pci_epf *epf);
@@ -6117,8 +6023,6 @@ index f7a04e1af..e08d8af32 100644
  int pci_epc_start(struct pci_epc *epc);
  void pci_epc_stop(struct pci_epc *epc);
  struct pci_epc *pci_epc_get(const char *epc_name);
-diff --git a/include/linux/pci-epf.h b/include/linux/pci-epf.h
-index 60d551a9a..779b01cf2 100644
 --- a/include/linux/pci-epf.h
 +++ b/include/linux/pci-epf.h
 @@ -1,12 +1,9 @@
@@ -6170,11 +6074,9 @@ index 60d551a9a..779b01cf2 100644
  	u8			func_no;
  
  	struct pci_epc		*epc;
-diff --git a/include/linux/pci.h b/include/linux/pci.h
-index b1abbcc61..5caf414e2 100644
 --- a/include/linux/pci.h
 +++ b/include/linux/pci.h
-@@ -1944,6 +1944,7 @@ void pcibios_release_device(struct pci_dev *dev);
+@@ -1944,6 +1944,7 @@ void pcibios_release_device(struct pci_d
  void pcibios_penalize_isa_irq(int irq, int active);
  int pcibios_alloc_irq(struct pci_dev *dev);
  void pcibios_free_irq(struct pci_dev *dev);
@@ -6182,8 +6084,6 @@ index b1abbcc61..5caf414e2 100644
  
  #ifdef CONFIG_HIBERNATE_CALLBACKS
  extern struct dev_pm_ops pcibios_pm_ops;
-diff --git a/include/uapi/linux/pcitest.h b/include/uapi/linux/pcitest.h
-index 953cf036c..cbf422e56 100644
 --- a/include/uapi/linux/pcitest.h
 +++ b/include/uapi/linux/pcitest.h
 @@ -16,5 +16,8 @@
@@ -6195,8 +6095,6 @@ index 953cf036c..cbf422e56 100644
 +#define PCITEST_GET_IRQTYPE	_IO('P', 0x9)
  
  #endif /* __UAPI_LINUX_PCITEST_H */
-diff --git a/tools/pci/pcitest.c b/tools/pci/pcitest.c
-index 9074b477b..af146bb03 100644
 --- a/tools/pci/pcitest.c
 +++ b/tools/pci/pcitest.c
 @@ -31,12 +31,17 @@
@@ -6217,7 +6115,7 @@ index 9074b477b..af146bb03 100644
  	bool		read;
  	bool		write;
  	bool		copy;
-@@ -65,6 +70,24 @@ static int run_test(struct pci_test *test)
+@@ -65,6 +70,24 @@ static int run_test(struct pci_test *tes
  			fprintf(stdout, "%s\n", result[ret]);
  	}
  
@@ -6242,7 +6140,7 @@ index 9074b477b..af146bb03 100644
  	if (test->legacyirq) {
  		ret = ioctl(fd, PCITEST_LEGACY_IRQ, 0);
  		fprintf(stdout, "LEGACY IRQ:\t");
-@@ -83,6 +106,15 @@ static int run_test(struct pci_test *test)
+@@ -83,6 +106,15 @@ static int run_test(struct pci_test *tes
  			fprintf(stdout, "%s\n", result[ret]);
  	}
  
@@ -6298,8 +6196,6 @@ index 9074b477b..af146bb03 100644
  			"\t-l			Legacy IRQ test\n"
  			"\t-r			Read buffer test\n"
  			"\t-w			Write buffer test\n"
-diff --git a/tools/pci/pcitest.sh b/tools/pci/pcitest.sh
-index 77e8c85ef..75ed48ff2 100644
 --- a/tools/pci/pcitest.sh
 +++ b/tools/pci/pcitest.sh
 @@ -16,7 +16,10 @@ echo
@@ -6335,6 +6231,3 @@ index 77e8c85ef..75ed48ff2 100644
  pcitest -r -s 1
  pcitest -r -s 1024
  pcitest -r -s 1025
--- 
-2.17.1
-

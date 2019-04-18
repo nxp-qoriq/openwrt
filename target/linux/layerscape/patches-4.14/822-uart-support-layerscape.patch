@@ -12,8 +12,6 @@ Signed-off-by: Yuan Yao <yao.yuan@nxp.com>
  drivers/tty/serial/fsl_lpuart.c | 15 +++++++++------
  1 file changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/tty/serial/fsl_lpuart.c b/drivers/tty/serial/fsl_lpuart.c
-index 32a473f9d..f24e0404e 100644
 --- a/drivers/tty/serial/fsl_lpuart.c
 +++ b/drivers/tty/serial/fsl_lpuart.c
 @@ -236,6 +236,8 @@
@@ -25,7 +23,7 @@ index 32a473f9d..f24e0404e 100644
  struct lpuart_port {
  	struct uart_port	port;
  	struct clk		*clk;
-@@ -2153,13 +2155,13 @@ static int lpuart_probe(struct platform_device *pdev)
+@@ -2153,13 +2155,13 @@ static int lpuart_probe(struct platform_
  
  	ret = of_alias_get_id(np, "serial");
  	if (ret < 0) {
@@ -45,7 +43,7 @@ index 32a473f9d..f24e0404e 100644
  	sport->port.line = ret;
  	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
  	sport->port.membase = devm_ioremap_resource(&pdev->dev, res);
-@@ -2250,6 +2252,7 @@ static int lpuart_remove(struct platform_device *pdev)
+@@ -2250,6 +2252,7 @@ static int lpuart_remove(struct platform
  	struct lpuart_port *sport = platform_get_drvdata(pdev);
  
  	uart_remove_one_port(&lpuart_reg, &sport->port);
@@ -53,6 +51,3 @@ index 32a473f9d..f24e0404e 100644
  
  	clk_disable_unprepare(sport->clk);
  
--- 
-2.17.1
-

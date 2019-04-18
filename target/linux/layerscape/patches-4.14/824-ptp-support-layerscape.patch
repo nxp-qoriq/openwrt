@@ -21,8 +21,6 @@ Signed-off-by: Yangbo Lu <yangbo.lu@nxp.com>
  create mode 100644 drivers/ptp/ptp_qoriq.c
  create mode 100644 include/linux/fsl/ptp_qoriq.h
 
-diff --git a/drivers/net/ethernet/freescale/Makefile b/drivers/net/ethernet/freescale/Makefile
-index df5fd6a8e..55deca7fc 100644
 --- a/drivers/net/ethernet/freescale/Makefile
 +++ b/drivers/net/ethernet/freescale/Makefile
 @@ -14,7 +14,6 @@ obj-$(CONFIG_FS_ENET) += fs_enet/
@@ -33,9 +31,6 @@ index df5fd6a8e..55deca7fc 100644
  gianfar_driver-objs := gianfar.o \
  		gianfar_ethtool.o
  obj-$(CONFIG_UCC_GETH) += ucc_geth_driver.o
-diff --git a/drivers/net/ethernet/freescale/gianfar_ptp.c b/drivers/net/ethernet/freescale/gianfar_ptp.c
-deleted file mode 100644
-index 9f8d4f8e5..000000000
 --- a/drivers/net/ethernet/freescale/gianfar_ptp.c
 +++ /dev/null
 @@ -1,572 +0,0 @@
@@ -611,20 +606,16 @@ index 9f8d4f8e5..000000000
 -MODULE_AUTHOR("Richard Cochran <richardcochran@gmail.com>");
 -MODULE_DESCRIPTION("PTP clock using the eTSEC");
 -MODULE_LICENSE("GPL");
-diff --git a/drivers/ptp/Makefile b/drivers/ptp/Makefile
-index fd28207f5..19efa9cfa 100644
 --- a/drivers/ptp/Makefile
 +++ b/drivers/ptp/Makefile
-@@ -9,3 +9,4 @@ obj-$(CONFIG_PTP_1588_CLOCK_DTE)	+= ptp_dte.o
+@@ -9,3 +9,4 @@ obj-$(CONFIG_PTP_1588_CLOCK_DTE)	+= ptp_
  obj-$(CONFIG_PTP_1588_CLOCK_IXP46X)	+= ptp_ixp46x.o
  obj-$(CONFIG_PTP_1588_CLOCK_PCH)	+= ptp_pch.o
  obj-$(CONFIG_PTP_1588_CLOCK_KVM)	+= ptp_kvm.o
 +obj-$(CONFIG_PTP_1588_CLOCK_QORIQ)	+= ptp_qoriq.o
-diff --git a/drivers/ptp/ptp_chardev.c b/drivers/ptp/ptp_chardev.c
-index ecb41eacd..28ab4511a 100644
 --- a/drivers/ptp/ptp_chardev.c
 +++ b/drivers/ptp/ptp_chardev.c
-@@ -224,7 +224,7 @@ long ptp_ioctl(struct posix_clock *pc, unsigned int cmd, unsigned long arg)
+@@ -224,7 +224,7 @@ long ptp_ioctl(struct posix_clock *pc, u
  		}
  		pct = &sysoff->ts[0];
  		for (i = 0; i < sysoff->n_samples; i++) {
@@ -633,7 +624,7 @@ index ecb41eacd..28ab4511a 100644
  			pct->sec = ts.tv_sec;
  			pct->nsec = ts.tv_nsec;
  			pct++;
-@@ -235,7 +235,7 @@ long ptp_ioctl(struct posix_clock *pc, unsigned int cmd, unsigned long arg)
+@@ -235,7 +235,7 @@ long ptp_ioctl(struct posix_clock *pc, u
  			pct->nsec = ts.tv_nsec;
  			pct++;
  		}
@@ -642,9 +633,6 @@ index ecb41eacd..28ab4511a 100644
  		pct->sec = ts.tv_sec;
  		pct->nsec = ts.tv_nsec;
  		if (copy_to_user((void __user *)arg, sysoff, sizeof(*sysoff)))
-diff --git a/drivers/ptp/ptp_qoriq.c b/drivers/ptp/ptp_qoriq.c
-new file mode 100644
-index 000000000..fdd49c26b
 --- /dev/null
 +++ b/drivers/ptp/ptp_qoriq.c
 @@ -0,0 +1,589 @@
@@ -1237,9 +1225,6 @@ index 000000000..fdd49c26b
 +MODULE_AUTHOR("Richard Cochran <richardcochran@gmail.com>");
 +MODULE_DESCRIPTION("PTP clock for Freescale QorIQ 1588 timer");
 +MODULE_LICENSE("GPL");
-diff --git a/include/linux/fsl/ptp_qoriq.h b/include/linux/fsl/ptp_qoriq.h
-new file mode 100644
-index 000000000..c1f003aad
 --- /dev/null
 +++ b/include/linux/fsl/ptp_qoriq.h
 @@ -0,0 +1,169 @@
@@ -1412,6 +1397,3 @@ index 000000000..c1f003aad
 +}
 +
 +#endif
--- 
-2.17.1
-

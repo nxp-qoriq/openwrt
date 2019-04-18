@@ -10,11 +10,9 @@ Signed-off-by: Yangbo Lu <yangbo.lu@nxp.com>
  net/netfilter/core.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/netfilter/core.c b/net/netfilter/core.c
-index 997dd387d..f3cc9fce1 100644
 --- a/net/netfilter/core.c
 +++ b/net/netfilter/core.c
-@@ -390,7 +390,7 @@ void __nf_unregister_net_hook(struct net *net, int pf,
+@@ -390,7 +390,7 @@ void __nf_unregister_net_hook(struct net
  	mutex_lock(&nf_hook_mutex);
  
  	p = nf_entry_dereference(*pp);
@@ -23,6 +21,3 @@ index 997dd387d..f3cc9fce1 100644
  		mutex_unlock(&nf_hook_mutex);
  		return;
  	}
--- 
-2.17.1
-

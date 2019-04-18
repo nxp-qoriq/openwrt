@@ -14,8 +14,6 @@ Signed-off-by: Tang Yuantian <andy.tang@nxp.com>
  drivers/ata/libata-core.c |   3 +
  3 files changed, 178 insertions(+)
 
-diff --git a/drivers/ata/ahci.h b/drivers/ata/ahci.h
-index 781b898e5..3bcc6896f 100644
 --- a/drivers/ata/ahci.h
 +++ b/drivers/ata/ahci.h
 @@ -445,4 +445,11 @@ static inline int ahci_nr_ports(u32 cap)
@@ -30,8 +28,6 @@ index 781b898e5..3bcc6896f 100644
 +#endif
 +
  #endif /* _AHCI_H */
-diff --git a/drivers/ata/ahci_qoriq.c b/drivers/ata/ahci_qoriq.c
-index ab5ac103b..004888088 100644
 --- a/drivers/ata/ahci_qoriq.c
 +++ b/drivers/ata/ahci_qoriq.c
 @@ -35,6 +35,8 @@
@@ -79,7 +75,7 @@ index ab5ac103b..004888088 100644
  };
  
  struct ahci_qoriq_priv {
-@@ -72,6 +96,7 @@ static const struct of_device_id ahci_qoriq_of_match[] = {
+@@ -72,6 +96,7 @@ static const struct of_device_id ahci_qo
  	{ .compatible = "fsl,ls1046a-ahci", .data = (void *)AHCI_LS1046A},
  	{ .compatible = "fsl,ls1088a-ahci", .data = (void *)AHCI_LS1088A},
  	{ .compatible = "fsl,ls2088a-ahci", .data = (void *)AHCI_LS2088A},
@@ -87,7 +83,7 @@ index ab5ac103b..004888088 100644
  	{},
  };
  MODULE_DEVICE_TABLE(of, ahci_qoriq_of_match);
-@@ -156,6 +181,138 @@ static struct scsi_host_template ahci_qoriq_sht = {
+@@ -156,6 +181,138 @@ static struct scsi_host_template ahci_qo
  	AHCI_SHT(DRV_NAME),
  };
  
@@ -226,7 +222,7 @@ index ab5ac103b..004888088 100644
  static int ahci_qoriq_phy_init(struct ahci_host_priv *hpriv)
  {
  	struct ahci_qoriq_priv *qpriv = hpriv->plat_data;
-@@ -183,13 +340,18 @@ static int ahci_qoriq_phy_init(struct ahci_host_priv *hpriv)
+@@ -183,13 +340,18 @@ static int ahci_qoriq_phy_init(struct ah
  		writel(readl(qpriv->ecc_addr) | ECC_DIS_ARMV8_CH2,
  				qpriv->ecc_addr);
  		writel(AHCI_PORT_PHY_1_CFG, reg_base + PORT_PHY1);
@@ -245,7 +241,7 @@ index ab5ac103b..004888088 100644
  		writel(AHCI_PORT_TRANS_CFG, reg_base + PORT_TRANS);
  		if (qpriv->is_dmacoherent)
  			writel(AHCI_PORT_AXICC_CFG, reg_base + PORT_AXICC);
-@@ -201,6 +363,8 @@ static int ahci_qoriq_phy_init(struct ahci_host_priv *hpriv)
+@@ -201,6 +363,8 @@ static int ahci_qoriq_phy_init(struct ah
  		writel(readl(qpriv->ecc_addr) | ECC_DIS_ARMV8_CH2,
  				qpriv->ecc_addr);
  		writel(AHCI_PORT_PHY_1_CFG, reg_base + PORT_PHY1);
@@ -254,7 +250,7 @@ index ab5ac103b..004888088 100644
  		writel(AHCI_PORT_TRANS_CFG, reg_base + PORT_TRANS);
  		if (qpriv->is_dmacoherent)
  			writel(AHCI_PORT_AXICC_CFG, reg_base + PORT_AXICC);
-@@ -212,6 +376,8 @@ static int ahci_qoriq_phy_init(struct ahci_host_priv *hpriv)
+@@ -212,6 +376,8 @@ static int ahci_qoriq_phy_init(struct ah
  		writel(readl(qpriv->ecc_addr) | ECC_DIS_LS1088A,
  		       qpriv->ecc_addr);
  		writel(AHCI_PORT_PHY_1_CFG, reg_base + PORT_PHY1);
@@ -263,7 +259,7 @@ index ab5ac103b..004888088 100644
  		writel(AHCI_PORT_TRANS_CFG, reg_base + PORT_TRANS);
  		if (qpriv->is_dmacoherent)
  			writel(AHCI_PORT_AXICC_CFG, reg_base + PORT_AXICC);
-@@ -219,6 +385,8 @@ static int ahci_qoriq_phy_init(struct ahci_host_priv *hpriv)
+@@ -219,6 +385,8 @@ static int ahci_qoriq_phy_init(struct ah
  
  	case AHCI_LS2088A:
  		writel(AHCI_PORT_PHY_1_CFG, reg_base + PORT_PHY1);
@@ -272,8 +268,6 @@ index ab5ac103b..004888088 100644
  		writel(AHCI_PORT_TRANS_CFG, reg_base + PORT_TRANS);
  		if (qpriv->is_dmacoherent)
  			writel(AHCI_PORT_AXICC_CFG, reg_base + PORT_AXICC);
-diff --git a/drivers/ata/libata-core.c b/drivers/ata/libata-core.c
-index e98c8d99b..a48e879a1 100644
 --- a/drivers/ata/libata-core.c
 +++ b/drivers/ata/libata-core.c
 @@ -76,6 +76,7 @@
@@ -284,7 +278,7 @@ index e98c8d99b..a48e879a1 100644
  #include "libata.h"
  #include "libata-transport.h"
  
-@@ -4119,6 +4120,8 @@ int sata_link_hardreset(struct ata_link *link, const unsigned long *timing,
+@@ -4119,6 +4120,8 @@ int sata_link_hardreset(struct ata_link
  	 */
  	ata_msleep(link->ap, 1);
  
@@ -293,6 +287,3 @@ index e98c8d99b..a48e879a1 100644
  	/* bring link back */
  	rc = sata_link_resume(link, timing, deadline);
  	if (rc)
--- 
-2.17.1
-

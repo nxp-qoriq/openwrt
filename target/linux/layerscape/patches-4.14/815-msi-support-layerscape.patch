@@ -12,8 +12,6 @@ Signed-off-by: Hou Zhiqiang <Zhiqiang.Hou@nxp.com>
  drivers/irqchip/irq-ls-scfg-msi.c                                | 1 +
  2 files changed, 2 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/interrupt-controller/fsl,ls-scfg-msi.txt b/Documentation/devicetree/bindings/interrupt-controller/fsl,ls-scfg-msi.txt
-index 49ccabbfa..a4ff93d6b 100644
 --- a/Documentation/devicetree/bindings/interrupt-controller/fsl,ls-scfg-msi.txt
 +++ b/Documentation/devicetree/bindings/interrupt-controller/fsl,ls-scfg-msi.txt
 @@ -8,6 +8,7 @@ Required properties:
@@ -24,11 +22,9 @@ index 49ccabbfa..a4ff93d6b 100644
  - msi-controller: indicates that this is a PCIe MSI controller node
  - reg: physical base address of the controller and length of memory mapped.
  - interrupts: an interrupt to the parent interrupt controller.
-diff --git a/drivers/irqchip/irq-ls-scfg-msi.c b/drivers/irqchip/irq-ls-scfg-msi.c
-index b7f943f96..1ec3bfe56 100644
 --- a/drivers/irqchip/irq-ls-scfg-msi.c
 +++ b/drivers/irqchip/irq-ls-scfg-msi.c
-@@ -319,6 +319,7 @@ static const struct of_device_id ls_scfg_msi_id[] = {
+@@ -319,6 +319,7 @@ static const struct of_device_id ls_scfg
  	{ .compatible = "fsl,1s1021a-msi", .data = &ls1021_msi_cfg},
  	{ .compatible = "fsl,1s1043a-msi", .data = &ls1021_msi_cfg},
  
@@ -36,6 +32,3 @@ index b7f943f96..1ec3bfe56 100644
  	{ .compatible = "fsl,ls1021a-msi", .data = &ls1021_msi_cfg },
  	{ .compatible = "fsl,ls1043a-msi", .data = &ls1021_msi_cfg },
  	{ .compatible = "fsl,ls1043a-v1.1-msi", .data = &ls1043_v1_1_msi_cfg },
--- 
-2.17.1
-

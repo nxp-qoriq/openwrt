@@ -169,8 +169,6 @@ Signed-off-by: Zhao Qiang <qiang.zhao@nxp.com>
  create mode 100644 arch/arm64/boot/dts/freescale/qoriq-fman3-0-6oh.dtsi
  create mode 100644 arch/arm64/boot/dts/freescale/qoriq-qman-portals-sdk.dtsi
 
-diff --git a/arch/arm/boot/dts/Makefile b/arch/arm/boot/dts/Makefile
-index eff87a344..5b7f0c77a 100644
 --- a/arch/arm/boot/dts/Makefile
 +++ b/arch/arm/boot/dts/Makefile
 @@ -496,7 +496,8 @@ dtb-$(CONFIG_SOC_IMX7D) += \
@@ -183,8 +181,6 @@ index eff87a344..5b7f0c77a 100644
  dtb-$(CONFIG_SOC_VF610) += \
  	vf500-colibri-eval-v3.dtb \
  	vf610-colibri-eval-v3.dtb \
-diff --git a/arch/arm/boot/dts/imx25.dtsi b/arch/arm/boot/dts/imx25.dtsi
-index 09ce8b81f..fcaff1c66 100644
 --- a/arch/arm/boot/dts/imx25.dtsi
 +++ b/arch/arm/boot/dts/imx25.dtsi
 @@ -122,7 +122,7 @@
@@ -205,8 +201,6 @@ index 09ce8b81f..fcaff1c66 100644
  				reg = <0x43f8c000 0x4000>;
  				interrupts = <44>;
  				clocks = <&clks 76>, <&clks 76>;
-diff --git a/arch/arm/boot/dts/imx28.dtsi b/arch/arm/boot/dts/imx28.dtsi
-index 2f4ebe031..e52e05c0f 100644
 --- a/arch/arm/boot/dts/imx28.dtsi
 +++ b/arch/arm/boot/dts/imx28.dtsi
 @@ -1038,7 +1038,7 @@
@@ -227,8 +221,6 @@ index 2f4ebe031..e52e05c0f 100644
  				reg = <0x80034000 0x2000>;
  				interrupts = <9>;
  				clocks = <&clks 59>, <&clks 59>;
-diff --git a/arch/arm/boot/dts/imx35.dtsi b/arch/arm/boot/dts/imx35.dtsi
-index 6d5e6a60b..1f0e2203b 100644
 --- a/arch/arm/boot/dts/imx35.dtsi
 +++ b/arch/arm/boot/dts/imx35.dtsi
 @@ -303,7 +303,7 @@
@@ -249,8 +241,6 @@ index 6d5e6a60b..1f0e2203b 100644
  				reg = <0x53fe8000 0x1000>;
  				clocks = <&clks 34>, <&clks 34>;
  				clock-names = "ipg", "per";
-diff --git a/arch/arm/boot/dts/imx53.dtsi b/arch/arm/boot/dts/imx53.dtsi
-index 2e516f498..f5ad5b57e 100644
 --- a/arch/arm/boot/dts/imx53.dtsi
 +++ b/arch/arm/boot/dts/imx53.dtsi
 @@ -536,7 +536,7 @@
@@ -271,9 +261,6 @@ index 2e516f498..f5ad5b57e 100644
  				reg = <0x53fcc000 0x4000>;
  				interrupts = <83>;
  				clocks = <&clks IMX5_CLK_CAN2_IPG_GATE>,
-diff --git a/arch/arm/boot/dts/ls1021a-iot.dts b/arch/arm/boot/dts/ls1021a-iot.dts
-new file mode 100644
-index 000000000..00ff4411e
 --- /dev/null
 +++ b/arch/arm/boot/dts/ls1021a-iot.dts
 @@ -0,0 +1,262 @@
@@ -539,8 +526,6 @@ index 000000000..00ff4411e
 +		};
 +	};
 +};
-diff --git a/arch/arm/boot/dts/ls1021a-qds.dts b/arch/arm/boot/dts/ls1021a-qds.dts
-index 67b4de0e3..239a2ddca 100644
 --- a/arch/arm/boot/dts/ls1021a-qds.dts
 +++ b/arch/arm/boot/dts/ls1021a-qds.dts
 @@ -124,6 +124,21 @@
@@ -600,8 +585,6 @@ index 67b4de0e3..239a2ddca 100644
 +&can1 {
 +	status = "okay";
 +};
-diff --git a/arch/arm/boot/dts/ls1021a-twr.dts b/arch/arm/boot/dts/ls1021a-twr.dts
-index 44715c8ef..cc351e390 100644
 --- a/arch/arm/boot/dts/ls1021a-twr.dts
 +++ b/arch/arm/boot/dts/ls1021a-twr.dts
 @@ -142,6 +142,21 @@
@@ -649,8 +632,6 @@ index 44715c8ef..cc351e390 100644
 +&can1 {
 +	status = "okay";
 +};
-diff --git a/arch/arm/boot/dts/ls1021a.dtsi b/arch/arm/boot/dts/ls1021a.dtsi
-index 2d20f6094..dc347ec0b 100644
 --- a/arch/arm/boot/dts/ls1021a.dtsi
 +++ b/arch/arm/boot/dts/ls1021a.dtsi
 @@ -146,12 +146,13 @@
@@ -849,8 +830,6 @@ index 2d20f6094..dc347ec0b 100644
  		};
  	};
  };
-diff --git a/arch/arm64/boot/dts/freescale/Makefile b/arch/arm64/boot/dts/freescale/Makefile
-index dc02e82ab..b0020bf65 100644
 --- a/arch/arm64/boot/dts/freescale/Makefile
 +++ b/arch/arm64/boot/dts/freescale/Makefile
 @@ -1,19 +1,33 @@
@@ -888,9 +867,6 @@ index dc02e82ab..b0020bf65 100644
  always		:= $(dtb-y)
  subdir-y	:= $(dts-dirs)
  clean-files	:= *.dtb
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1012a-2g5rdb.dts b/arch/arm64/boot/dts/freescale/fsl-ls1012a-2g5rdb.dts
-new file mode 100644
-index 000000000..6be3da0ea
 --- /dev/null
 +++ b/arch/arm64/boot/dts/freescale/fsl-ls1012a-2g5rdb.dts
 @@ -0,0 +1,126 @@
@@ -1020,8 +996,6 @@ index 000000000..6be3da0ea
 +		};
 +	};
 +};
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1012a-frdm.dts b/arch/arm64/boot/dts/freescale/fsl-ls1012a-frdm.dts
-index 7286b1ebf..fcc3c271a 100644
 --- a/arch/arm64/boot/dts/freescale/fsl-ls1012a-frdm.dts
 +++ b/arch/arm64/boot/dts/freescale/fsl-ls1012a-frdm.dts
 @@ -1,45 +1,9 @@
@@ -1148,9 +1122,6 @@ index 7286b1ebf..fcc3c271a 100644
 +	};
 +
 +};
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1012a-frwy.dts b/arch/arm64/boot/dts/freescale/fsl-ls1012a-frwy.dts
-new file mode 100644
-index 000000000..712cf5414
 --- /dev/null
 +++ b/arch/arm64/boot/dts/freescale/fsl-ls1012a-frwy.dts
 @@ -0,0 +1,179 @@
@@ -1333,8 +1304,6 @@ index 000000000..712cf5414
 +&sai2 {
 +	status = "okay";
 +};
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1012a-qds.dts b/arch/arm64/boot/dts/freescale/fsl-ls1012a-qds.dts
-index 8c013b54d..a4fed8390 100644
 --- a/arch/arm64/boot/dts/freescale/fsl-ls1012a-qds.dts
 +++ b/arch/arm64/boot/dts/freescale/fsl-ls1012a-qds.dts
 @@ -1,45 +1,9 @@
@@ -1507,8 +1476,6 @@ index 8c013b54d..a4fed8390 100644
 +	};
 +
 +};
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1012a-rdb.dts b/arch/arm64/boot/dts/freescale/fsl-ls1012a-rdb.dts
-index c1a119eff..f112ea68f 100644
 --- a/arch/arm64/boot/dts/freescale/fsl-ls1012a-rdb.dts
 +++ b/arch/arm64/boot/dts/freescale/fsl-ls1012a-rdb.dts
 @@ -1,45 +1,9 @@
@@ -1631,8 +1598,6 @@ index c1a119eff..f112ea68f 100644
 +	};
 +
 +};
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1012a.dtsi b/arch/arm64/boot/dts/freescale/fsl-ls1012a.dtsi
-index df83915d6..64f470b42 100644
 --- a/arch/arm64/boot/dts/freescale/fsl-ls1012a.dtsi
 +++ b/arch/arm64/boot/dts/freescale/fsl-ls1012a.dtsi
 @@ -1,45 +1,9 @@
@@ -1916,8 +1881,6 @@ index df83915d6..64f470b42 100644
 +		status = "okay";
  	};
  };
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1043-post.dtsi b/arch/arm64/boot/dts/freescale/fsl-ls1043-post.dtsi
-index 169e17140..6082ae022 100644
 --- a/arch/arm64/boot/dts/freescale/fsl-ls1043-post.dtsi
 +++ b/arch/arm64/boot/dts/freescale/fsl-ls1043-post.dtsi
 @@ -1,9 +1,8 @@
@@ -1931,9 +1894,6 @@ index 169e17140..6082ae022 100644
   */
  
  &soc {
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1043a-qds-sdk.dts b/arch/arm64/boot/dts/freescale/fsl-ls1043a-qds-sdk.dts
-new file mode 100644
-index 000000000..0878d6b8c
 --- /dev/null
 +++ b/arch/arm64/boot/dts/freescale/fsl-ls1043a-qds-sdk.dts
 @@ -0,0 +1,263 @@
@@ -2200,8 +2160,6 @@ index 000000000..0878d6b8c
 +&fsldpaa {
 +	dma-coherent;
 +};
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1043a-qds.dts b/arch/arm64/boot/dts/freescale/fsl-ls1043a-qds.dts
-index 634128148..8edbb62eb 100644
 --- a/arch/arm64/boot/dts/freescale/fsl-ls1043a-qds.dts
 +++ b/arch/arm64/boot/dts/freescale/fsl-ls1043a-qds.dts
 @@ -1,47 +1,10 @@
@@ -2443,9 +2401,6 @@ index 634128148..8edbb62eb 100644
 +		};
 +	};
 +};
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1043a-rdb-sdk.dts b/arch/arm64/boot/dts/freescale/fsl-ls1043a-rdb-sdk.dts
-new file mode 100644
-index 000000000..5bfd2262d
 --- /dev/null
 +++ b/arch/arm64/boot/dts/freescale/fsl-ls1043a-rdb-sdk.dts
 @@ -0,0 +1,262 @@
@@ -2711,9 +2666,6 @@ index 000000000..5bfd2262d
 +&fsldpaa {
 +	dma-coherent;
 +};
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1043a-rdb-usdpaa.dts b/arch/arm64/boot/dts/freescale/fsl-ls1043a-rdb-usdpaa.dts
-new file mode 100644
-index 000000000..7beb9985a
 --- /dev/null
 +++ b/arch/arm64/boot/dts/freescale/fsl-ls1043a-rdb-usdpaa.dts
 @@ -0,0 +1,140 @@
@@ -2857,8 +2809,6 @@ index 000000000..7beb9985a
 +		reg = <0x83000 0x1000>;
 +	};
 +};
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1043a-rdb.dts b/arch/arm64/boot/dts/freescale/fsl-ls1043a-rdb.dts
-index 3dc0c8e96..09765dc4f 100644
 --- a/arch/arm64/boot/dts/freescale/fsl-ls1043a-rdb.dts
 +++ b/arch/arm64/boot/dts/freescale/fsl-ls1043a-rdb.dts
 @@ -1,47 +1,10 @@
@@ -2968,8 +2918,6 @@ index 3dc0c8e96..09765dc4f 100644
  };
  
  &duart0 {
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1043a.dtsi b/arch/arm64/boot/dts/freescale/fsl-ls1043a.dtsi
-index d16b9cc1e..ce803c019 100644
 --- a/arch/arm64/boot/dts/freescale/fsl-ls1043a.dtsi
 +++ b/arch/arm64/boot/dts/freescale/fsl-ls1043a.dtsi
 @@ -1,47 +1,10 @@
@@ -3318,6 +3266,33 @@ index d16b9cc1e..ce803c019 100644
 -			snps,quirk-frame-length-adjustment = <0x20>;
 -			snps,dis_rxdet_inp3_quirk;
 -		};
+-
+-		usb1: usb3@3000000 {
+-			compatible = "snps,dwc3";
+-			reg = <0x0 0x3000000 0x0 0x10000>;
+-			interrupts = <0 61 0x4>;
+-			dr_mode = "host";
+-			snps,quirk-frame-length-adjustment = <0x20>;
+-			snps,dis_rxdet_inp3_quirk;
+-		};
+-
+-		usb2: usb3@3100000 {
+-			compatible = "snps,dwc3";
+-			reg = <0x0 0x3100000 0x0 0x10000>;
+-			interrupts = <0 63 0x4>;
+-			dr_mode = "host";
+-			snps,quirk-frame-length-adjustment = <0x20>;
+-			snps,dis_rxdet_inp3_quirk;
+-		};
+-
+-		sata: sata@3200000 {
+-			compatible = "fsl,ls1043a-ahci";
+-			reg = <0x0 0x3200000 0x0 0x10000>,
+-				<0x0 0x20140520 0x0 0x4>;
+-			reg-names = "ahci", "sata-ecc";
+-			interrupts = <0 69 0x4>;
+-			clocks = <&clockgen 4 0>;
+-			dma-coherent;
 +		aux_bus: aux_bus {
 +			#address-cells = <2>;
 +			#size-cells = <2>;
@@ -3337,15 +3312,7 @@ index d16b9cc1e..ce803c019 100644
 +				snps,incr-burst-type-adjustment = <1>, <4>, <8>, <16>;
 +				snps,host-vbus-glitches;
 +			};
- 
--		usb1: usb3@3000000 {
--			compatible = "snps,dwc3";
--			reg = <0x0 0x3000000 0x0 0x10000>;
--			interrupts = <0 61 0x4>;
--			dr_mode = "host";
--			snps,quirk-frame-length-adjustment = <0x20>;
--			snps,dis_rxdet_inp3_quirk;
--		};
++
 +			usb1: usb3@3000000 {
 +				compatible = "snps,dwc3";
 +				reg = <0x0 0x3000000 0x0 0x10000>;
@@ -3358,14 +3325,7 @@ index d16b9cc1e..ce803c019 100644
 +				snps,incr-burst-type-adjustment = <1>, <4>, <8>, <16>;
 +				snps,host-vbus-glitches;
 +			};
- 
--		usb2: usb3@3100000 {
--			compatible = "snps,dwc3";
--			reg = <0x0 0x3100000 0x0 0x10000>;
--			interrupts = <0 63 0x4>;
--			dr_mode = "host";
--			snps,quirk-frame-length-adjustment = <0x20>;
--			snps,dis_rxdet_inp3_quirk;
++
 +			usb2: usb3@3100000 {
 +				compatible = "snps,dwc3";
 +				reg = <0x0 0x3100000 0x0 0x10000>;
@@ -3387,16 +3347,8 @@ index d16b9cc1e..ce803c019 100644
 +				interrupts = <0 69 0x4>;
 +				clocks = <&clockgen 4 0>;
 +			};
- 		};
- 
--		sata: sata@3200000 {
--			compatible = "fsl,ls1043a-ahci";
--			reg = <0x0 0x3200000 0x0 0x10000>,
--				<0x0 0x20140520 0x0 0x4>;
--			reg-names = "ahci", "sata-ecc";
--			interrupts = <0 69 0x4>;
--			clocks = <&clockgen 4 0>;
--			dma-coherent;
++		};
++
 +		qdma: qdma@8380000 {
 +			compatible = "fsl,ls1021a-qdma", "fsl,ls1043a-qdma";
 +			reg = <0x0 0x8380000 0x0 0x1000>, /* Controller regs */
@@ -3534,8 +3486,6 @@ index d16b9cc1e..ce803c019 100644
 +		status = "okay";
 +	};
 +};
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1046-post.dtsi b/arch/arm64/boot/dts/freescale/fsl-ls1046-post.dtsi
-index f5017dba0..d6caaea57 100644
 --- a/arch/arm64/boot/dts/freescale/fsl-ls1046-post.dtsi
 +++ b/arch/arm64/boot/dts/freescale/fsl-ls1046-post.dtsi
 @@ -1,9 +1,9 @@
@@ -3549,9 +3499,6 @@ index f5017dba0..d6caaea57 100644
   */
  
  &soc {
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1046a-qds-sdk.dts b/arch/arm64/boot/dts/freescale/fsl-ls1046a-qds-sdk.dts
-new file mode 100644
-index 000000000..a4708c0a7
 --- /dev/null
 +++ b/arch/arm64/boot/dts/freescale/fsl-ls1046a-qds-sdk.dts
 @@ -0,0 +1,268 @@
@@ -3823,8 +3770,6 @@ index 000000000..a4708c0a7
 +&fsldpaa {
 +	dma-coherent;
 +};
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1046a-qds.dts b/arch/arm64/boot/dts/freescale/fsl-ls1046a-qds.dts
-index 434383bad..4f3382bfc 100644
 --- a/arch/arm64/boot/dts/freescale/fsl-ls1046a-qds.dts
 +++ b/arch/arm64/boot/dts/freescale/fsl-ls1046a-qds.dts
 @@ -1,47 +1,10 @@
@@ -4055,9 +4000,6 @@ index 434383bad..4f3382bfc 100644
 +		};
 +	};
 +};
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1046a-rdb-sdk.dts b/arch/arm64/boot/dts/freescale/fsl-ls1046a-rdb-sdk.dts
-new file mode 100644
-index 000000000..5016f2562
 --- /dev/null
 +++ b/arch/arm64/boot/dts/freescale/fsl-ls1046a-rdb-sdk.dts
 @@ -0,0 +1,307 @@
@@ -4368,9 +4310,6 @@ index 000000000..5016f2562
 +&fsldpaa {
 +	dma-coherent;
 +};
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1046a-rdb-usdpaa.dts b/arch/arm64/boot/dts/freescale/fsl-ls1046a-rdb-usdpaa.dts
-new file mode 100644
-index 000000000..343c9d81a
 --- /dev/null
 +++ b/arch/arm64/boot/dts/freescale/fsl-ls1046a-rdb-usdpaa.dts
 @@ -0,0 +1,133 @@
@@ -4507,8 +4446,6 @@ index 000000000..343c9d81a
 +		reg = <0x83000 0x1000>;
 +	};
 +};
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1046a-rdb.dts b/arch/arm64/boot/dts/freescale/fsl-ls1046a-rdb.dts
-index 5dc2782e2..0f0a6b531 100644
 --- a/arch/arm64/boot/dts/freescale/fsl-ls1046a-rdb.dts
 +++ b/arch/arm64/boot/dts/freescale/fsl-ls1046a-rdb.dts
 @@ -1,47 +1,10 @@
@@ -4589,8 +4526,6 @@ index 5dc2782e2..0f0a6b531 100644
  	};
  };
  
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1046a.dtsi b/arch/arm64/boot/dts/freescale/fsl-ls1046a.dtsi
-index c8ff0badd..88dc4e80f 100644
 --- a/arch/arm64/boot/dts/freescale/fsl-ls1046a.dtsi
 +++ b/arch/arm64/boot/dts/freescale/fsl-ls1046a.dtsi
 @@ -1,47 +1,10 @@
@@ -4834,6 +4769,32 @@ index c8ff0badd..88dc4e80f 100644
 -			snps,quirk-frame-length-adjustment = <0x20>;
 -			snps,dis_rxdet_inp3_quirk;
 -		};
+-
+-		usb1: usb@3000000 {
+-			compatible = "snps,dwc3";
+-			reg = <0x0 0x3000000 0x0 0x10000>;
+-			interrupts = <GIC_SPI 61 IRQ_TYPE_LEVEL_HIGH>;
+-			dr_mode = "host";
+-			snps,quirk-frame-length-adjustment = <0x20>;
+-			snps,dis_rxdet_inp3_quirk;
+-		};
+-
+-		usb2: usb@3100000 {
+-			compatible = "snps,dwc3";
+-			reg = <0x0 0x3100000 0x0 0x10000>;
+-			interrupts = <GIC_SPI 63 IRQ_TYPE_LEVEL_HIGH>;
+-			dr_mode = "host";
+-			snps,quirk-frame-length-adjustment = <0x20>;
+-			snps,dis_rxdet_inp3_quirk;
+-		};
+-
+-		sata: sata@3200000 {
+-			compatible = "fsl,ls1046a-ahci";
+-			reg = <0x0 0x3200000 0x0 0x10000>,
+-				<0x0 0x20140520 0x0 0x4>;
+-			reg-names = "ahci", "sata-ecc";
+-			interrupts = <GIC_SPI 69 IRQ_TYPE_LEVEL_HIGH>;
+-			clocks = <&clockgen 4 1>;
 +		aux_bus: aux_bus {
 +			#address-cells = <2>;
 +			#size-cells = <2>;
@@ -4853,15 +4814,7 @@ index c8ff0badd..88dc4e80f 100644
 +				snps,incr-burst-type-adjustment = <1>, <4>, <8>, <16>;
 +				snps,host-vbus-glitches;
 +			};
- 
--		usb1: usb@3000000 {
--			compatible = "snps,dwc3";
--			reg = <0x0 0x3000000 0x0 0x10000>;
--			interrupts = <GIC_SPI 61 IRQ_TYPE_LEVEL_HIGH>;
--			dr_mode = "host";
--			snps,quirk-frame-length-adjustment = <0x20>;
--			snps,dis_rxdet_inp3_quirk;
--		};
++
 +			usb1: usb@3000000 {
 +				compatible = "snps,dwc3";
 +				reg = <0x0 0x3000000 0x0 0x10000>;
@@ -4887,14 +4840,7 @@ index c8ff0badd..88dc4e80f 100644
 +				snps,incr-burst-type-adjustment = <1>, <4>, <8>, <16>;
 +				snps,host-vbus-glitches;
 +			};
- 
--		usb2: usb@3100000 {
--			compatible = "snps,dwc3";
--			reg = <0x0 0x3100000 0x0 0x10000>;
--			interrupts = <GIC_SPI 63 IRQ_TYPE_LEVEL_HIGH>;
--			dr_mode = "host";
--			snps,quirk-frame-length-adjustment = <0x20>;
--			snps,dis_rxdet_inp3_quirk;
++
 +			sata: sata@3200000 {
 +				compatible = "fsl,ls1046a-ahci";
 +				reg = <0x0 0x3200000 0x0 0x10000>,
@@ -4903,15 +4849,8 @@ index c8ff0badd..88dc4e80f 100644
 +				interrupts = <GIC_SPI 69 IRQ_TYPE_LEVEL_HIGH>;
 +				clocks = <&clockgen 4 1>;
 +			};
- 		};
- 
--		sata: sata@3200000 {
--			compatible = "fsl,ls1046a-ahci";
--			reg = <0x0 0x3200000 0x0 0x10000>,
--				<0x0 0x20140520 0x0 0x4>;
--			reg-names = "ahci", "sata-ecc";
--			interrupts = <GIC_SPI 69 IRQ_TYPE_LEVEL_HIGH>;
--			clocks = <&clockgen 4 1>;
++		};
++
 +		qdma: qdma@8380000 {
 +			compatible = "fsl,ls1046a-qdma", "fsl,ls1021a-qdma";
 +			reg = <0x0 0x8380000 0x0 0x1000>, /* Controller regs */
@@ -5097,8 +5036,6 @@ index c8ff0badd..88dc4e80f 100644
 +		status = "okay";
 +	};
 +};
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1088a-qds.dts b/arch/arm64/boot/dts/freescale/fsl-ls1088a-qds.dts
-index 30128051d..3a34b11e6 100644
 --- a/arch/arm64/boot/dts/freescale/fsl-ls1088a-qds.dts
 +++ b/arch/arm64/boot/dts/freescale/fsl-ls1088a-qds.dts
 @@ -1,3 +1,4 @@
@@ -5211,8 +5148,6 @@ index 30128051d..3a34b11e6 100644
 + *	phy-handle = <&pcs_phy1>;
 + * };
 + */
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1088a-rdb.dts b/arch/arm64/boot/dts/freescale/fsl-ls1088a-rdb.dts
-index 0f6fcda36..b027d7f24 100644
 --- a/arch/arm64/boot/dts/freescale/fsl-ls1088a-rdb.dts
 +++ b/arch/arm64/boot/dts/freescale/fsl-ls1088a-rdb.dts
 @@ -1,3 +1,4 @@
@@ -5394,8 +5329,6 @@ index 0f6fcda36..b027d7f24 100644
 +&dpmac10 {
 +	phy-handle = <&mdio1_phy4>;
 +};
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1088a.dtsi b/arch/arm64/boot/dts/freescale/fsl-ls1088a.dtsi
-index 33797b373..4a4607222 100644
 --- a/arch/arm64/boot/dts/freescale/fsl-ls1088a.dtsi
 +++ b/arch/arm64/boot/dts/freescale/fsl-ls1088a.dtsi
 @@ -1,3 +1,4 @@
@@ -6070,8 +6003,6 @@ index 33797b373..4a4607222 100644
 +		status = "okay";
 +	};
  };
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls2080a-qds.dts b/arch/arm64/boot/dts/freescale/fsl-ls2080a-qds.dts
-index 3c99608b9..20157fd69 100644
 --- a/arch/arm64/boot/dts/freescale/fsl-ls2080a-qds.dts
 +++ b/arch/arm64/boot/dts/freescale/fsl-ls2080a-qds.dts
 @@ -1,3 +1,4 @@
@@ -6189,8 +6120,6 @@ index 3c99608b9..20157fd69 100644
 +&dpmac12 {
 +	phy-handle = <&mdio0_phy15>;
 +};
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls2080a-rdb.dts b/arch/arm64/boot/dts/freescale/fsl-ls2080a-rdb.dts
-index a4e7de9f7..2ed99e98f 100644
 --- a/arch/arm64/boot/dts/freescale/fsl-ls2080a-rdb.dts
 +++ b/arch/arm64/boot/dts/freescale/fsl-ls2080a-rdb.dts
 @@ -1,3 +1,4 @@
@@ -6326,8 +6255,6 @@ index a4e7de9f7..2ed99e98f 100644
 +&dpmac8 {
 +	phy-handle = <&mdio2_phy4>;
 +};
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls2080a-simu.dts b/arch/arm64/boot/dts/freescale/fsl-ls2080a-simu.dts
-index fbbb73e57..551730503 100644
 --- a/arch/arm64/boot/dts/freescale/fsl-ls2080a-simu.dts
 +++ b/arch/arm64/boot/dts/freescale/fsl-ls2080a-simu.dts
 @@ -1,3 +1,4 @@
@@ -6379,8 +6306,6 @@ index fbbb73e57..551730503 100644
   */
  
  /dts-v1/;
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls2080a.dtsi b/arch/arm64/boot/dts/freescale/fsl-ls2080a.dtsi
-index 8d739301e..59de6747c 100644
 --- a/arch/arm64/boot/dts/freescale/fsl-ls2080a.dtsi
 +++ b/arch/arm64/boot/dts/freescale/fsl-ls2080a.dtsi
 @@ -1,3 +1,4 @@
@@ -6477,9 +6402,6 @@ index 8d739301e..59de6747c 100644
  &pcie1 {
  	reg = <0x00 0x03400000 0x0 0x00100000   /* controller registers */
  	       0x10 0x00000000 0x0 0x00002000>; /* configuration space */
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls2081a-rdb.dts b/arch/arm64/boot/dts/freescale/fsl-ls2081a-rdb.dts
-new file mode 100644
-index 000000000..c1741f5e6
 --- /dev/null
 +++ b/arch/arm64/boot/dts/freescale/fsl-ls2081a-rdb.dts
 @@ -0,0 +1,163 @@
@@ -6646,8 +6568,6 @@ index 000000000..c1741f5e6
 +&usb1 {
 +	status = "okay";
 +};
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls2088a-qds.dts b/arch/arm64/boot/dts/freescale/fsl-ls2088a-qds.dts
-index eaee5b1c3..6da3963ee 100644
 --- a/arch/arm64/boot/dts/freescale/fsl-ls2088a-qds.dts
 +++ b/arch/arm64/boot/dts/freescale/fsl-ls2088a-qds.dts
 @@ -1,3 +1,4 @@
@@ -6823,8 +6743,6 @@ index eaee5b1c3..6da3963ee 100644
 +&dpmac12 {
 +	phy-handle = <&mdio0_phy15>;
 +};
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls2088a-rdb.dts b/arch/arm64/boot/dts/freescale/fsl-ls2088a-rdb.dts
-index c411442ca..a32b0f6e9 100644
 --- a/arch/arm64/boot/dts/freescale/fsl-ls2088a-rdb.dts
 +++ b/arch/arm64/boot/dts/freescale/fsl-ls2088a-rdb.dts
 @@ -1,3 +1,4 @@
@@ -6960,8 +6878,6 @@ index c411442ca..a32b0f6e9 100644
 +&dpmac8 {
 +	phy-handle = <&mdio2_phy4>;
 +};
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls2088a.dtsi b/arch/arm64/boot/dts/freescale/fsl-ls2088a.dtsi
-index 6aa319dae..2f66d8600 100644
 --- a/arch/arm64/boot/dts/freescale/fsl-ls2088a.dtsi
 +++ b/arch/arm64/boot/dts/freescale/fsl-ls2088a.dtsi
 @@ -1,3 +1,4 @@
@@ -7088,8 +7004,6 @@ index 6aa319dae..2f66d8600 100644
  	reg = <0x00 0x03700000 0x0 0x00100000   /* controller registers */
  	       0x38 0x00000000 0x0 0x00002000>; /* configuration space */
  
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls208xa-qds.dtsi b/arch/arm64/boot/dts/freescale/fsl-ls208xa-qds.dtsi
-index b2374469a..fbf41c779 100644
 --- a/arch/arm64/boot/dts/freescale/fsl-ls208xa-qds.dtsi
 +++ b/arch/arm64/boot/dts/freescale/fsl-ls208xa-qds.dtsi
 @@ -1,3 +1,4 @@
@@ -7163,8 +7077,6 @@ index b2374469a..fbf41c779 100644
  		compatible = "st,m25p80";
  		spi-max-frequency = <20000000>;
  		reg = <0>;
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls208xa-rdb.dtsi b/arch/arm64/boot/dts/freescale/fsl-ls208xa-rdb.dtsi
-index 9a1d0d2ab..20fa0ab64 100644
 --- a/arch/arm64/boot/dts/freescale/fsl-ls208xa-rdb.dtsi
 +++ b/arch/arm64/boot/dts/freescale/fsl-ls208xa-rdb.dtsi
 @@ -1,3 +1,4 @@
@@ -7259,8 +7171,6 @@ index 9a1d0d2ab..20fa0ab64 100644
  };
  
  &sata0 {
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi b/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi
-index 4fb9a0966..13b49cb10 100644
 --- a/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi
 +++ b/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi
 @@ -1,3 +1,4 @@
@@ -7758,9 +7668,6 @@ index 4fb9a0966..13b49cb10 100644
 +		status = "okay";
 +	};
  };
-diff --git a/arch/arm64/boot/dts/freescale/fsl-lx2160a-qds.dts b/arch/arm64/boot/dts/freescale/fsl-lx2160a-qds.dts
-new file mode 100644
-index 000000000..01fd00c64
 --- /dev/null
 +++ b/arch/arm64/boot/dts/freescale/fsl-lx2160a-qds.dts
 @@ -0,0 +1,353 @@
@@ -8117,9 +8024,6 @@ index 000000000..01fd00c64
 + *	phy-handle = <&pcs_phy4>;
 + * };
 + */
-diff --git a/arch/arm64/boot/dts/freescale/fsl-lx2160a-rdb.dts b/arch/arm64/boot/dts/freescale/fsl-lx2160a-rdb.dts
-new file mode 100644
-index 000000000..1598c61a6
 --- /dev/null
 +++ b/arch/arm64/boot/dts/freescale/fsl-lx2160a-rdb.dts
 @@ -0,0 +1,241 @@
@@ -8364,9 +8268,6 @@ index 000000000..1598c61a6
 +&sata3 {
 +	status = "okay";
 +};
-diff --git a/arch/arm64/boot/dts/freescale/fsl-lx2160a.dtsi b/arch/arm64/boot/dts/freescale/fsl-lx2160a.dtsi
-new file mode 100644
-index 000000000..ec87b9967
 --- /dev/null
 +++ b/arch/arm64/boot/dts/freescale/fsl-lx2160a.dtsi
 @@ -0,0 +1,1318 @@
@@ -9688,9 +9589,6 @@ index 000000000..ec87b9967
 +		};
 +	};
 +};
-diff --git a/arch/arm64/boot/dts/freescale/fsl-tmu-map1.dtsi b/arch/arm64/boot/dts/freescale/fsl-tmu-map1.dtsi
-new file mode 100644
-index 000000000..87e0d2ea5
 --- /dev/null
 +++ b/arch/arm64/boot/dts/freescale/fsl-tmu-map1.dtsi
 @@ -0,0 +1,99 @@
@@ -9793,9 +9691,6 @@ index 000000000..87e0d2ea5
 +		};
 +	};
 +};
-diff --git a/arch/arm64/boot/dts/freescale/fsl-tmu-map2.dtsi b/arch/arm64/boot/dts/freescale/fsl-tmu-map2.dtsi
-new file mode 100644
-index 000000000..7e3507368
 --- /dev/null
 +++ b/arch/arm64/boot/dts/freescale/fsl-tmu-map2.dtsi
 @@ -0,0 +1,99 @@
@@ -9898,9 +9793,6 @@ index 000000000..7e3507368
 +		};
 +	};
 +};
-diff --git a/arch/arm64/boot/dts/freescale/fsl-tmu-map3.dtsi b/arch/arm64/boot/dts/freescale/fsl-tmu-map3.dtsi
-new file mode 100644
-index 000000000..dcde9432f
 --- /dev/null
 +++ b/arch/arm64/boot/dts/freescale/fsl-tmu-map3.dtsi
 @@ -0,0 +1,99 @@
@@ -10003,9 +9895,6 @@ index 000000000..dcde9432f
 +		};
 +	};
 +};
-diff --git a/arch/arm64/boot/dts/freescale/fsl-tmu.dtsi b/arch/arm64/boot/dts/freescale/fsl-tmu.dtsi
-new file mode 100644
-index 000000000..133d2dc8e
 --- /dev/null
 +++ b/arch/arm64/boot/dts/freescale/fsl-tmu.dtsi
 @@ -0,0 +1,251 @@
@@ -10260,9 +10149,6 @@ index 000000000..133d2dc8e
 +		};
 +	};
 +};
-diff --git a/arch/arm64/boot/dts/freescale/qoriq-bman-portals-sdk.dtsi b/arch/arm64/boot/dts/freescale/qoriq-bman-portals-sdk.dtsi
-new file mode 100644
-index 000000000..0a68ec4c0
 --- /dev/null
 +++ b/arch/arm64/boot/dts/freescale/qoriq-bman-portals-sdk.dtsi
 @@ -0,0 +1,55 @@
@@ -10321,8 +10207,6 @@ index 000000000..0a68ec4c0
 +		fsl,bpid-range = <32 32>;
 +	};
 +};
-diff --git a/arch/arm64/boot/dts/freescale/qoriq-bman-portals.dtsi b/arch/arm64/boot/dts/freescale/qoriq-bman-portals.dtsi
-index c3c2be4f5..ff1aba5fa 100644
 --- a/arch/arm64/boot/dts/freescale/qoriq-bman-portals.dtsi
 +++ b/arch/arm64/boot/dts/freescale/qoriq-bman-portals.dtsi
 @@ -1,9 +1,9 @@
@@ -10347,9 +10231,6 @@ index c3c2be4f5..ff1aba5fa 100644
 +		interrupts = <GIC_SPI 191 IRQ_TYPE_LEVEL_HIGH>;
 +	};
  };
-diff --git a/arch/arm64/boot/dts/freescale/qoriq-dpaa-eth.dtsi b/arch/arm64/boot/dts/freescale/qoriq-dpaa-eth.dtsi
-new file mode 100644
-index 000000000..8f970bd8c
 --- /dev/null
 +++ b/arch/arm64/boot/dts/freescale/qoriq-dpaa-eth.dtsi
 @@ -0,0 +1,97 @@
@@ -10450,8 +10331,6 @@ index 000000000..8f970bd8c
 +	};
 +};
 +
-diff --git a/arch/arm64/boot/dts/freescale/qoriq-fman3-0-10g-0.dtsi b/arch/arm64/boot/dts/freescale/qoriq-fman3-0-10g-0.dtsi
-index ecdffe731..7886b94cc 100644
 --- a/arch/arm64/boot/dts/freescale/qoriq-fman3-0-10g-0.dtsi
 +++ b/arch/arm64/boot/dts/freescale/qoriq-fman3-0-10g-0.dtsi
 @@ -1,27 +1,28 @@
@@ -10496,8 +10375,6 @@ index ecdffe731..7886b94cc 100644
  		#address-cells = <1>;
  		#size-cells = <0>;
  		compatible = "fsl,fman-memac-mdio", "fsl,fman-xmdio";
-diff --git a/arch/arm64/boot/dts/freescale/qoriq-fman3-0-10g-1.dtsi b/arch/arm64/boot/dts/freescale/qoriq-fman3-0-10g-1.dtsi
-index a7f6af56b..89b9d14b8 100644
 --- a/arch/arm64/boot/dts/freescale/qoriq-fman3-0-10g-1.dtsi
 +++ b/arch/arm64/boot/dts/freescale/qoriq-fman3-0-10g-1.dtsi
 @@ -1,27 +1,28 @@
@@ -10542,8 +10419,6 @@ index a7f6af56b..89b9d14b8 100644
  		#address-cells = <1>;
  		#size-cells = <0>;
  		compatible = "fsl,fman-memac-mdio", "fsl,fman-xmdio";
-diff --git a/arch/arm64/boot/dts/freescale/qoriq-fman3-0-1g-0.dtsi b/arch/arm64/boot/dts/freescale/qoriq-fman3-0-1g-0.dtsi
-index d60078671..60ed4473e 100644
 --- a/arch/arm64/boot/dts/freescale/qoriq-fman3-0-1g-0.dtsi
 +++ b/arch/arm64/boot/dts/freescale/qoriq-fman3-0-1g-0.dtsi
 @@ -1,22 +1,23 @@
@@ -10573,8 +10448,6 @@ index d60078671..60ed4473e 100644
  	};
  
  	ethernet@e0000 {
-diff --git a/arch/arm64/boot/dts/freescale/qoriq-fman3-0-1g-1.dtsi b/arch/arm64/boot/dts/freescale/qoriq-fman3-0-1g-1.dtsi
-index 3c0b76d43..69de2c1ff 100644
 --- a/arch/arm64/boot/dts/freescale/qoriq-fman3-0-1g-1.dtsi
 +++ b/arch/arm64/boot/dts/freescale/qoriq-fman3-0-1g-1.dtsi
 @@ -1,22 +1,23 @@
@@ -10604,8 +10477,6 @@ index 3c0b76d43..69de2c1ff 100644
  	};
  
  	ethernet@e2000 {
-diff --git a/arch/arm64/boot/dts/freescale/qoriq-fman3-0-1g-2.dtsi b/arch/arm64/boot/dts/freescale/qoriq-fman3-0-1g-2.dtsi
-index 89633afca..981bbfcaa 100644
 --- a/arch/arm64/boot/dts/freescale/qoriq-fman3-0-1g-2.dtsi
 +++ b/arch/arm64/boot/dts/freescale/qoriq-fman3-0-1g-2.dtsi
 @@ -1,22 +1,23 @@
@@ -10635,8 +10506,6 @@ index 89633afca..981bbfcaa 100644
  	};
  
  	ethernet@e4000 {
-diff --git a/arch/arm64/boot/dts/freescale/qoriq-fman3-0-1g-3.dtsi b/arch/arm64/boot/dts/freescale/qoriq-fman3-0-1g-3.dtsi
-index 87c2b705b..956b1b9df 100644
 --- a/arch/arm64/boot/dts/freescale/qoriq-fman3-0-1g-3.dtsi
 +++ b/arch/arm64/boot/dts/freescale/qoriq-fman3-0-1g-3.dtsi
 @@ -1,22 +1,23 @@
@@ -10666,8 +10535,6 @@ index 87c2b705b..956b1b9df 100644
  	};
  
  	ethernet@e6000 {
-diff --git a/arch/arm64/boot/dts/freescale/qoriq-fman3-0-1g-4.dtsi b/arch/arm64/boot/dts/freescale/qoriq-fman3-0-1g-4.dtsi
-index 8f4d74b96..52899ce69 100644
 --- a/arch/arm64/boot/dts/freescale/qoriq-fman3-0-1g-4.dtsi
 +++ b/arch/arm64/boot/dts/freescale/qoriq-fman3-0-1g-4.dtsi
 @@ -1,22 +1,23 @@
@@ -10697,8 +10564,6 @@ index 8f4d74b96..52899ce69 100644
  	};
  
  	ethernet@e8000 {
-diff --git a/arch/arm64/boot/dts/freescale/qoriq-fman3-0-1g-5.dtsi b/arch/arm64/boot/dts/freescale/qoriq-fman3-0-1g-5.dtsi
-index d534f770f..fe8c4c29b 100644
 --- a/arch/arm64/boot/dts/freescale/qoriq-fman3-0-1g-5.dtsi
 +++ b/arch/arm64/boot/dts/freescale/qoriq-fman3-0-1g-5.dtsi
 @@ -1,22 +1,23 @@
@@ -10728,9 +10593,6 @@ index d534f770f..fe8c4c29b 100644
  	};
  
  	ethernet@ea000 {
-diff --git a/arch/arm64/boot/dts/freescale/qoriq-fman3-0-6oh.dtsi b/arch/arm64/boot/dts/freescale/qoriq-fman3-0-6oh.dtsi
-new file mode 100644
-index 000000000..2d0df20db
 --- /dev/null
 +++ b/arch/arm64/boot/dts/freescale/qoriq-fman3-0-6oh.dtsi
 @@ -0,0 +1,47 @@
@@ -10781,8 +10643,6 @@ index 000000000..2d0df20db
 +	};
 +
 +};
-diff --git a/arch/arm64/boot/dts/freescale/qoriq-fman3-0.dtsi b/arch/arm64/boot/dts/freescale/qoriq-fman3-0.dtsi
-index 4dd06767f..cbc3dbadd 100644
 --- a/arch/arm64/boot/dts/freescale/qoriq-fman3-0.dtsi
 +++ b/arch/arm64/boot/dts/freescale/qoriq-fman3-0.dtsi
 @@ -1,9 +1,9 @@
@@ -10919,9 +10779,6 @@ index 4dd06767f..cbc3dbadd 100644
 +	interrupts = <GIC_SPI 44 IRQ_TYPE_LEVEL_HIGH>;
 +	clocks = <&clockgen 3 0>;
  };
-diff --git a/arch/arm64/boot/dts/freescale/qoriq-qman-portals-sdk.dtsi b/arch/arm64/boot/dts/freescale/qoriq-qman-portals-sdk.dtsi
-new file mode 100644
-index 000000000..d3abfaf6e
 --- /dev/null
 +++ b/arch/arm64/boot/dts/freescale/qoriq-qman-portals-sdk.dtsi
 @@ -0,0 +1,38 @@
@@ -10963,8 +10820,6 @@ index 000000000..d3abfaf6e
 +		fsl,ceetm-channel-range = <0 32>;
 +	};
 +};
-diff --git a/arch/arm64/boot/dts/freescale/qoriq-qman-portals.dtsi b/arch/arm64/boot/dts/freescale/qoriq-qman-portals.dtsi
-index 2a9aa060e..e3bec08b1 100644
 --- a/arch/arm64/boot/dts/freescale/qoriq-qman-portals.dtsi
 +++ b/arch/arm64/boot/dts/freescale/qoriq-qman-portals.dtsi
 @@ -1,9 +1,9 @@
@@ -10990,8 +10845,6 @@ index 2a9aa060e..e3bec08b1 100644
 +		cell-index = <9>;
 +	};
  };
-diff --git a/arch/arm64/boot/dts/freescale/traverse-ls1043s.dts b/arch/arm64/boot/dts/freescale/traverse-ls1043s.dts
-index 81044aab3..a5293713d 100644
 --- a/arch/arm64/boot/dts/freescale/traverse-ls1043s.dts
 +++ b/arch/arm64/boot/dts/freescale/traverse-ls1043s.dts
 @@ -330,3 +330,32 @@
@@ -11027,8 +10880,6 @@ index 81044aab3..a5293713d 100644
 +&fman0 {
 +	compatible = "fsl,fman", "simple-bus";
 +};
-diff --git a/arch/arm64/boot/dts/freescale/traverse-ls1043v.dts b/arch/arm64/boot/dts/freescale/traverse-ls1043v.dts
-index 936875101..030fd43d9 100644
 --- a/arch/arm64/boot/dts/freescale/traverse-ls1043v.dts
 +++ b/arch/arm64/boot/dts/freescale/traverse-ls1043v.dts
 @@ -251,3 +251,32 @@
@@ -11064,6 +10915,3 @@ index 936875101..030fd43d9 100644
 +&fman0 {
 +	compatible = "fsl,fman", "simple-bus";
 +};
--- 
-2.17.1
-

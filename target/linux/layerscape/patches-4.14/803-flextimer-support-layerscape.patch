@@ -17,9 +17,6 @@ Signed-off-by: Zhang Ying-22455 <ying.zhang22455@nxp.com>
  create mode 100644 Documentation/devicetree/bindings/soc/fsl/layerscape/ftm-alarm.txt
  create mode 100644 drivers/soc/fsl/layerscape/ftm_alarm.c
 
-diff --git a/Documentation/devicetree/bindings/soc/fsl/layerscape/ftm-alarm.txt b/Documentation/devicetree/bindings/soc/fsl/layerscape/ftm-alarm.txt
-new file mode 100644
-index 000000000..44c33b82b
 --- /dev/null
 +++ b/Documentation/devicetree/bindings/soc/fsl/layerscape/ftm-alarm.txt
 @@ -0,0 +1,32 @@
@@ -55,11 +52,9 @@ index 000000000..44c33b82b
 +	interrupts = <0 86 0x4>;
 +	big-endian;
 +};
-diff --git a/drivers/clocksource/fsl_ftm_timer.c b/drivers/clocksource/fsl_ftm_timer.c
-index 846d18daf..19a1a46f4 100644
 --- a/drivers/clocksource/fsl_ftm_timer.c
 +++ b/drivers/clocksource/fsl_ftm_timer.c
-@@ -83,11 +83,11 @@ static inline void ftm_counter_disable(void __iomem *base)
+@@ -83,11 +83,11 @@ static inline void ftm_counter_disable(v
  
  static inline void ftm_irq_acknowledge(void __iomem *base)
  {
@@ -75,9 +70,6 @@ index 846d18daf..19a1a46f4 100644
  }
  
  static inline void ftm_irq_enable(void __iomem *base)
-diff --git a/drivers/soc/fsl/layerscape/ftm_alarm.c b/drivers/soc/fsl/layerscape/ftm_alarm.c
-new file mode 100644
-index 000000000..5d646f69b
 --- /dev/null
 +++ b/drivers/soc/fsl/layerscape/ftm_alarm.c
 @@ -0,0 +1,382 @@
@@ -463,6 +455,3 @@ index 000000000..5d646f69b
 +	return platform_driver_register(&ftm_alarm_driver);
 +}
 +device_initcall(ftm_alarm_init);
--- 
-2.17.1
-

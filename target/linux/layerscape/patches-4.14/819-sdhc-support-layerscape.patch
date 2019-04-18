@@ -20,11 +20,9 @@ Signed-off-by: Yinbo Zhu <yinbo.zhu@nxp.com>
  include/linux/mmc/host.h          |   2 +
  7 files changed, 272 insertions(+), 39 deletions(-)
 
-diff --git a/drivers/mmc/core/mmc.c b/drivers/mmc/core/mmc.c
-index 814a04e8f..77c476325 100644
 --- a/drivers/mmc/core/mmc.c
 +++ b/drivers/mmc/core/mmc.c
-@@ -1174,6 +1174,9 @@ static int mmc_select_hs400(struct mmc_card *card)
+@@ -1174,6 +1174,9 @@ static int mmc_select_hs400(struct mmc_c
  		goto out_err;
  
  	/* Switch card to DDR */
@@ -34,8 +32,6 @@ index 814a04e8f..77c476325 100644
  	err = mmc_switch(card, EXT_CSD_CMD_SET_NORMAL,
  			 EXT_CSD_BUS_WIDTH,
  			 EXT_CSD_DDR_BUS_WIDTH_8,
-diff --git a/drivers/mmc/host/sdhci-esdhc.h b/drivers/mmc/host/sdhci-esdhc.h
-index dfa58f8b8..39dbbd6ea 100644
 --- a/drivers/mmc/host/sdhci-esdhc.h
 +++ b/drivers/mmc/host/sdhci-esdhc.h
 @@ -59,7 +59,32 @@
@@ -71,8 +67,6 @@ index dfa58f8b8..39dbbd6ea 100644
  
  /* Control Register for DMA transfer */
  #define ESDHC_DMA_SYSCTL		0x40c
-diff --git a/drivers/mmc/host/sdhci-of-esdhc.c b/drivers/mmc/host/sdhci-of-esdhc.c
-index 7b7d077e4..2fc902e23 100644
 --- a/drivers/mmc/host/sdhci-of-esdhc.c
 +++ b/drivers/mmc/host/sdhci-of-esdhc.c
 @@ -30,11 +30,61 @@
@@ -137,7 +131,7 @@ index 7b7d077e4..2fc902e23 100644
  };
  
  /**
-@@ -495,13 +545,20 @@ static void esdhc_clock_enable(struct sdhci_host *host, bool enable)
+@@ -495,13 +545,20 @@ static void esdhc_clock_enable(struct sd
  	}
  }
  
@@ -158,7 +152,7 @@ index 7b7d077e4..2fc902e23 100644
  	u32 temp;
  
  	host->mmc->actual_clock = 0;
-@@ -515,27 +572,14 @@ static void esdhc_of_set_clock(struct sdhci_host *host, unsigned int clock)
+@@ -515,27 +572,14 @@ static void esdhc_of_set_clock(struct sd
  	if (esdhc->vendor_ver < VENDOR_V_23)
  		pre_div = 2;
  
@@ -193,7 +187,7 @@ index 7b7d077e4..2fc902e23 100644
  
  	temp = sdhci_readl(host, ESDHC_SYSTEM_CONTROL);
  	temp &= ~(ESDHC_CLOCK_SDCLKEN | ESDHC_CLOCK_IPGEN | ESDHC_CLOCK_HCKEN |
-@@ -548,9 +592,30 @@ static void esdhc_of_set_clock(struct sdhci_host *host, unsigned int clock)
+@@ -548,9 +592,30 @@ static void esdhc_of_set_clock(struct sd
  	while (host->max_clk / pre_div / div > clock && div < 16)
  		div++;
  
@@ -224,7 +218,7 @@ index 7b7d077e4..2fc902e23 100644
  	pre_div >>= 1;
  	div--;
  
-@@ -560,6 +625,29 @@ static void esdhc_of_set_clock(struct sdhci_host *host, unsigned int clock)
+@@ -560,6 +625,29 @@ static void esdhc_of_set_clock(struct sd
  		| (pre_div << ESDHC_PREDIV_SHIFT));
  	sdhci_writel(host, temp, ESDHC_SYSTEM_CONTROL);
  
@@ -254,7 +248,7 @@ index 7b7d077e4..2fc902e23 100644
  	/* Wait max 20 ms */
  	timeout = ktime_add_ms(ktime_get(), 20);
  	while (1) {
-@@ -575,6 +663,7 @@ static void esdhc_of_set_clock(struct sdhci_host *host, unsigned int clock)
+@@ -575,6 +663,7 @@ static void esdhc_of_set_clock(struct sd
  		udelay(10);
  	}
  
@@ -262,7 +256,7 @@ index 7b7d077e4..2fc902e23 100644
  	temp |= ESDHC_CLOCK_SDCLKEN;
  	sdhci_writel(host, temp, ESDHC_SYSTEM_CONTROL);
  }
-@@ -603,6 +692,8 @@ static void esdhc_pltfm_set_bus_width(struct sdhci_host *host, int width)
+@@ -603,6 +692,8 @@ static void esdhc_pltfm_set_bus_width(st
  
  static void esdhc_reset(struct sdhci_host *host, u8 mask)
  {
@@ -271,7 +265,7 @@ index 7b7d077e4..2fc902e23 100644
  	u32 val;
  
  	sdhci_reset(host, mask);
-@@ -614,6 +705,12 @@ static void esdhc_reset(struct sdhci_host *host, u8 mask)
+@@ -614,6 +705,12 @@ static void esdhc_reset(struct sdhci_hos
  		val = sdhci_readl(host, ESDHC_TBCTL);
  		val &= ~ESDHC_TB_EN;
  		sdhci_writel(host, val, ESDHC_TBCTL);
@@ -284,7 +278,7 @@ index 7b7d077e4..2fc902e23 100644
  	}
  }
  
-@@ -625,6 +722,7 @@ static void esdhc_reset(struct sdhci_host *host, u8 mask)
+@@ -625,6 +722,7 @@ static void esdhc_reset(struct sdhci_hos
  static const struct of_device_id scfg_device_ids[] = {
  	{ .compatible = "fsl,t1040-scfg", },
  	{ .compatible = "fsl,ls1012a-scfg", },
@@ -292,7 +286,7 @@ index 7b7d077e4..2fc902e23 100644
  	{ .compatible = "fsl,ls1046a-scfg", },
  	{}
  };
-@@ -687,23 +785,91 @@ static int esdhc_signal_voltage_switch(struct mmc_host *mmc,
+@@ -687,23 +785,91 @@ static int esdhc_signal_voltage_switch(s
  	}
  }
  
@@ -356,7 +350,8 @@ index 7b7d077e4..2fc902e23 100644
 +		val |= ESDHC_FLW_CTL_BG;
 +		sdhci_writel(host, val, ESDHC_SDTIMNGCTL);
 +	}
-+
+ 
+-	return sdhci_execute_tuning(mmc, opcode);
 +	if (host->tuning_err == -EAGAIN && esdhc->quirk_fixup_tuning) {
 +
 +		/* program TBPTR[TB_WNDW_END_PTR] = 3*DIV_RATIO and
@@ -366,8 +361,7 @@ index 7b7d077e4..2fc902e23 100644
 +		val = (val & ~((0x7f << 8) | 0x7f)) |
 +		(3 * esdhc->div_ratio) | ((5 * esdhc->div_ratio) << 8);
 +		sdhci_writel(host, val, ESDHC_TBPTR);
- 
--	return sdhci_execute_tuning(mmc, opcode);
++
 +		/* program the software tuning mode by setting
 +		 * TBCTL[TB_MODE]=2'h3
 +		 */
@@ -389,7 +383,7 @@ index 7b7d077e4..2fc902e23 100644
  }
  
  #ifdef CONFIG_PM_SLEEP
-@@ -752,7 +918,7 @@ static const struct sdhci_ops sdhci_esdhc_be_ops = {
+@@ -752,7 +918,7 @@ static const struct sdhci_ops sdhci_esdh
  	.adma_workaround = esdhc_of_adma_workaround,
  	.set_bus_width = esdhc_pltfm_set_bus_width,
  	.reset = esdhc_reset,
@@ -398,7 +392,7 @@ index 7b7d077e4..2fc902e23 100644
  };
  
  static const struct sdhci_ops sdhci_esdhc_le_ops = {
-@@ -769,7 +935,7 @@ static const struct sdhci_ops sdhci_esdhc_le_ops = {
+@@ -769,7 +935,7 @@ static const struct sdhci_ops sdhci_esdh
  	.adma_workaround = esdhc_of_adma_workaround,
  	.set_bus_width = esdhc_pltfm_set_bus_width,
  	.reset = esdhc_reset,
@@ -407,7 +401,7 @@ index 7b7d077e4..2fc902e23 100644
  };
  
  static const struct sdhci_pltfm_data sdhci_esdhc_be_pdata = {
-@@ -795,8 +961,20 @@ static struct soc_device_attribute soc_incorrect_hostver[] = {
+@@ -795,8 +961,20 @@ static struct soc_device_attribute soc_i
  	{ },
  };
  
@@ -428,7 +422,7 @@ index 7b7d077e4..2fc902e23 100644
  	struct sdhci_pltfm_host *pltfm_host;
  	struct sdhci_esdhc *esdhc;
  	struct device_node *np;
-@@ -816,6 +994,24 @@ static void esdhc_init(struct platform_device *pdev, struct sdhci_host *host)
+@@ -816,6 +994,24 @@ static void esdhc_init(struct platform_d
  	else
  		esdhc->quirk_incorrect_hostver = false;
  
@@ -453,7 +447,7 @@ index 7b7d077e4..2fc902e23 100644
  	np = pdev->dev.of_node;
  	clk = of_clk_get(np, 0);
  	if (!IS_ERR(clk)) {
-@@ -843,6 +1039,12 @@ static void esdhc_init(struct platform_device *pdev, struct sdhci_host *host)
+@@ -843,6 +1039,12 @@ static void esdhc_init(struct platform_d
  	}
  }
  
@@ -466,7 +460,7 @@ index 7b7d077e4..2fc902e23 100644
  static int sdhci_esdhc_probe(struct platform_device *pdev)
  {
  	struct sdhci_host *host;
-@@ -866,6 +1068,7 @@ static int sdhci_esdhc_probe(struct platform_device *pdev)
+@@ -866,6 +1068,7 @@ static int sdhci_esdhc_probe(struct plat
  	host->mmc_host_ops.start_signal_voltage_switch =
  		esdhc_signal_voltage_switch;
  	host->mmc_host_ops.execute_tuning = esdhc_execute_tuning;
@@ -474,7 +468,7 @@ index 7b7d077e4..2fc902e23 100644
  	host->tuning_delay = 1;
  
  	esdhc_init(pdev, host);
-@@ -874,6 +1077,11 @@ static int sdhci_esdhc_probe(struct platform_device *pdev)
+@@ -874,6 +1077,11 @@ static int sdhci_esdhc_probe(struct plat
  
  	pltfm_host = sdhci_priv(host);
  	esdhc = sdhci_pltfm_priv(pltfm_host);
@@ -486,7 +480,7 @@ index 7b7d077e4..2fc902e23 100644
  	if (esdhc->vendor_ver == VENDOR_V_22)
  		host->quirks2 |= SDHCI_QUIRK2_HOST_NO_CMD23;
  
-@@ -915,14 +1123,6 @@ static int sdhci_esdhc_probe(struct platform_device *pdev)
+@@ -915,14 +1123,6 @@ static int sdhci_esdhc_probe(struct plat
  	return ret;
  }
  
@@ -501,11 +495,9 @@ index 7b7d077e4..2fc902e23 100644
  static struct platform_driver sdhci_esdhc_driver = {
  	.driver = {
  		.name = "sdhci-esdhc",
-diff --git a/drivers/mmc/host/sdhci.c b/drivers/mmc/host/sdhci.c
-index 0edcc2763..7f91d3547 100644
 --- a/drivers/mmc/host/sdhci.c
 +++ b/drivers/mmc/host/sdhci.c
-@@ -2145,7 +2145,7 @@ static void sdhci_send_tuning(struct sdhci_host *host, u32 opcode)
+@@ -2145,7 +2145,7 @@ static void sdhci_send_tuning(struct sdh
  
  }
  
@@ -514,7 +506,7 @@ index 0edcc2763..7f91d3547 100644
  {
  	int i;
  
-@@ -2162,13 +2162,13 @@ static void __sdhci_execute_tuning(struct sdhci_host *host, u32 opcode)
+@@ -2162,13 +2162,13 @@ static void __sdhci_execute_tuning(struc
  			pr_info("%s: Tuning timeout, falling back to fixed sampling clock\n",
  				mmc_hostname(host->mmc));
  			sdhci_abort_tuning(host, opcode);
@@ -530,7 +522,7 @@ index 0edcc2763..7f91d3547 100644
  			break;
  		}
  
-@@ -2180,6 +2180,7 @@ static void __sdhci_execute_tuning(struct sdhci_host *host, u32 opcode)
+@@ -2180,6 +2180,7 @@ static void __sdhci_execute_tuning(struc
  	pr_info("%s: Tuning failed, falling back to fixed sampling clock\n",
  		mmc_hostname(host->mmc));
  	sdhci_reset_tuning(host);
@@ -538,7 +530,7 @@ index 0edcc2763..7f91d3547 100644
  }
  
  int sdhci_execute_tuning(struct mmc_host *mmc, u32 opcode)
-@@ -2241,7 +2242,7 @@ int sdhci_execute_tuning(struct mmc_host *mmc, u32 opcode)
+@@ -2241,7 +2242,7 @@ int sdhci_execute_tuning(struct mmc_host
  
  	sdhci_start_tuning(host);
  
@@ -547,8 +539,6 @@ index 0edcc2763..7f91d3547 100644
  
  	sdhci_end_tuning(host);
  out:
-diff --git a/drivers/mmc/host/sdhci.h b/drivers/mmc/host/sdhci.h
-index 1d7d61e25..9c185d295 100644
 --- a/drivers/mmc/host/sdhci.h
 +++ b/drivers/mmc/host/sdhci.h
 @@ -540,6 +540,7 @@ struct sdhci_host {
@@ -559,8 +549,6 @@ index 1d7d61e25..9c185d295 100644
  #define SDHCI_TUNING_MODE_1	0
  #define SDHCI_TUNING_MODE_2	1
  #define SDHCI_TUNING_MODE_3	2
-diff --git a/include/linux/mmc/card.h b/include/linux/mmc/card.h
-index 279b39008..f5be8c7db 100644
 --- a/include/linux/mmc/card.h
 +++ b/include/linux/mmc/card.h
 @@ -156,6 +156,7 @@ struct sd_switch_caps {
@@ -571,8 +559,6 @@ index 279b39008..f5be8c7db 100644
  	unsigned int		sd3_bus_mode;
  #define UHS_SDR12_BUS_SPEED	0
  #define HIGH_SPEED_BUS_SPEED	1
-diff --git a/include/linux/mmc/host.h b/include/linux/mmc/host.h
-index 9a43763a6..9b50d8783 100644
 --- a/include/linux/mmc/host.h
 +++ b/include/linux/mmc/host.h
 @@ -145,6 +145,8 @@ struct mmc_host_ops {
@@ -584,6 +570,3 @@ index 9a43763a6..9b50d8783 100644
  	/* Prepare enhanced strobe depending host driver */
  	void	(*hs400_enhanced_strobe)(struct mmc_host *host,
  					 struct mmc_ios *ios);
--- 
-2.17.1
-

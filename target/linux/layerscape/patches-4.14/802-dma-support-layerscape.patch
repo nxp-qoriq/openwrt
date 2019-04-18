@@ -45,8 +45,6 @@ Signed-off-by: Yuan Yao <yao.yuan@nxp.com>
  create mode 100644 drivers/dma/dpaa2-qdma/fsl_dpdmai_cmd.h
  create mode 100644 drivers/dma/fsl-qdma.c
 
-diff --git a/drivers/dma/Kconfig b/drivers/dma/Kconfig
-index fadc4d878..6a48c9df9 100644
 --- a/drivers/dma/Kconfig
 +++ b/drivers/dma/Kconfig
 @@ -129,6 +129,24 @@ config COH901318
@@ -103,8 +101,6 @@ index fadc4d878..6a48c9df9 100644
  # driver files
  source "drivers/dma/bestcomm/Kconfig"
  
-diff --git a/drivers/dma/Makefile b/drivers/dma/Makefile
-index 9d0156b50..42af7104a 100644
 --- a/drivers/dma/Makefile
 +++ b/drivers/dma/Makefile
 @@ -31,7 +31,9 @@ obj-$(CONFIG_DMA_SUN6I) += sun6i-dma.o
@@ -125,9 +121,6 @@ index 9d0156b50..42af7104a 100644
  
  obj-y += qcom/
  obj-y += xilinx/
-diff --git a/drivers/dma/caam_dma.c b/drivers/dma/caam_dma.c
-new file mode 100644
-index 000000000..bddf82745
 --- /dev/null
 +++ b/drivers/dma/caam_dma.c
 @@ -0,0 +1,462 @@
@@ -593,9 +586,6 @@ index 000000000..bddf82745
 +MODULE_DESCRIPTION("NXP CAAM support for DMA engine");
 +MODULE_AUTHOR("NXP Semiconductors");
 +MODULE_ALIAS("platform:caam-dma");
-diff --git a/drivers/dma/dpaa2-qdma/Kconfig b/drivers/dma/dpaa2-qdma/Kconfig
-new file mode 100644
-index 000000000..084e34bf5
 --- /dev/null
 +++ b/drivers/dma/dpaa2-qdma/Kconfig
 @@ -0,0 +1,8 @@
@@ -607,9 +597,6 @@ index 000000000..084e34bf5
 +	---help---
 +	  NXP Data Path Acceleration Architecture 2 QDMA driver,
 +	  using the NXP MC bus driver.
-diff --git a/drivers/dma/dpaa2-qdma/Makefile b/drivers/dma/dpaa2-qdma/Makefile
-new file mode 100644
-index 000000000..ba599ac6d
 --- /dev/null
 +++ b/drivers/dma/dpaa2-qdma/Makefile
 @@ -0,0 +1,8 @@
@@ -621,9 +608,6 @@ index 000000000..ba599ac6d
 +obj-$(CONFIG_FSL_DPAA2_QDMA) += fsl-dpaa2-qdma.o
 +
 +fsl-dpaa2-qdma-objs    := dpaa2-qdma.o dpdmai.o
-diff --git a/drivers/dma/dpaa2-qdma/dpaa2-qdma.c b/drivers/dma/dpaa2-qdma/dpaa2-qdma.c
-new file mode 100644
-index 000000000..d9148b896
 --- /dev/null
 +++ b/drivers/dma/dpaa2-qdma/dpaa2-qdma.c
 @@ -0,0 +1,781 @@
@@ -1408,9 +1392,6 @@ index 000000000..d9148b896
 +
 +MODULE_DESCRIPTION("NXP DPAA2 qDMA driver");
 +MODULE_LICENSE("Dual BSD/GPL");
-diff --git a/drivers/dma/dpaa2-qdma/dpaa2-qdma.h b/drivers/dma/dpaa2-qdma/dpaa2-qdma.h
-new file mode 100644
-index 000000000..c9687bfbe
 --- /dev/null
 +++ b/drivers/dma/dpaa2-qdma/dpaa2-qdma.h
 @@ -0,0 +1,181 @@
@@ -1595,9 +1576,6 @@ index 000000000..c9687bfbe
 +		sizeof(struct dpaa2_qdma_sd_d) * 2)
 +
 +#endif /* __DPAA2_QDMA_H */
-diff --git a/drivers/dma/dpaa2-qdma/dpdmai.c b/drivers/dma/dpaa2-qdma/dpdmai.c
-new file mode 100644
-index 000000000..0601a6bc5
 --- /dev/null
 +++ b/drivers/dma/dpaa2-qdma/dpdmai.c
 @@ -0,0 +1,515 @@
@@ -2116,9 +2094,6 @@ index 000000000..0601a6bc5
 +
 +	return 0;
 +}
-diff --git a/drivers/dma/dpaa2-qdma/fsl_dpdmai.h b/drivers/dma/dpaa2-qdma/fsl_dpdmai.h
-new file mode 100644
-index 000000000..e931ce165
 --- /dev/null
 +++ b/drivers/dma/dpaa2-qdma/fsl_dpdmai.h
 @@ -0,0 +1,521 @@
@@ -2643,9 +2618,6 @@ index 000000000..e931ce165
 +			struct dpdmai_tx_queue_attr	*attr);
 +
 +#endif /* __FSL_DPDMAI_H */
-diff --git a/drivers/dma/dpaa2-qdma/fsl_dpdmai_cmd.h b/drivers/dma/dpaa2-qdma/fsl_dpdmai_cmd.h
-new file mode 100644
-index 000000000..7d403c016
 --- /dev/null
 +++ b/drivers/dma/dpaa2-qdma/fsl_dpdmai_cmd.h
 @@ -0,0 +1,222 @@
@@ -2871,8 +2843,6 @@ index 000000000..7d403c016
 +	MC_RSP_OP(cmd, 1, 0,  32, uint32_t,  attr->fqid)
 +
 +#endif /* _FSL_DPDMAI_CMD_H */
-diff --git a/drivers/dma/fsl-edma.c b/drivers/dma/fsl-edma.c
-index c75688692..8d745a648 100644
 --- a/drivers/dma/fsl-edma.c
 +++ b/drivers/dma/fsl-edma.c
 @@ -146,6 +146,8 @@ struct fsl_edma_slave_config {
@@ -2884,7 +2854,7 @@ index c75688692..8d745a648 100644
  };
  
  struct fsl_edma_chan {
-@@ -342,6 +344,53 @@ static int fsl_edma_resume(struct dma_chan *chan)
+@@ -342,6 +344,53 @@ static int fsl_edma_resume(struct dma_ch
  	return 0;
  }
  
@@ -2938,7 +2908,7 @@ index c75688692..8d745a648 100644
  static int fsl_edma_slave_config(struct dma_chan *chan,
  				 struct dma_slave_config *cfg)
  {
-@@ -361,6 +410,7 @@ static int fsl_edma_slave_config(struct dma_chan *chan,
+@@ -361,6 +410,7 @@ static int fsl_edma_slave_config(struct
  	} else {
  			return -EINVAL;
  	}
@@ -2946,7 +2916,7 @@ index c75688692..8d745a648 100644
  	return 0;
  }
  
-@@ -553,6 +603,9 @@ static struct dma_async_tx_descriptor *fsl_edma_prep_dma_cyclic(
+@@ -553,6 +603,9 @@ static struct dma_async_tx_descriptor *f
  	if (!is_slave_direction(fsl_chan->fsc.dir))
  		return NULL;
  
@@ -2956,7 +2926,7 @@ index c75688692..8d745a648 100644
  	sg_len = buf_len / period_len;
  	fsl_desc = fsl_edma_alloc_desc(fsl_chan, sg_len);
  	if (!fsl_desc)
-@@ -572,11 +625,11 @@ static struct dma_async_tx_descriptor *fsl_edma_prep_dma_cyclic(
+@@ -572,11 +625,11 @@ static struct dma_async_tx_descriptor *f
  
  		if (fsl_chan->fsc.dir == DMA_MEM_TO_DEV) {
  			src_addr = dma_buf_next;
@@ -2970,7 +2940,7 @@ index c75688692..8d745a648 100644
  			dst_addr = dma_buf_next;
  			soff = 0;
  			doff = fsl_chan->fsc.addr_width;
-@@ -606,6 +659,9 @@ static struct dma_async_tx_descriptor *fsl_edma_prep_slave_sg(
+@@ -606,6 +659,9 @@ static struct dma_async_tx_descriptor *f
  	if (!is_slave_direction(fsl_chan->fsc.dir))
  		return NULL;
  
@@ -2980,7 +2950,7 @@ index c75688692..8d745a648 100644
  	fsl_desc = fsl_edma_alloc_desc(fsl_chan, sg_len);
  	if (!fsl_desc)
  		return NULL;
-@@ -618,11 +674,11 @@ static struct dma_async_tx_descriptor *fsl_edma_prep_slave_sg(
+@@ -618,11 +674,11 @@ static struct dma_async_tx_descriptor *f
  
  		if (fsl_chan->fsc.dir == DMA_MEM_TO_DEV) {
  			src_addr = sg_dma_address(sg);
@@ -2994,7 +2964,7 @@ index c75688692..8d745a648 100644
  			dst_addr = sg_dma_address(sg);
  			soff = 0;
  			doff = fsl_chan->fsc.addr_width;
-@@ -802,6 +858,7 @@ static void fsl_edma_free_chan_resources(struct dma_chan *chan)
+@@ -802,6 +858,7 @@ static void fsl_edma_free_chan_resources
  	fsl_edma_chan_mux(fsl_chan, 0, false);
  	fsl_chan->edesc = NULL;
  	vchan_get_all_descriptors(&fsl_chan->vchan, &head);
@@ -3002,7 +2972,7 @@ index c75688692..8d745a648 100644
  	spin_unlock_irqrestore(&fsl_chan->vchan.lock, flags);
  
  	vchan_dma_desc_free_list(&fsl_chan->vchan, &head);
-@@ -937,6 +994,7 @@ static int fsl_edma_probe(struct platform_device *pdev)
+@@ -937,6 +994,7 @@ static int fsl_edma_probe(struct platfor
  		fsl_chan->slave_id = 0;
  		fsl_chan->idle = true;
  		fsl_chan->vchan.desc_free = fsl_edma_free_desc;
@@ -3010,9 +2980,6 @@ index c75688692..8d745a648 100644
  		vchan_init(&fsl_chan->vchan, &fsl_edma->dma_dev);
  
  		edma_writew(fsl_edma, 0x0, fsl_edma->membase + EDMA_TCD_CSR(i));
-diff --git a/drivers/dma/fsl-qdma.c b/drivers/dma/fsl-qdma.c
-new file mode 100644
-index 000000000..ec8ec8fa8
 --- /dev/null
 +++ b/drivers/dma/fsl-qdma.c
 @@ -0,0 +1,1278 @@
@@ -4294,6 +4261,3 @@ index 000000000..ec8ec8fa8
 +MODULE_ALIAS("platform:fsl-qdma");
 +MODULE_DESCRIPTION("NXP Layerscape qDMA engine driver");
 +MODULE_LICENSE("GPL v2");
--- 
-2.17.1
-

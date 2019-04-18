@@ -31,9 +31,6 @@ Signed-off-by: Razvan Stefanescu <razvan.stefanescu@nxp.com>
  create mode 100644 drivers/staging/fsl-dpaa2/ethsw/ethsw.c
  create mode 100644 drivers/staging/fsl-dpaa2/ethsw/ethsw.h
 
-diff --git a/drivers/staging/fsl-dpaa2/ethsw/Makefile b/drivers/staging/fsl-dpaa2/ethsw/Makefile
-new file mode 100644
-index 000000000..59f2c595c
 --- /dev/null
 +++ b/drivers/staging/fsl-dpaa2/ethsw/Makefile
 @@ -0,0 +1,10 @@
@@ -47,9 +44,6 @@ index 000000000..59f2c595c
 +obj-$(CONFIG_FSL_DPAA2_ETHSW) += dpaa2-ethsw.o
 +
 +dpaa2-ethsw-objs := ethsw.o ethsw-ethtool.o dpsw.o
-diff --git a/drivers/staging/fsl-dpaa2/ethsw/README b/drivers/staging/fsl-dpaa2/ethsw/README
-new file mode 100644
-index 000000000..f6fc07f78
 --- /dev/null
 +++ b/drivers/staging/fsl-dpaa2/ethsw/README
 @@ -0,0 +1,106 @@
@@ -159,9 +153,6 @@ index 000000000..f6fc07f78
 +Static entries can be added/removed from the FDB.
 +
 +Hardware statistics for each port are provided through ethtool -S option.
-diff --git a/drivers/staging/fsl-dpaa2/ethsw/TODO b/drivers/staging/fsl-dpaa2/ethsw/TODO
-new file mode 100644
-index 000000000..d3f12c335
 --- /dev/null
 +++ b/drivers/staging/fsl-dpaa2/ethsw/TODO
 @@ -0,0 +1,14 @@
@@ -179,9 +170,6 @@ index 000000000..d3f12c335
 +the fsl-mc bus driver is moved to drivers/bus and dpio driver is moved to
 +drivers/soc (this is required for I/O).
 +
-diff --git a/drivers/staging/fsl-dpaa2/ethsw/dpsw-cmd.h b/drivers/staging/fsl-dpaa2/ethsw/dpsw-cmd.h
-new file mode 100644
-index 000000000..55081ec9f
 --- /dev/null
 +++ b/drivers/staging/fsl-dpaa2/ethsw/dpsw-cmd.h
 @@ -0,0 +1,359 @@
@@ -544,9 +532,6 @@ index 000000000..55081ec9f
 +};
 +
 +#endif /* __FSL_DPSW_CMD_H */
-diff --git a/drivers/staging/fsl-dpaa2/ethsw/dpsw.c b/drivers/staging/fsl-dpaa2/ethsw/dpsw.c
-new file mode 100644
-index 000000000..11dc74858
 --- /dev/null
 +++ b/drivers/staging/fsl-dpaa2/ethsw/dpsw.c
 @@ -0,0 +1,1165 @@
@@ -1715,9 +1700,6 @@ index 000000000..11dc74858
 +
 +	return 0;
 +}
-diff --git a/drivers/staging/fsl-dpaa2/ethsw/dpsw.h b/drivers/staging/fsl-dpaa2/ethsw/dpsw.h
-new file mode 100644
-index 000000000..8ec199ac7
 --- /dev/null
 +++ b/drivers/staging/fsl-dpaa2/ethsw/dpsw.h
 @@ -0,0 +1,592 @@
@@ -2313,9 +2295,6 @@ index 000000000..8ec199ac7
 +			 u16 *minor_ver);
 +
 +#endif /* __FSL_DPSW_H */
-diff --git a/drivers/staging/fsl-dpaa2/ethsw/ethsw-ethtool.c b/drivers/staging/fsl-dpaa2/ethsw/ethsw-ethtool.c
-new file mode 100644
-index 000000000..659e66ed9
 --- /dev/null
 +++ b/drivers/staging/fsl-dpaa2/ethsw/ethsw-ethtool.c
 @@ -0,0 +1,206 @@
@@ -2525,9 +2504,6 @@ index 000000000..659e66ed9
 +	.get_ethtool_stats	= ethsw_ethtool_get_stats,
 +	.get_sset_count		= ethsw_ethtool_get_sset_count,
 +};
-diff --git a/drivers/staging/fsl-dpaa2/ethsw/ethsw.c b/drivers/staging/fsl-dpaa2/ethsw/ethsw.c
-new file mode 100644
-index 000000000..918204652
 --- /dev/null
 +++ b/drivers/staging/fsl-dpaa2/ethsw/ethsw.c
 @@ -0,0 +1,1438 @@
@@ -3969,9 +3945,6 @@ index 000000000..918204652
 +
 +MODULE_LICENSE("Dual BSD/GPL");
 +MODULE_DESCRIPTION("DPAA2 Ethernet Switch Driver");
-diff --git a/drivers/staging/fsl-dpaa2/ethsw/ethsw.h b/drivers/staging/fsl-dpaa2/ethsw/ethsw.h
-new file mode 100644
-index 000000000..413275b6f
 --- /dev/null
 +++ b/drivers/staging/fsl-dpaa2/ethsw/ethsw.h
 @@ -0,0 +1,90 @@
@@ -4065,6 +4038,3 @@ index 000000000..413275b6f
 +};
 +
 +#endif	/* __ETHSW_H */
--- 
-2.17.1
-

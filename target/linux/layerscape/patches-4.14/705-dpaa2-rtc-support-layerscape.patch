@@ -24,9 +24,6 @@ Signed-off-by: Yangbo Lu <yangbo.lu@nxp.com>
  create mode 100644 drivers/staging/fsl-dpaa2/rtc/rtc.c
  create mode 100644 drivers/staging/fsl-dpaa2/rtc/rtc.h
 
-diff --git a/drivers/staging/fsl-dpaa2/rtc/Makefile b/drivers/staging/fsl-dpaa2/rtc/Makefile
-new file mode 100644
-index 000000000..f3d8a2b6b
 --- /dev/null
 +++ b/drivers/staging/fsl-dpaa2/rtc/Makefile
 @@ -0,0 +1,10 @@
@@ -40,9 +37,6 @@ index 000000000..f3d8a2b6b
 +
 +clean:
 +	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
-diff --git a/drivers/staging/fsl-dpaa2/rtc/dprtc-cmd.h b/drivers/staging/fsl-dpaa2/rtc/dprtc-cmd.h
-new file mode 100644
-index 000000000..618c7e548
 --- /dev/null
 +++ b/drivers/staging/fsl-dpaa2/rtc/dprtc-cmd.h
 @@ -0,0 +1,160 @@
@@ -206,9 +200,6 @@ index 000000000..618c7e548
 +};
 +#pragma pack(pop)
 +#endif /* _FSL_DPRTC_CMD_H */
-diff --git a/drivers/staging/fsl-dpaa2/rtc/dprtc.c b/drivers/staging/fsl-dpaa2/rtc/dprtc.c
-new file mode 100644
-index 000000000..a787e6471
 --- /dev/null
 +++ b/drivers/staging/fsl-dpaa2/rtc/dprtc.c
 @@ -0,0 +1,746 @@
@@ -958,9 +949,6 @@ index 000000000..a787e6471
 +
 +	return 0;
 +}
-diff --git a/drivers/staging/fsl-dpaa2/rtc/dprtc.h b/drivers/staging/fsl-dpaa2/rtc/dprtc.h
-new file mode 100644
-index 000000000..fc96cac68
 --- /dev/null
 +++ b/drivers/staging/fsl-dpaa2/rtc/dprtc.h
 @@ -0,0 +1,172 @@
@@ -1136,9 +1124,6 @@ index 000000000..fc96cac68
 +			  uint16_t *minor_ver);
 +
 +#endif /* __FSL_DPRTC_H */
-diff --git a/drivers/staging/fsl-dpaa2/rtc/rtc.c b/drivers/staging/fsl-dpaa2/rtc/rtc.c
-new file mode 100644
-index 000000000..45e217040
 --- /dev/null
 +++ b/drivers/staging/fsl-dpaa2/rtc/rtc.c
 @@ -0,0 +1,240 @@
@@ -1382,9 +1367,6 @@ index 000000000..45e217040
 +
 +MODULE_LICENSE("GPL");
 +MODULE_DESCRIPTION("DPAA2 RTC (PTP 1588 clock) driver (prototype)");
-diff --git a/drivers/staging/fsl-dpaa2/rtc/rtc.h b/drivers/staging/fsl-dpaa2/rtc/rtc.h
-new file mode 100644
-index 000000000..ff2e17739
 --- /dev/null
 +++ b/drivers/staging/fsl-dpaa2/rtc/rtc.h
 @@ -0,0 +1,14 @@
@@ -1402,6 +1384,3 @@ index 000000000..ff2e17739
 +extern int dpaa2_phc_index;
 +
 +#endif
--- 
-2.17.1
-
