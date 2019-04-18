@@ -1,19 +1,21 @@
-From 780865643e5dbf41fe950924a68f7ee4fea8af3e Mon Sep 17 00:00:00 2001
+From 6d33ecd59ab399d742827865ac4d7badb4e7908c Mon Sep 17 00:00:00 2001
 From: Biwen Li <biwen.li@nxp.com>
-Date: Tue, 30 Oct 2018 18:26:39 +0800
-Subject: [PATCH 30/40] ifc-nor-nand: support layerscape
-This is an integrated patch of ifc-nor-nand for
- layerscape
+Date: Wed, 17 Apr 2019 18:58:40 +0800
+Subject: [PATCH] ifc-nor-nand: support layerscape
 
+This is an integrated patch of ifc-nor-nand for layerscape
+
+Signed-off-by: Biwen Li <biwen.li@nxp.com>
 Signed-off-by: Prabhakar Kushwaha <prabhakar.kushwaha@nxp.com>
 Signed-off-by: Raghav Dogra <raghav.dogra@nxp.com>
-Signed-off-by: Biwen Li <biwen.li@nxp.com>
 ---
  drivers/memory/fsl_ifc.c           | 263 +++++++++++++++++++++++++++++
  drivers/mtd/maps/physmap_of_core.c |   4 +
  include/linux/fsl_ifc.h            |   7 +
  3 files changed, 274 insertions(+)
 
+diff --git a/drivers/memory/fsl_ifc.c b/drivers/memory/fsl_ifc.c
+index 1b182b117..10d2a5f8b 100644
 --- a/drivers/memory/fsl_ifc.c
 +++ b/drivers/memory/fsl_ifc.c
 @@ -24,6 +24,7 @@
@@ -295,7 +297,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  static const struct of_device_id fsl_ifc_match[] = {
  	{
  		.compatible = "fsl,ifc",
-@@ -318,10 +576,15 @@ static const struct of_device_id fsl_ifc
+@@ -318,10 +576,15 @@ static const struct of_device_id fsl_ifc_match[] = {
  	{},
  };
  
@@ -311,6 +313,8 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  	},
  	.probe       = fsl_ifc_ctrl_probe,
  	.remove      = fsl_ifc_ctrl_remove,
+diff --git a/drivers/mtd/maps/physmap_of_core.c b/drivers/mtd/maps/physmap_of_core.c
+index 9b066a06a..7e3b3a0e4 100644
 --- a/drivers/mtd/maps/physmap_of_core.c
 +++ b/drivers/mtd/maps/physmap_of_core.c
 @@ -20,6 +20,7 @@
@@ -321,7 +325,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  #include <linux/of.h>
  #include <linux/of_address.h>
  #include <linux/of_platform.h>
-@@ -205,6 +206,9 @@ static int of_flash_probe(struct platfor
+@@ -205,6 +206,9 @@ static int of_flash_probe(struct platform_device *dev)
  		info->list[i].map.bankwidth = be32_to_cpup(width);
  		info->list[i].map.device_node = dp;
  
@@ -331,6 +335,8 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  		err = of_flash_probe_gemini(dev, dp, &info->list[i].map);
  		if (err)
  			goto err_out;
+diff --git a/include/linux/fsl_ifc.h b/include/linux/fsl_ifc.h
+index 3fdfede2f..d6aea246b 100644
 --- a/include/linux/fsl_ifc.h
 +++ b/include/linux/fsl_ifc.h
 @@ -274,6 +274,8 @@
@@ -354,3 +360,6 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  };
  
  extern struct fsl_ifc_ctrl *fsl_ifc_ctrl_dev;
+-- 
+2.17.1
+

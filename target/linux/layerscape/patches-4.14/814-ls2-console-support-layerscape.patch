@@ -1,12 +1,12 @@
-From c64d8ab6260330fa2fe9a2d676256697e4e2a83c Mon Sep 17 00:00:00 2001
+From acf3b42eac4abe25007794cfd8fde46a82f6bf23 Mon Sep 17 00:00:00 2001
 From: Biwen Li <biwen.li@nxp.com>
-Date: Tue, 30 Oct 2018 18:26:44 +0800
-Subject: [PATCH 31/40] ls2-console: support layerscape
-This is an integrated patch of ls2-console for
- layerscape
+Date: Wed, 17 Apr 2019 18:58:42 +0800
+Subject: [PATCH] ls2-console: support layerscape
 
-Signed-off-by: Razvan Stefanescu <razvan.stefanescu@nxp.com>
+This is an integrated patch of ls2-console for layerscape
+
 Signed-off-by: Biwen Li <biwen.li@nxp.com>
+Signed-off-by: Razvan Stefanescu <razvan.stefanescu@nxp.com>
 ---
  drivers/soc/fsl/ls2-console/Kconfig       |   4 +
  drivers/soc/fsl/ls2-console/Makefile      |   1 +
@@ -16,6 +16,9 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  create mode 100644 drivers/soc/fsl/ls2-console/Makefile
  create mode 100644 drivers/soc/fsl/ls2-console/ls2-console.c
 
+diff --git a/drivers/soc/fsl/ls2-console/Kconfig b/drivers/soc/fsl/ls2-console/Kconfig
+new file mode 100644
+index 000000000..47d0dc111
 --- /dev/null
 +++ b/drivers/soc/fsl/ls2-console/Kconfig
 @@ -0,0 +1,4 @@
@@ -23,10 +26,16 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
 +        tristate "Layerscape MC and AIOP console support"
 +	depends on ARCH_LAYERSCAPE
 +        default y
+diff --git a/drivers/soc/fsl/ls2-console/Makefile b/drivers/soc/fsl/ls2-console/Makefile
+new file mode 100644
+index 000000000..62b963463
 --- /dev/null
 +++ b/drivers/soc/fsl/ls2-console/Makefile
 @@ -0,0 +1 @@
 +obj-$(CONFIG_FSL_LS2_CONSOLE) += ls2-console.o
+diff --git a/drivers/soc/fsl/ls2-console/ls2-console.c b/drivers/soc/fsl/ls2-console/ls2-console.c
+new file mode 100644
+index 000000000..68415ad06
 --- /dev/null
 +++ b/drivers/soc/fsl/ls2-console/ls2-console.c
 @@ -0,0 +1,284 @@
@@ -314,3 +323,6 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
 +MODULE_AUTHOR("Roy Pledge <roy.pledge@freescale.com>");
 +MODULE_LICENSE("Dual BSD/GPL");
 +MODULE_DESCRIPTION("Freescale LS2 console driver");
+-- 
+2.17.1
+

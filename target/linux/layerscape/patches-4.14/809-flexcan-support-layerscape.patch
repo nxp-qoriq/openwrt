@@ -1,18 +1,21 @@
-From 3ed707fde8a33f2b888f75ac2f5e0a98e7774dad Mon Sep 17 00:00:00 2001
+From 1d9684026076d7960e7fbe286aef66a497b717b5 Mon Sep 17 00:00:00 2001
 From: Biwen Li <biwen.li@nxp.com>
-Date: Tue, 30 Oct 2018 18:26:27 +0800
-Subject: [PATCH 26/40] flexcan: support layerscape
+Date: Wed, 17 Apr 2019 18:58:35 +0800
+Subject: [PATCH] flexcan: support layerscape
+
 This is an integrated patch of flexcan for layerscape
 
 Signed-off-by: Bhupesh Sharma <bhupesh.sharma@freescale.com>
+Signed-off-by: Biwen Li <biwen.li@nxp.com>
 Signed-off-by: Guanhua Gao <guanhua.gao@nxp.com>
 Signed-off-by: Pankaj Bansal <pankaj.bansal@nxp.com>
 Signed-off-by: Sakar Arora <Sakar.Arora@freescale.com>
-Signed-off-by: Biwen Li <biwen.li@nxp.com>
 ---
  drivers/net/can/flexcan.c | 240 ++++++++++++++++++++++----------------
  1 file changed, 138 insertions(+), 102 deletions(-)
 
+diff --git a/drivers/net/can/flexcan.c b/drivers/net/can/flexcan.c
+index 9ef501fd1..3640e4bda 100644
 --- a/drivers/net/can/flexcan.c
 +++ b/drivers/net/can/flexcan.c
 @@ -190,6 +190,7 @@
@@ -34,7 +37,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  };
  
  static const struct flexcan_devtype_data fsl_p1010_devtype_data = {
-@@ -301,6 +306,11 @@ static const struct flexcan_devtype_data
+@@ -301,6 +306,11 @@ static const struct flexcan_devtype_data fsl_vf610_devtype_data = {
  		FLEXCAN_QUIRK_BROKEN_PERR_STATE,
  };
  
@@ -46,7 +49,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  static const struct can_bittiming_const flexcan_bittiming_const = {
  	.name = DRV_NAME,
  	.tseg1_min = 4,
-@@ -313,39 +323,45 @@ static const struct can_bittiming_const
+@@ -313,39 +323,45 @@ static const struct can_bittiming_const flexcan_bittiming_const = {
  	.brp_inc = 1,
  };
  
@@ -108,7 +111,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  }
  
  static inline void flexcan_error_irq_disable(const struct flexcan_priv *priv)
-@@ -353,7 +369,7 @@ static inline void flexcan_error_irq_dis
+@@ -353,7 +369,7 @@ static inline void flexcan_error_irq_disable(const struct flexcan_priv *priv)
  	struct flexcan_regs __iomem *regs = priv->regs;
  	u32 reg_ctrl = (priv->reg_ctrl_default & ~FLEXCAN_CTRL_ERR_MSK);
  
@@ -117,7 +120,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  }
  
  static inline int flexcan_transceiver_enable(const struct flexcan_priv *priv)
-@@ -378,14 +394,14 @@ static int flexcan_chip_enable(struct fl
+@@ -378,14 +394,14 @@ static int flexcan_chip_enable(struct flexcan_priv *priv)
  	unsigned int timeout = FLEXCAN_TIMEOUT_US / 10;
  	u32 reg;
  
@@ -136,7 +139,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  		return -ETIMEDOUT;
  
  	return 0;
-@@ -397,14 +413,14 @@ static int flexcan_chip_disable(struct f
+@@ -397,14 +413,14 @@ static int flexcan_chip_disable(struct flexcan_priv *priv)
  	unsigned int timeout = FLEXCAN_TIMEOUT_US / 10;
  	u32 reg;
  
@@ -155,7 +158,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  		return -ETIMEDOUT;
  
  	return 0;
-@@ -416,14 +432,14 @@ static int flexcan_chip_freeze(struct fl
+@@ -416,14 +432,14 @@ static int flexcan_chip_freeze(struct flexcan_priv *priv)
  	unsigned int timeout = 1000 * 1000 * 10 / priv->can.bittiming.bitrate;
  	u32 reg;
  
@@ -174,7 +177,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  		return -ETIMEDOUT;
  
  	return 0;
-@@ -435,14 +451,14 @@ static int flexcan_chip_unfreeze(struct
+@@ -435,14 +451,14 @@ static int flexcan_chip_unfreeze(struct flexcan_priv *priv)
  	unsigned int timeout = FLEXCAN_TIMEOUT_US / 10;
  	u32 reg;
  
@@ -193,7 +196,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  		return -ETIMEDOUT;
  
  	return 0;
-@@ -453,11 +469,11 @@ static int flexcan_chip_softreset(struct
+@@ -453,11 +469,11 @@ static int flexcan_chip_softreset(struct flexcan_priv *priv)
  	struct flexcan_regs __iomem *regs = priv->regs;
  	unsigned int timeout = FLEXCAN_TIMEOUT_US / 10;
  
@@ -208,7 +211,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  		return -ETIMEDOUT;
  
  	return 0;
-@@ -468,7 +484,7 @@ static int __flexcan_get_berr_counter(co
+@@ -468,7 +484,7 @@ static int __flexcan_get_berr_counter(const struct net_device *dev,
  {
  	const struct flexcan_priv *priv = netdev_priv(dev);
  	struct flexcan_regs __iomem *regs = priv->regs;
@@ -217,7 +220,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  
  	bec->txerr = (reg >> 0) & 0xff;
  	bec->rxerr = (reg >> 8) & 0xff;
-@@ -524,24 +540,24 @@ static int flexcan_start_xmit(struct sk_
+@@ -524,24 +540,24 @@ static int flexcan_start_xmit(struct sk_buff *skb, struct net_device *dev)
  
  	if (cf->can_dlc > 0) {
  		data = be32_to_cpup((__be32 *)&cf->data[0]);
@@ -248,7 +251,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  		      &priv->tx_mb_reserved->can_ctrl);
  
  	return NETDEV_TX_OK;
-@@ -660,7 +676,7 @@ static unsigned int flexcan_mailbox_read
+@@ -660,7 +676,7 @@ static unsigned int flexcan_mailbox_read(struct can_rx_offload *offload,
  		u32 code;
  
  		do {
@@ -257,7 +260,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  		} while (reg_ctrl & FLEXCAN_MB_CODE_RX_BUSY_BIT);
  
  		/* is this MB empty? */
-@@ -675,17 +691,17 @@ static unsigned int flexcan_mailbox_read
+@@ -675,17 +691,17 @@ static unsigned int flexcan_mailbox_read(struct can_rx_offload *offload,
  			offload->dev->stats.rx_errors++;
  		}
  	} else {
@@ -278,7 +281,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  	if (reg_ctrl & FLEXCAN_MB_CNT_IDE)
  		cf->can_id = ((reg_id >> 0) & CAN_EFF_MASK) | CAN_EFF_FLAG;
  	else
-@@ -695,19 +711,19 @@ static unsigned int flexcan_mailbox_read
+@@ -695,19 +711,19 @@ static unsigned int flexcan_mailbox_read(struct can_rx_offload *offload,
  		cf->can_id |= CAN_RTR_FLAG;
  	cf->can_dlc = get_can_dlc((reg_ctrl >> 16) & 0xf);
  
@@ -304,7 +307,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  	}
  
  	return 1;
-@@ -719,8 +735,8 @@ static inline u64 flexcan_read_reg_iflag
+@@ -719,8 +735,8 @@ static inline u64 flexcan_read_reg_iflag_rx(struct flexcan_priv *priv)
  	struct flexcan_regs __iomem *regs = priv->regs;
  	u32 iflag1, iflag2;
  
@@ -315,7 +318,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  		~FLEXCAN_IFLAG_MB(priv->tx_mb_idx);
  
  	return (u64)iflag2 << 32 | iflag1;
-@@ -736,7 +752,7 @@ static irqreturn_t flexcan_irq(int irq,
+@@ -736,7 +752,7 @@ static irqreturn_t flexcan_irq(int irq, void *dev_id)
  	u32 reg_iflag1, reg_esr;
  	enum can_state last_state = priv->can.state;
  
@@ -324,7 +327,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  
  	/* reception interrupt */
  	if (priv->devtype_data->quirks & FLEXCAN_QUIRK_USE_OFF_TIMESTAMP) {
-@@ -759,7 +775,8 @@ static irqreturn_t flexcan_irq(int irq,
+@@ -759,7 +775,8 @@ static irqreturn_t flexcan_irq(int irq, void *dev_id)
  		/* FIFO overflow interrupt */
  		if (reg_iflag1 & FLEXCAN_IFLAG_RX_FIFO_OVERFLOW) {
  			handled = IRQ_HANDLED;
@@ -334,7 +337,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  			dev->stats.rx_over_errors++;
  			dev->stats.rx_errors++;
  		}
-@@ -773,18 +790,18 @@ static irqreturn_t flexcan_irq(int irq,
+@@ -773,18 +790,18 @@ static irqreturn_t flexcan_irq(int irq, void *dev_id)
  		can_led_event(dev, CAN_LED_EVENT_TX);
  
  		/* after sending a RTR frame MB is in RX mode */
@@ -358,7 +361,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  	}
  
  	/* state change interrupt or broken error state quirk fix is enabled */
-@@ -846,7 +863,7 @@ static void flexcan_set_bittiming(struct
+@@ -846,7 +863,7 @@ static void flexcan_set_bittiming(struct net_device *dev)
  	struct flexcan_regs __iomem *regs = priv->regs;
  	u32 reg;
  
@@ -367,7 +370,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  	reg &= ~(FLEXCAN_CTRL_PRESDIV(0xff) |
  		 FLEXCAN_CTRL_RJW(0x3) |
  		 FLEXCAN_CTRL_PSEG1(0x7) |
-@@ -870,11 +887,11 @@ static void flexcan_set_bittiming(struct
+@@ -870,11 +887,11 @@ static void flexcan_set_bittiming(struct net_device *dev)
  		reg |= FLEXCAN_CTRL_SMP;
  
  	netdev_dbg(dev, "writing ctrl=0x%08x\n", reg);
@@ -381,7 +384,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  }
  
  /* flexcan_chip_start
-@@ -913,7 +930,7 @@ static int flexcan_chip_start(struct net
+@@ -913,7 +930,7 @@ static int flexcan_chip_start(struct net_device *dev)
  	 * choose format C
  	 * set max mailbox number
  	 */
@@ -390,7 +393,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  	reg_mcr &= ~FLEXCAN_MCR_MAXMB(0xff);
  	reg_mcr |= FLEXCAN_MCR_FRZ | FLEXCAN_MCR_HALT | FLEXCAN_MCR_SUPV |
  		FLEXCAN_MCR_WRN_EN | FLEXCAN_MCR_SRX_DIS | FLEXCAN_MCR_IRMQ |
-@@ -927,7 +944,7 @@ static int flexcan_chip_start(struct net
+@@ -927,7 +944,7 @@ static int flexcan_chip_start(struct net_device *dev)
  			FLEXCAN_MCR_MAXMB(priv->tx_mb_idx);
  	}
  	netdev_dbg(dev, "%s: writing mcr=0x%08x", __func__, reg_mcr);
@@ -399,7 +402,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  
  	/* CTRL
  	 *
-@@ -940,7 +957,7 @@ static int flexcan_chip_start(struct net
+@@ -940,7 +957,7 @@ static int flexcan_chip_start(struct net_device *dev)
  	 * enable bus off interrupt
  	 * (== FLEXCAN_CTRL_ERR_STATE)
  	 */
@@ -408,7 +411,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  	reg_ctrl &= ~FLEXCAN_CTRL_TSYN;
  	reg_ctrl |= FLEXCAN_CTRL_BOFF_REC | FLEXCAN_CTRL_LBUF |
  		FLEXCAN_CTRL_ERR_STATE;
-@@ -960,45 +977,45 @@ static int flexcan_chip_start(struct net
+@@ -960,45 +977,45 @@ static int flexcan_chip_start(struct net_device *dev)
  	/* leave interrupts disabled for now */
  	reg_ctrl &= ~FLEXCAN_CTRL_ERR_ALL;
  	netdev_dbg(dev, "%s: writing ctrl=0x%08x", __func__, reg_ctrl);
@@ -470,7 +473,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  
  	/* On Vybrid, disable memory error detection interrupts
  	 * and freeze mode.
-@@ -1011,16 +1028,16 @@ static int flexcan_chip_start(struct net
+@@ -1011,16 +1028,16 @@ static int flexcan_chip_start(struct net_device *dev)
  		 * and Correction of Memory Errors" to write to
  		 * MECR register
  		 */
@@ -492,7 +495,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  	}
  
  	err = flexcan_transceiver_enable(priv);
-@@ -1036,14 +1053,14 @@ static int flexcan_chip_start(struct net
+@@ -1036,14 +1053,14 @@ static int flexcan_chip_start(struct net_device *dev)
  
  	/* enable interrupts atomically */
  	disable_irq(dev->irq);
@@ -511,7 +514,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  
  	return 0;
  
-@@ -1068,10 +1085,10 @@ static void flexcan_chip_stop(struct net
+@@ -1068,10 +1085,10 @@ static void flexcan_chip_stop(struct net_device *dev)
  	flexcan_chip_disable(priv);
  
  	/* Disable all interrupts */
@@ -526,7 +529,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  
  	flexcan_transceiver_disable(priv);
  	priv->can.state = CAN_STATE_STOPPED;
-@@ -1186,26 +1203,26 @@ static int register_flexcandev(struct ne
+@@ -1186,26 +1203,26 @@ static int register_flexcandev(struct net_device *dev)
  	err = flexcan_chip_disable(priv);
  	if (err)
  		goto out_disable_per;
@@ -558,7 +561,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  	if (!(reg & FLEXCAN_MCR_FEN)) {
  		netdev_err(dev, "Could not enable RX FIFO, unsupported core\n");
  		err = -ENODEV;
-@@ -1233,8 +1250,12 @@ static void unregister_flexcandev(struct
+@@ -1233,8 +1250,12 @@ static void unregister_flexcandev(struct net_device *dev)
  static const struct of_device_id flexcan_of_match[] = {
  	{ .compatible = "fsl,imx6q-flexcan", .data = &fsl_imx6q_devtype_data, },
  	{ .compatible = "fsl,imx28-flexcan", .data = &fsl_imx28_devtype_data, },
@@ -571,7 +574,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  	{ /* sentinel */ },
  };
  MODULE_DEVICE_TABLE(of, flexcan_of_match);
-@@ -1314,6 +1335,21 @@ static int flexcan_probe(struct platform
+@@ -1314,6 +1335,21 @@ static int flexcan_probe(struct platform_device *pdev)
  	dev->flags |= IFF_ECHO;
  
  	priv = netdev_priv(dev);
@@ -593,3 +596,6 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  	priv->can.clock.freq = clock_freq;
  	priv->can.bittiming_const = &flexcan_bittiming_const;
  	priv->can.do_set_mode = flexcan_set_mode;
+-- 
+2.17.1
+

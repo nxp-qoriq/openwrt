@@ -1,88 +1,27 @@
-From 05375244c8e74f90239db92646a771905fdfc0db Mon Sep 17 00:00:00 2001
+From 6155db24749014c7def61272bf5e6cc72c9d1feb Mon Sep 17 00:00:00 2001
 From: Biwen Li <biwen.li@nxp.com>
-Date: Tue, 30 Oct 2018 18:28:22 +0800
-Subject: [PATCH 38/40] smmu: support layerscape
+Date: Wed, 17 Apr 2019 18:59:05 +0800
+Subject: [PATCH] smmu: support layerscape
+
 This is an integrated patch of smmu for layerscape
 
+Signed-off-by: Biwen Li <biwen.li@nxp.com>
 Signed-off-by: Nipun Gupta <nipun.gupta@nxp.com>
 Signed-off-by: Stuart Yoder <stuart.yoder@nxp.com>
 Signed-off-by: Zhao Qiang <qiang.zhao@nxp.com>
-Signed-off-by: Biwen Li <biwen.li@nxp.com>
 ---
- .../devicetree/bindings/misc/fsl,qoriq-mc.txt |  39 ++++++
- drivers/iommu/arm-smmu.c                      |   7 +
- drivers/iommu/iommu.c                         |  21 +++
- drivers/iommu/of_iommu.c                      | 126 +++++++++++++++++-
- drivers/of/irq.c                              |   6 +-
- drivers/of/of_pci.c                           | 101 --------------
- include/linux/iommu.h                         |   2 +
- include/linux/of_iommu.h                      |  10 ++
- include/linux/of_pci.h                        |  10 --
- 9 files changed, 205 insertions(+), 117 deletions(-)
+ drivers/iommu/arm-smmu.c |   7 +++
+ drivers/iommu/iommu.c    |  21 +++++++
+ drivers/iommu/of_iommu.c | 126 ++++++++++++++++++++++++++++++++++++++-
+ drivers/of/irq.c         |   6 +-
+ drivers/of/of_pci.c      | 101 -------------------------------
+ include/linux/iommu.h    |   2 +
+ include/linux/of_iommu.h |  10 ++++
+ include/linux/of_pci.h   |  10 ----
+ 8 files changed, 166 insertions(+), 117 deletions(-)
 
---- a/Documentation/devicetree/bindings/misc/fsl,qoriq-mc.txt
-+++ b/Documentation/devicetree/bindings/misc/fsl,qoriq-mc.txt
-@@ -9,6 +9,25 @@ blocks that can be used to create functi
- such as network interfaces, crypto accelerator instances, L2 switches,
- etc.
- 
-+For an overview of the DPAA2 architecture and fsl-mc bus see:
-+drivers/staging/fsl-mc/README.txt
-+
-+As described in the above overview, all DPAA2 objects in a DPRC share the
-+same hardware "isolation context" and a 10-bit value called an ICID
-+(isolation context id) is expressed by the hardware to identify
-+the requester.
-+
-+The generic 'iommus' property is insufficient to describe the relationship
-+between ICIDs and IOMMUs, so an iommu-map property is used to define
-+the set of possible ICIDs under a root DPRC and how they map to
-+an IOMMU.
-+
-+For generic IOMMU bindings, see
-+Documentation/devicetree/bindings/iommu/iommu.txt.
-+
-+For arm-smmu binding, see:
-+Documentation/devicetree/bindings/iommu/arm,smmu.txt.
-+
- Required properties:
- 
-     - compatible
-@@ -88,14 +107,34 @@ Sub-nodes:
-               Value type: <phandle>
-               Definition: Specifies the phandle to the PHY device node associated
-                           with the this dpmac.
-+Optional properties:
-+
-+- iommu-map: Maps an ICID to an IOMMU and associated iommu-specifier
-+  data.
-+
-+  The property is an arbitrary number of tuples of
-+  (icid-base,iommu,iommu-base,length).
-+
-+  Any ICID i in the interval [icid-base, icid-base + length) is
-+  associated with the listed IOMMU, with the iommu-specifier
-+  (i - icid-base + iommu-base).
- 
- Example:
- 
-+        smmu: iommu@5000000 {
-+               compatible = "arm,mmu-500";
-+               #iommu-cells = <2>;
-+               stream-match-mask = <0x7C00>;
-+               ...
-+        };
-+
-         fsl_mc: fsl-mc@80c000000 {
-                 compatible = "fsl,qoriq-mc";
-                 reg = <0x00000008 0x0c000000 0 0x40>,    /* MC portal base */
-                       <0x00000000 0x08340000 0 0x40000>; /* MC control reg */
-                 msi-parent = <&its>;
-+                /* define map for ICIDs 23-64 */
-+                iommu-map = <23 &smmu 23 41>;
-                 #address-cells = <3>;
-                 #size-cells = <1>;
- 
+diff --git a/drivers/iommu/arm-smmu.c b/drivers/iommu/arm-smmu.c
+index 01a6a0ea2..53dda07d8 100644
 --- a/drivers/iommu/arm-smmu.c
 +++ b/drivers/iommu/arm-smmu.c
 @@ -52,6 +52,7 @@
@@ -93,7 +32,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  
  #include "io-pgtable.h"
  #include "arm-smmu-regs.h"
-@@ -1465,6 +1466,8 @@ static struct iommu_group *arm_smmu_devi
+@@ -1465,6 +1466,8 @@ static struct iommu_group *arm_smmu_device_group(struct device *dev)
  
  	if (dev_is_pci(dev))
  		group = pci_device_group(dev);
@@ -113,6 +52,8 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  }
  
  static int arm_smmu_device_probe(struct platform_device *pdev)
+diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
+index 3de5c0bcb..eaf8a4d3e 100644
 --- a/drivers/iommu/iommu.c
 +++ b/drivers/iommu/iommu.c
 @@ -33,6 +33,7 @@
@@ -123,7 +64,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  
  static struct kset *iommu_group_kset;
  static DEFINE_IDA(iommu_group_ida);
-@@ -987,6 +988,26 @@ struct iommu_group *pci_device_group(str
+@@ -987,6 +988,26 @@ struct iommu_group *pci_device_group(struct device *dev)
  	return iommu_group_alloc();
  }
  
@@ -150,6 +91,8 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  /**
   * iommu_group_get_for_dev - Find or create the IOMMU group for a device
   * @dev: target device
+diff --git a/drivers/iommu/of_iommu.c b/drivers/iommu/of_iommu.c
+index 50947ebb6..c21e3745c 100644
 --- a/drivers/iommu/of_iommu.c
 +++ b/drivers/iommu/of_iommu.c
 @@ -24,6 +24,7 @@
@@ -279,7 +222,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  	if (err)
  		return err == -ENODEV ? NO_IOMMU : err;
  
-@@ -160,6 +261,23 @@ static int of_pci_iommu_init(struct pci_
+@@ -160,6 +261,23 @@ static int of_pci_iommu_init(struct pci_dev *pdev, u16 alias, void *data)
  	return err;
  }
  
@@ -303,7 +246,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  const struct iommu_ops *of_iommu_configure(struct device *dev,
  					   struct device_node *master_np)
  {
-@@ -191,6 +309,8 @@ const struct iommu_ops *of_iommu_configu
+@@ -191,6 +309,8 @@ const struct iommu_ops *of_iommu_configure(struct device *dev,
  
  		err = pci_for_each_dma_alias(to_pci_dev(dev),
  					     of_pci_iommu_init, &info);
@@ -312,6 +255,8 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  	} else {
  		struct of_phandle_args iommu_spec;
  		int idx = 0;
+diff --git a/drivers/of/irq.c b/drivers/of/irq.c
+index ec00ae738..ca5d107af 100644
 --- a/drivers/of/irq.c
 +++ b/drivers/of/irq.c
 @@ -26,7 +26,7 @@
@@ -323,7 +268,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  #include <linux/string.h>
  #include <linux/slab.h>
  
-@@ -593,8 +593,8 @@ static u32 __of_msi_map_rid(struct devic
+@@ -593,8 +593,8 @@ static u32 __of_msi_map_rid(struct device *dev, struct device_node **np,
  	 * "msi-map" property.
  	 */
  	for (parent_dev = dev; parent_dev; parent_dev = parent_dev->parent)
@@ -334,6 +279,8 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  			break;
  	return rid_out;
  }
+diff --git a/drivers/of/of_pci.c b/drivers/of/of_pci.c
+index e9ec931f5..34abb24c3 100644
 --- a/drivers/of/of_pci.c
 +++ b/drivers/of/of_pci.c
 @@ -281,104 +281,3 @@ parse_failed:
@@ -441,9 +388,11 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
 -		np, map_name, rid, target && *target ? *target : NULL);
 -	return -EFAULT;
 -}
+diff --git a/include/linux/iommu.h b/include/linux/iommu.h
+index 41b8c5757..00a460b4c 100644
 --- a/include/linux/iommu.h
 +++ b/include/linux/iommu.h
-@@ -389,6 +389,8 @@ static inline size_t iommu_map_sg(struct
+@@ -389,6 +389,8 @@ static inline size_t iommu_map_sg(struct iommu_domain *domain,
  extern struct iommu_group *pci_device_group(struct device *dev);
  /* Generic device grouping function */
  extern struct iommu_group *generic_device_group(struct device *dev);
@@ -452,9 +401,11 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  
  /**
   * struct iommu_fwspec - per-device IOMMU instance data
+diff --git a/include/linux/of_iommu.h b/include/linux/of_iommu.h
+index cddfaff4d..b9abb472f 100644
 --- a/include/linux/of_iommu.h
 +++ b/include/linux/of_iommu.h
-@@ -15,6 +15,9 @@ extern int of_get_dma_window(struct devi
+@@ -15,6 +15,9 @@ extern int of_get_dma_window(struct device_node *dn, const char *prefix,
  extern const struct iommu_ops *of_iommu_configure(struct device *dev,
  					struct device_node *master_np);
  
@@ -464,7 +415,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  #else
  
  static inline int of_get_dma_window(struct device_node *dn, const char *prefix,
-@@ -30,6 +33,13 @@ static inline const struct iommu_ops *of
+@@ -30,6 +33,13 @@ static inline const struct iommu_ops *of_iommu_configure(struct device *dev,
  	return NULL;
  }
  
@@ -478,9 +429,11 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  #endif	/* CONFIG_OF_IOMMU */
  
  extern struct of_device_id __iommu_of_table;
+diff --git a/include/linux/of_pci.h b/include/linux/of_pci.h
+index bf588a05d..061584365 100644
 --- a/include/linux/of_pci.h
 +++ b/include/linux/of_pci.h
-@@ -19,9 +19,6 @@ int of_pci_parse_bus_range(struct device
+@@ -19,9 +19,6 @@ int of_pci_parse_bus_range(struct device_node *node, struct resource *res);
  int of_get_pci_domain_nr(struct device_node *node);
  int of_pci_get_max_link_speed(struct device_node *node);
  void of_pci_check_probe_only(void);
@@ -490,7 +443,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  #else
  static inline int of_irq_parse_pci(const struct pci_dev *pdev, struct of_phandle_args *out_irq)
  {
-@@ -57,13 +54,6 @@ of_get_pci_domain_nr(struct device_node
+@@ -57,13 +54,6 @@ of_get_pci_domain_nr(struct device_node *node)
  	return -1;
  }
  
@@ -504,3 +457,6 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  static inline int
  of_pci_get_max_link_speed(struct device_node *node)
  {
+-- 
+2.17.1
+

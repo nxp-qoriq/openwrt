@@ -1,57 +1,317 @@
-From 74243154052af635ee9ce9d07aab273ce219c855 Mon Sep 17 00:00:00 2001
+From a0efbf028871780b3087437e159d52d6c9562d88 Mon Sep 17 00:00:00 2001
 From: Biwen Li <biwen.li@nxp.com>
-Date: Thu, 13 Dec 2018 13:23:52 +0800
+Date: Wed, 17 Apr 2019 18:58:19 +0800
 Subject: [PATCH] core-linux: support layerscape
 
-This is an integrated patch of core-linux for layerscape.
+This is an integrated patch of core-linux for layerscape
 
+Signed-off-by: Aaron Lu <aaron.lu@intel.com>
 Signed-off-by: Abhijit Ayarekar <abhijit.ayarekar@caviumnetworks.com>
 Signed-off-by: Amrita Kumari <amrita.kumari@nxp.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Ashish Kumar <Ashish.Kumar@nxp.com>
+Signed-off-by: Biwen Li <biwen.li@nxp.com>
 Signed-off-by: Camelia Groza <camelia.groza@nxp.com>
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: David Ahern <dsahern@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Guanhua Gao <guanhua.gao@nxp.com>
+Signed-off-by: Ioana Ciornei <ioana.ciornei@nxp.com>
 Signed-off-by: Jiri Pirko <jiri@mellanox.com>
 Signed-off-by: Joel Fernandes <joelaf@google.com>
+Signed-off-by: Laurentiu Tudor <laurentiu.tudor@nxp.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Li Yang <leoyang.li@nxp.com>
-Signed-off-by: Madalin Bucur <madalin.bucur@freescale.com>
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
 Signed-off-by: Madalin Bucur <madalin.bucur@nxp.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Nikhil Badola <nikhil.badola@freescale.com>
 Signed-off-by: Nipun Gupta <nipun.gupta@nxp.com>
+Signed-off-by: Pankaj Bansal <pankaj.bansal@nxp.com>
+Signed-off-by: pascal paillet <p.paillet@st.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Ramneek Mehresh <ramneek.mehresh@freescale.com>
 Signed-off-by: Robin Murphy <robin.murphy@arm.com>
 Signed-off-by: Suresh Gupta <suresh.gupta@freescale.com>
+Signed-off-by: Vivek Gautam <vivek.gautam@codeaurora.org>
 Signed-off-by: Yangbo Lu <yangbo.lu@nxp.com>
-Signed-off-by: yinbo.zhu <yinbo.zhu@nxp.com>
-Signed-off-by: Biwen Li <biwen.li@nxp.com>
 ---
- drivers/base/dma-mapping.c                |  7 ++
- drivers/net/bonding/bond_main.c           |  5 +-
- drivers/net/bonding/bond_options.c        |  2 +-
- drivers/net/team/team.c                   |  3 +-
- drivers/net/vrf.c                         |  3 +-
- drivers/of/device.c                       | 13 +++-
- drivers/soc/fsl/guts.c                    |  3 +
- include/linux/fsl_devices.h               |  2 +
- include/linux/netdevice.h                 | 13 +++-
- include/linux/skbuff.h                    |  2 +
- include/net/bonding.h                     |  3 +-
- net/batman-adv/soft-interface.c           |  3 +-
- net/bridge/br_device.c                    |  3 +-
- net/core/dev.c                            | 81 ++++++++++++++---------
- net/core/rtnetlink.c                      | 10 +--
- net/core/skbuff.c                         | 29 +++++++-
- samples/bpf/Makefile                      | 12 +++-
- samples/bpf/map_perf_test_kern.c          |  2 +-
- samples/bpf/map_perf_test_user.c          |  2 +-
- tools/testing/selftests/bpf/bpf_helpers.h | 56 ++++++++++++++--
- 20 files changed, 193 insertions(+), 61 deletions(-)
+ drivers/base/core.c                       | 122 +++++++++++++++++++---
+ drivers/base/dma-mapping.c                |   7 ++
+ drivers/gpu/ipu-v3/ipu-pre.c              |   3 +-
+ drivers/gpu/ipu-v3/ipu-prg.c              |   3 +-
+ drivers/iommu/dma-iommu.c                 |   3 +
+ drivers/mux/Kconfig                       |  12 +--
+ drivers/mux/mmio.c                        |   6 +-
+ drivers/net/bonding/bond_main.c           |   5 +-
+ drivers/net/bonding/bond_options.c        |   2 +-
+ drivers/net/team/team.c                   |   3 +-
+ drivers/net/vrf.c                         |   3 +-
+ drivers/of/device.c                       |  14 ++-
+ drivers/soc/fsl/guts.c                    |   1 +
+ drivers/soc/imx/gpc.c                     |   2 +-
+ include/linux/device.h                    |  20 +++-
+ include/linux/fsl_devices.h               |   2 +
+ include/linux/netdevice.h                 |  13 ++-
+ include/linux/skbuff.h                    |   2 +
+ include/net/bonding.h                     |   3 +-
+ lib/dma-noop.c                            |  19 ++++
+ mm/page_alloc.c                           |  10 +-
+ net/batman-adv/soft-interface.c           |   3 +-
+ net/bridge/br_device.c                    |   3 +-
+ net/core/dev.c                            |  81 ++++++++------
+ net/core/rtnetlink.c                      |  10 +-
+ net/core/skbuff.c                         |  29 ++++-
+ samples/bpf/Makefile                      |  12 ++-
+ samples/bpf/map_perf_test_kern.c          |   2 +-
+ samples/bpf/map_perf_test_user.c          |   2 +-
+ tools/testing/selftests/bpf/bpf_helpers.h |  56 ++++++++--
+ 30 files changed, 360 insertions(+), 93 deletions(-)
 
+diff --git a/drivers/base/core.c b/drivers/base/core.c
+index 1c67bf24b..cb49d38c8 100644
+--- a/drivers/base/core.c
++++ b/drivers/base/core.c
+@@ -161,10 +161,10 @@ static int device_reorder_to_tail(struct device *dev, void *not_used)
+  * of the link.  If DL_FLAG_PM_RUNTIME is not set, DL_FLAG_RPM_ACTIVE will be
+  * ignored.
+  *
+- * If the DL_FLAG_AUTOREMOVE is set, the link will be removed automatically
+- * when the consumer device driver unbinds from it.  The combination of both
+- * DL_FLAG_AUTOREMOVE and DL_FLAG_STATELESS set is invalid and will cause NULL
+- * to be returned.
++ * If the DL_FLAG_AUTOREMOVE_CONSUMER is set, the link will be removed
++ * automatically when the consumer device driver unbinds from it.
++ * The combination of both DL_FLAG_AUTOREMOVE_CONSUMER and DL_FLAG_STATELESS
++ * set is invalid and will cause NULL to be returned.
+  *
+  * A side effect of the link creation is re-ordering of dpm_list and the
+  * devices_kset list by moving the consumer device and all devices depending
+@@ -181,7 +181,8 @@ struct device_link *device_link_add(struct device *consumer,
+ 	struct device_link *link;
+ 
+ 	if (!consumer || !supplier ||
+-	    ((flags & DL_FLAG_STATELESS) && (flags & DL_FLAG_AUTOREMOVE)))
++	    ((flags & DL_FLAG_STATELESS) &&
++	     (flags & DL_FLAG_AUTOREMOVE_CONSUMER)))
+ 		return NULL;
+ 
+ 	device_links_write_lock();
+@@ -199,8 +200,10 @@ struct device_link *device_link_add(struct device *consumer,
+ 	}
+ 
+ 	list_for_each_entry(link, &supplier->links.consumers, s_node)
+-		if (link->consumer == consumer)
++		if (link->consumer == consumer) {
++			kref_get(&link->kref);
+ 			goto out;
++		}
+ 
+ 	link = kzalloc(sizeof(*link), GFP_KERNEL);
+ 	if (!link)
+@@ -232,6 +235,7 @@ struct device_link *device_link_add(struct device *consumer,
+ 	link->consumer = consumer;
+ 	INIT_LIST_HEAD(&link->c_node);
+ 	link->flags = flags;
++	kref_init(&link->kref);
+ 
+ 	/* Determine the initial link state. */
+ 	if (flags & DL_FLAG_STATELESS) {
+@@ -302,8 +306,10 @@ static void __device_link_free_srcu(struct rcu_head *rhead)
+ 	device_link_free(container_of(rhead, struct device_link, rcu_head));
+ }
+ 
+-static void __device_link_del(struct device_link *link)
++static void __device_link_del(struct kref *kref)
+ {
++	struct device_link *link = container_of(kref, struct device_link, kref);
++
+ 	dev_info(link->consumer, "Dropping the link to %s\n",
+ 		 dev_name(link->supplier));
+ 
+@@ -315,8 +321,10 @@ static void __device_link_del(struct device_link *link)
+ 	call_srcu(&device_links_srcu, &link->rcu_head, __device_link_free_srcu);
+ }
+ #else /* !CONFIG_SRCU */
+-static void __device_link_del(struct device_link *link)
++static void __device_link_del(struct kref *kref)
+ {
++	struct device_link *link = container_of(kref, struct device_link, kref);
++
+ 	dev_info(link->consumer, "Dropping the link to %s\n",
+ 		 dev_name(link->supplier));
+ 
+@@ -334,18 +342,50 @@ static void __device_link_del(struct device_link *link)
+  * @link: Device link to delete.
+  *
+  * The caller must ensure proper synchronization of this function with runtime
+- * PM.
++ * PM.  If the link was added multiple times, it needs to be deleted as often.
++ * Care is required for hotplugged devices:  Their links are purged on removal
++ * and calling device_link_del() is then no longer allowed.
+  */
+ void device_link_del(struct device_link *link)
+ {
+ 	device_links_write_lock();
+ 	device_pm_lock();
+-	__device_link_del(link);
++	kref_put(&link->kref, __device_link_del);
+ 	device_pm_unlock();
+ 	device_links_write_unlock();
+ }
+ EXPORT_SYMBOL_GPL(device_link_del);
+ 
++/**
++ * device_link_remove - remove a link between two devices.
++ * @consumer: Consumer end of the link.
++ * @supplier: Supplier end of the link.
++ *
++ * The caller must ensure proper synchronization of this function with runtime
++ * PM.
++ */
++void device_link_remove(void *consumer, struct device *supplier)
++{
++	struct device_link *link;
++
++	if (WARN_ON(consumer == supplier))
++		return;
++
++	device_links_write_lock();
++	device_pm_lock();
++
++	list_for_each_entry(link, &supplier->links.consumers, s_node) {
++		if (link->consumer == consumer) {
++			kref_put(&link->kref, __device_link_del);
++			break;
++		}
++	}
++
++	device_pm_unlock();
++	device_links_write_unlock();
++}
++EXPORT_SYMBOL_GPL(device_link_remove);
++
+ static void device_links_missing_supplier(struct device *dev)
+ {
+ 	struct device_link *link;
+@@ -453,8 +493,8 @@ static void __device_links_no_driver(struct device *dev)
+ 		if (link->flags & DL_FLAG_STATELESS)
+ 			continue;
+ 
+-		if (link->flags & DL_FLAG_AUTOREMOVE)
+-			__device_link_del(link);
++		if (link->flags & DL_FLAG_AUTOREMOVE_CONSUMER)
++			kref_put(&link->kref, __device_link_del);
+ 		else if (link->status != DL_STATE_SUPPLIER_UNBIND)
+ 			WRITE_ONCE(link->status, DL_STATE_AVAILABLE);
+ 	}
+@@ -489,8 +529,18 @@ void device_links_driver_cleanup(struct device *dev)
+ 		if (link->flags & DL_FLAG_STATELESS)
+ 			continue;
+ 
+-		WARN_ON(link->flags & DL_FLAG_AUTOREMOVE);
++		WARN_ON(link->flags & DL_FLAG_AUTOREMOVE_CONSUMER);
+ 		WARN_ON(link->status != DL_STATE_SUPPLIER_UNBIND);
++
++		/*
++		 * autoremove the links between this @dev and its consumer
++		 * devices that are not active, i.e. where the link state
++		 * has moved to DL_STATE_SUPPLIER_UNBIND.
++		 */
++		if (link->status == DL_STATE_SUPPLIER_UNBIND &&
++		    link->flags & DL_FLAG_AUTOREMOVE_SUPPLIER)
++			kref_put(&link->kref, __device_link_del);
++
+ 		WRITE_ONCE(link->status, DL_STATE_DORMANT);
+ 	}
+ 
+@@ -607,13 +657,13 @@ static void device_links_purge(struct device *dev)
+ 
+ 	list_for_each_entry_safe_reverse(link, ln, &dev->links.suppliers, c_node) {
+ 		WARN_ON(link->status == DL_STATE_ACTIVE);
+-		__device_link_del(link);
++		__device_link_del(&link->kref);
+ 	}
+ 
+ 	list_for_each_entry_safe_reverse(link, ln, &dev->links.consumers, s_node) {
+ 		WARN_ON(link->status != DL_STATE_DORMANT &&
+ 			link->status != DL_STATE_NONE);
+-		__device_link_del(link);
++		__device_link_del(&link->kref);
+ 	}
+ 
+ 	device_links_write_unlock();
+@@ -1035,6 +1085,34 @@ static ssize_t online_store(struct device *dev, struct device_attribute *attr,
+ }
+ static DEVICE_ATTR_RW(online);
+ 
++static ssize_t suppliers_show(struct device *dev, struct device_attribute *attr,
++			      char *buf)
++{
++	struct device_link *link;
++	size_t count = 0;
++
++	list_for_each_entry(link, &dev->links.suppliers, c_node)
++		count += scnprintf(buf + count, PAGE_SIZE - count, "%s\n",
++				   dev_name(link->supplier));
++
++	return count;
++}
++static DEVICE_ATTR_RO(suppliers);
++
++static ssize_t consumers_show(struct device *dev, struct device_attribute *attr,
++			      char *buf)
++{
++	struct device_link *link;
++	size_t count = 0;
++
++	list_for_each_entry(link, &dev->links.consumers, s_node)
++		count += scnprintf(buf + count, PAGE_SIZE - count, "%s\n",
++				   dev_name(link->consumer));
++
++	return count;
++}
++static DEVICE_ATTR_RO(consumers);
++
+ int device_add_groups(struct device *dev, const struct attribute_group **groups)
+ {
+ 	return sysfs_create_groups(&dev->kobj, groups);
+@@ -1206,8 +1284,20 @@ static int device_add_attrs(struct device *dev)
+ 			goto err_remove_dev_groups;
+ 	}
+ 
++	error = device_create_file(dev, &dev_attr_suppliers);
++	if (error)
++		goto err_remove_online;
++
++	error = device_create_file(dev, &dev_attr_consumers);
++	if (error)
++		goto err_remove_suppliers;
++
+ 	return 0;
+ 
++ err_remove_suppliers:
++	device_remove_file(dev, &dev_attr_suppliers);
++ err_remove_online:
++	device_remove_file(dev, &dev_attr_online);
+  err_remove_dev_groups:
+ 	device_remove_groups(dev, dev->groups);
+  err_remove_type_groups:
+@@ -1225,6 +1315,8 @@ static void device_remove_attrs(struct device *dev)
+ 	struct class *class = dev->class;
+ 	const struct device_type *type = dev->type;
+ 
++	device_remove_file(dev, &dev_attr_consumers);
++	device_remove_file(dev, &dev_attr_suppliers);
+ 	device_remove_file(dev, &dev_attr_online);
+ 	device_remove_groups(dev, dev->groups);
+ 
+diff --git a/drivers/base/dma-mapping.c b/drivers/base/dma-mapping.c
+index e584eddef..ae52cb6a5 100644
 --- a/drivers/base/dma-mapping.c
 +++ b/drivers/base/dma-mapping.c
-@@ -335,6 +335,7 @@ void dma_common_free_remap(void *cpu_add
+@@ -335,6 +335,7 @@ void dma_common_free_remap(void *cpu_addr, size_t size, unsigned long vm_flags)
   * Common configuration to enable DMA API use for a device
   */
  #include <linux/pci.h>
@@ -72,9 +332,102 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  	if (dma_dev->of_node) {
  		ret = of_dma_configure(dev, dma_dev->of_node);
  	} else if (has_acpi_companion(dma_dev)) {
+diff --git a/drivers/gpu/ipu-v3/ipu-pre.c b/drivers/gpu/ipu-v3/ipu-pre.c
+index 1d1612e28..645e3094f 100644
+--- a/drivers/gpu/ipu-v3/ipu-pre.c
++++ b/drivers/gpu/ipu-v3/ipu-pre.c
+@@ -124,7 +124,8 @@ ipu_pre_lookup_by_phandle(struct device *dev, const char *name, int index)
+ 	list_for_each_entry(pre, &ipu_pre_list, list) {
+ 		if (pre_node == pre->dev->of_node) {
+ 			mutex_unlock(&ipu_pre_list_mutex);
+-			device_link_add(dev, pre->dev, DL_FLAG_AUTOREMOVE);
++			device_link_add(dev, pre->dev,
++					DL_FLAG_AUTOREMOVE_CONSUMER);
+ 			of_node_put(pre_node);
+ 			return pre;
+ 		}
+diff --git a/drivers/gpu/ipu-v3/ipu-prg.c b/drivers/gpu/ipu-v3/ipu-prg.c
+index 1c36fa3a9..96198257b 100644
+--- a/drivers/gpu/ipu-v3/ipu-prg.c
++++ b/drivers/gpu/ipu-v3/ipu-prg.c
+@@ -99,7 +99,8 @@ ipu_prg_lookup_by_phandle(struct device *dev, const char *name, int ipu_id)
+ 	list_for_each_entry(prg, &ipu_prg_list, list) {
+ 		if (prg_node == prg->dev->of_node) {
+ 			mutex_unlock(&ipu_prg_list_mutex);
+-			device_link_add(dev, prg->dev, DL_FLAG_AUTOREMOVE);
++			device_link_add(dev, prg->dev,
++					DL_FLAG_AUTOREMOVE_CONSUMER);
+ 			prg->id = ipu_id;
+ 			of_node_put(prg_node);
+ 			return prg;
+diff --git a/drivers/iommu/dma-iommu.c b/drivers/iommu/dma-iommu.c
+index 9d1cebe7f..de8743a7f 100644
+--- a/drivers/iommu/dma-iommu.c
++++ b/drivers/iommu/dma-iommu.c
+@@ -381,6 +381,9 @@ static dma_addr_t iommu_dma_alloc_iova(struct iommu_domain *domain,
+ 	if (iova_len < (1 << (IOVA_RANGE_CACHE_MAX_SIZE - 1)))
+ 		iova_len = roundup_pow_of_two(iova_len);
+ 
++	if (dev->bus_dma_mask)
++		dma_limit &= dev->bus_dma_mask;
++
+ 	if (domain->geometry.force_aperture)
+ 		dma_limit = min(dma_limit, domain->geometry.aperture_end);
+ 
+diff --git a/drivers/mux/Kconfig b/drivers/mux/Kconfig
+index 19e4e904c..c5ecc1382 100644
+--- a/drivers/mux/Kconfig
++++ b/drivers/mux/Kconfig
+@@ -35,14 +35,14 @@ config MUX_GPIO
+ 	  be called mux-gpio.
+ 
+ config MUX_MMIO
+-	tristate "MMIO register bitfield-controlled Multiplexer"
+-	depends on (OF && MFD_SYSCON) || COMPILE_TEST
++	tristate "MMIO/Regmap register bitfield-controlled Multiplexer"
++	depends on OF || COMPILE_TEST
+ 	help
+-	  MMIO register bitfield-controlled Multiplexer controller.
++	  MMIO/Regmap register bitfield-controlled Multiplexer controller.
+ 
+-	  The driver builds multiplexer controllers for bitfields in a syscon
+-	  register. For N bit wide bitfields, there will be 2^N possible
+-	  multiplexer states.
++	  The driver builds multiplexer controllers for bitfields in either
++	  a syscon register or a driver regmap register. For N bit wide
++	  bitfields, there will be 2^N possible multiplexer states.
+ 
+ 	  To compile the driver as a module, choose M here: the module will
+ 	  be called mux-mmio.
+diff --git a/drivers/mux/mmio.c b/drivers/mux/mmio.c
+index 37c1de359..d5978416b 100644
+--- a/drivers/mux/mmio.c
++++ b/drivers/mux/mmio.c
+@@ -31,6 +31,7 @@ static const struct mux_control_ops mux_mmio_ops = {
+ 
+ static const struct of_device_id mux_mmio_dt_ids[] = {
+ 	{ .compatible = "mmio-mux", },
++	{ .compatible = "reg-mux", },
+ 	{ /* sentinel */ }
+ };
+ MODULE_DEVICE_TABLE(of, mux_mmio_dt_ids);
+@@ -46,7 +47,10 @@ static int mux_mmio_probe(struct platform_device *pdev)
+ 	int ret;
+ 	int i;
+ 
+-	regmap = syscon_node_to_regmap(np->parent);
++	if (of_device_is_compatible(np, "mmio-mux"))
++		regmap = syscon_node_to_regmap(np->parent);
++	else
++		regmap = dev_get_regmap(dev->parent, NULL) ?: ERR_PTR(-ENODEV);
+ 	if (IS_ERR(regmap)) {
+ 		ret = PTR_ERR(regmap);
+ 		dev_err(dev, "failed to get regmap: %d\n", ret);
+diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
+index 99e60bb5f..78ba38d8d 100644
 --- a/drivers/net/bonding/bond_main.c
 +++ b/drivers/net/bonding/bond_main.c
-@@ -1330,7 +1330,8 @@ void bond_lower_state_changed(struct sla
+@@ -1330,7 +1330,8 @@ void bond_lower_state_changed(struct slave *slave)
  }
  
  /* enslave device <slave> to bond device <master> */
@@ -84,7 +437,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  {
  	struct bonding *bond = netdev_priv(bond_dev);
  	const struct net_device_ops *slave_ops = slave_dev->netdev_ops;
-@@ -3502,7 +3503,7 @@ static int bond_do_ioctl(struct net_devi
+@@ -3502,7 +3503,7 @@ static int bond_do_ioctl(struct net_device *bond_dev, struct ifreq *ifr, int cmd
  	switch (cmd) {
  	case BOND_ENSLAVE_OLD:
  	case SIOCBONDENSLAVE:
@@ -93,9 +446,11 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  		break;
  	case BOND_RELEASE_OLD:
  	case SIOCBONDRELEASE:
+diff --git a/drivers/net/bonding/bond_options.c b/drivers/net/bonding/bond_options.c
+index 3d154eb63..96b8a32cd 100644
 --- a/drivers/net/bonding/bond_options.c
 +++ b/drivers/net/bonding/bond_options.c
-@@ -1389,7 +1389,7 @@ static int bond_option_slaves_set(struct
+@@ -1389,7 +1389,7 @@ static int bond_option_slaves_set(struct bonding *bond,
  	switch (command[0]) {
  	case '+':
  		netdev_dbg(bond->dev, "Adding slave %s\n", dev->name);
@@ -104,9 +459,11 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  		break;
  
  	case '-':
+diff --git a/drivers/net/team/team.c b/drivers/net/team/team.c
+index bb96153f4..aa77ebd6c 100644
 --- a/drivers/net/team/team.c
 +++ b/drivers/net/team/team.c
-@@ -1921,7 +1921,8 @@ static int team_netpoll_setup(struct net
+@@ -1921,7 +1921,8 @@ static int team_netpoll_setup(struct net_device *dev,
  }
  #endif
  
@@ -116,6 +473,8 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  {
  	struct team *team = netdev_priv(dev);
  	int err;
+diff --git a/drivers/net/vrf.c b/drivers/net/vrf.c
+index 5c6a8ef54..8f1b81b7a 100644
 --- a/drivers/net/vrf.c
 +++ b/drivers/net/vrf.c
 @@ -791,7 +791,8 @@ err:
@@ -128,6 +487,8 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  {
  	if (netif_is_l3_master(port_dev) || netif_is_l3_slave(port_dev))
  		return -EINVAL;
+diff --git a/drivers/of/device.c b/drivers/of/device.c
+index 64b710265..a8f0e541c 100644
 --- a/drivers/of/device.c
 +++ b/drivers/of/device.c
 @@ -15,6 +15,9 @@
@@ -140,17 +501,21 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  
  /**
   * of_match_device - Tell if a struct device matches an of_device_id list
-@@ -105,6 +108,9 @@ int of_dma_configure(struct device *dev,
+@@ -104,6 +107,9 @@ int of_dma_configure(struct device *dev, struct device_node *np)
+ 		if (!dev_is_pci(dev) &&
  #ifdef CONFIG_ARM_AMBA
  		    dev->bus != &amba_bustype &&
- #endif
++#endif
 +#ifdef CONFIG_FSL_MC_BUS
 +		    dev->bus != &fsl_mc_bus_type &&
-+#endif
+ #endif
  		    dev->bus != &platform_bus_type)
  			return ret == -ENODEV ? 0 : ret;
- 
-@@ -155,7 +161,12 @@ int of_dma_configure(struct device *dev,
+@@ -152,10 +158,16 @@ int of_dma_configure(struct device *dev, struct device_node *np)
+ 	 * set by the driver.
+ 	 */
+ 	mask = DMA_BIT_MASK(ilog2(dma_addr + size - 1) + 1);
++	dev->bus_dma_mask = mask;
  	dev->coherent_dma_mask &= mask;
  	*dev->dma_mask &= mask;
  
@@ -164,18 +529,109 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  	dev_dbg(dev, "device is%sdma coherent\n",
  		coherent ? " " : " not ");
  
+diff --git a/drivers/soc/fsl/guts.c b/drivers/soc/fsl/guts.c
+index 6af7a11f0..3d06a594e 100644
 --- a/drivers/soc/fsl/guts.c
 +++ b/drivers/soc/fsl/guts.c
-@@ -213,6 +213,9 @@ static const struct of_device_id fsl_gut
+@@ -212,6 +212,7 @@ static const struct of_device_id fsl_guts_of_match[] = {
+ 	{ .compatible = "fsl,mpc8572-guts", },
  	{ .compatible = "fsl,ls1021a-dcfg", },
  	{ .compatible = "fsl,ls1043a-dcfg", },
- 	{ .compatible = "fsl,ls2080a-dcfg", },
-+	{ .compatible = "fsl,ls1088a-dcfg", },
-+	{ .compatible = "fsl,ls1012a-dcfg", },
 +	{ .compatible = "fsl,ls1046a-dcfg", },
+ 	{ .compatible = "fsl,ls2080a-dcfg", },
  	{}
  };
- MODULE_DEVICE_TABLE(of, fsl_guts_of_match);
+diff --git a/drivers/soc/imx/gpc.c b/drivers/soc/imx/gpc.c
+index c54d229f8..6e633b2fc 100644
+--- a/drivers/soc/imx/gpc.c
++++ b/drivers/soc/imx/gpc.c
+@@ -209,7 +209,7 @@ static int imx_pgc_power_domain_probe(struct platform_device *pdev)
+ 			goto genpd_err;
+ 	}
+ 
+-	device_link_add(dev, dev->parent, DL_FLAG_AUTOREMOVE);
++	device_link_add(dev, dev->parent, DL_FLAG_AUTOREMOVE_CONSUMER);
+ 
+ 	return 0;
+ 
+diff --git a/include/linux/device.h b/include/linux/device.h
+index 66fe271c2..7a34c5a11 100644
+--- a/include/linux/device.h
++++ b/include/linux/device.h
+@@ -55,6 +55,8 @@ struct bus_attribute {
+ 	struct bus_attribute bus_attr_##_name = __ATTR_RW(_name)
+ #define BUS_ATTR_RO(_name) \
+ 	struct bus_attribute bus_attr_##_name = __ATTR_RO(_name)
++#define BUS_ATTR_WO(_name) \
++	struct bus_attribute bus_attr_##_name = __ATTR_WO(_name)
+ 
+ extern int __must_check bus_create_file(struct bus_type *,
+ 					struct bus_attribute *);
+@@ -750,14 +752,16 @@ enum device_link_state {
+  * Device link flags.
+  *
+  * STATELESS: The core won't track the presence of supplier/consumer drivers.
+- * AUTOREMOVE: Remove this link automatically on consumer driver unbind.
++ * AUTOREMOVE_CONSUMER: Remove the link automatically on consumer driver unbind.
+  * PM_RUNTIME: If set, the runtime PM framework will use this link.
+  * RPM_ACTIVE: Run pm_runtime_get_sync() on the supplier during link creation.
++ * AUTOREMOVE_SUPPLIER: Remove the link automatically on supplier driver unbind.
+  */
+-#define DL_FLAG_STATELESS	BIT(0)
+-#define DL_FLAG_AUTOREMOVE	BIT(1)
+-#define DL_FLAG_PM_RUNTIME	BIT(2)
+-#define DL_FLAG_RPM_ACTIVE	BIT(3)
++#define DL_FLAG_STATELESS		BIT(0)
++#define DL_FLAG_AUTOREMOVE_CONSUMER	BIT(1)
++#define DL_FLAG_PM_RUNTIME		BIT(2)
++#define DL_FLAG_RPM_ACTIVE		BIT(3)
++#define DL_FLAG_AUTOREMOVE_SUPPLIER	BIT(4)
+ 
+ /**
+  * struct device_link - Device link representation.
+@@ -768,6 +772,7 @@ enum device_link_state {
+  * @status: The state of the link (with respect to the presence of drivers).
+  * @flags: Link flags.
+  * @rpm_active: Whether or not the consumer device is runtime-PM-active.
++ * @kref: Count repeated addition of the same link.
+  * @rcu_head: An RCU head to use for deferred execution of SRCU callbacks.
+  */
+ struct device_link {
+@@ -778,6 +783,7 @@ struct device_link {
+ 	enum device_link_state status;
+ 	u32 flags;
+ 	bool rpm_active;
++	struct kref kref;
+ #ifdef CONFIG_SRCU
+ 	struct rcu_head rcu_head;
+ #endif
+@@ -850,6 +856,8 @@ struct dev_links_info {
+  * @coherent_dma_mask: Like dma_mask, but for alloc_coherent mapping as not all
+  * 		hardware supports 64-bit addresses for consistent allocations
+  * 		such descriptors.
++ * @bus_dma_mask: Mask of an upstream bridge or bus which imposes a smaller DMA
++ * 		limit than the device itself supports.
+  * @dma_pfn_offset: offset of DMA memory range relatively of RAM
+  * @dma_parms:	A low level driver may set these to teach IOMMU code about
+  * 		segment limitations.
+@@ -929,6 +937,7 @@ struct device {
+ 					     not all hardware supports
+ 					     64 bit addresses for consistent
+ 					     allocations such descriptors. */
++	u64             bus_dma_mask;   /* upstream dma_mask constraint */
+ 	unsigned long	dma_pfn_offset;
+ 
+ 	struct device_dma_parameters *dma_parms;
+@@ -1267,6 +1276,7 @@ extern const char *dev_driver_string(const struct device *dev);
+ struct device_link *device_link_add(struct device *consumer,
+ 				    struct device *supplier, u32 flags);
+ void device_link_del(struct device_link *link);
++void device_link_remove(void *consumer, struct device *supplier);
+ 
+ #ifdef CONFIG_PRINTK
+ 
+diff --git a/include/linux/fsl_devices.h b/include/linux/fsl_devices.h
+index 60cef8227..f5c108575 100644
 --- a/include/linux/fsl_devices.h
 +++ b/include/linux/fsl_devices.h
 @@ -99,7 +99,9 @@ struct fsl_usb2_platform_data {
@@ -188,6 +644,8 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  	unsigned	has_fsl_erratum_a005697:1;
  	unsigned        check_phy_clk_valid:1;
  
+diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
+index 655510d02..6818f78d7 100644
 --- a/include/linux/netdevice.h
 +++ b/include/linux/netdevice.h
 @@ -1260,7 +1260,8 @@ struct net_device_ops {
@@ -200,7 +658,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  	int			(*ndo_del_slave)(struct net_device *dev,
  						 struct net_device *slave_dev);
  	netdev_features_t	(*ndo_fix_features)(struct net_device *dev,
-@@ -2344,7 +2345,8 @@ int register_netdevice_notifier(struct n
+@@ -2344,7 +2345,8 @@ int register_netdevice_notifier(struct notifier_block *nb);
  int unregister_netdevice_notifier(struct notifier_block *nb);
  
  struct netdev_notifier_info {
@@ -210,7 +668,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  };
  
  struct netdev_notifier_info_ext {
-@@ -2376,6 +2378,7 @@ static inline void netdev_notifier_info_
+@@ -2376,6 +2378,7 @@ static inline void netdev_notifier_info_init(struct netdev_notifier_info *info,
  					     struct net_device *dev)
  {
  	info->dev = dev;
@@ -218,7 +676,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  }
  
  static inline struct net_device *
-@@ -2384,6 +2387,12 @@ netdev_notifier_info_to_dev(const struct
+@@ -2384,6 +2387,12 @@ netdev_notifier_info_to_dev(const struct netdev_notifier_info *info)
  	return info->dev;
  }
  
@@ -231,9 +689,11 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  int call_netdevice_notifiers(unsigned long val, struct net_device *dev);
  
  
+diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
+index 2ec699ad1..9eb03689c 100644
 --- a/include/linux/skbuff.h
 +++ b/include/linux/skbuff.h
-@@ -964,6 +964,7 @@ void kfree_skb_list(struct sk_buff *segs
+@@ -964,6 +964,7 @@ void kfree_skb_list(struct sk_buff *segs);
  void skb_tx_error(struct sk_buff *skb);
  void consume_skb(struct sk_buff *skb);
  void __consume_stateless_skb(struct sk_buff *skb);
@@ -241,7 +701,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  void  __kfree_skb(struct sk_buff *skb);
  extern struct kmem_cache *skbuff_head_cache;
  
-@@ -3294,6 +3295,7 @@ static inline void skb_free_datagram_loc
+@@ -3294,6 +3295,7 @@ static inline void skb_free_datagram_locked(struct sock *sk,
  }
  int skb_kill_datagram(struct sock *sk, struct sk_buff *skb, unsigned int flags);
  int skb_copy_bits(const struct sk_buff *skb, int offset, void *to, int len);
@@ -249,9 +709,11 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  int skb_store_bits(struct sk_buff *skb, int offset, const void *from, int len);
  __wsum skb_copy_and_csum_bits(const struct sk_buff *skb, int offset, u8 *to,
  			      int len, __wsum csum);
+diff --git a/include/net/bonding.h b/include/net/bonding.h
+index 040082095..2c2c2f50a 100644
 --- a/include/net/bonding.h
 +++ b/include/net/bonding.h
-@@ -592,7 +592,8 @@ void bond_destroy_sysfs(struct bond_net
+@@ -592,7 +592,8 @@ void bond_destroy_sysfs(struct bond_net *net);
  void bond_prepare_sysfs_group(struct bonding *bond);
  int bond_sysfs_slave_add(struct slave *slave);
  void bond_sysfs_slave_del(struct slave *slave);
@@ -261,6 +723,64 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  int bond_release(struct net_device *bond_dev, struct net_device *slave_dev);
  u32 bond_xmit_hash(struct bonding *bond, struct sk_buff *skb);
  int bond_set_carrier(struct bonding *bond);
+diff --git a/lib/dma-noop.c b/lib/dma-noop.c
+index a10185b0c..e53fd395e 100644
+--- a/lib/dma-noop.c
++++ b/lib/dma-noop.c
+@@ -58,11 +58,30 @@ static int dma_noop_map_sg(struct device *dev, struct scatterlist *sgl, int nent
+ 	return nents;
+ }
+ 
++static int dma_noop_supported(struct device *dev, u64 mask)
++{
++#ifdef CONFIG_ZONE_DMA
++	if (mask < DMA_BIT_MASK(ARCH_ZONE_DMA_BITS))
++	return 0;
++#else
++	/*
++	 * Because 32-bit DMA masks are so common we expect every architecture
++	 * to be able to satisfy them - either by not supporting more physical
++	 * memory, or by providing a ZONE_DMA32.  If neither is the case, the
++	 * architecture needs to use an IOMMU instead of the direct mapping.
++	 */
++	if (dev->bus_dma_mask && mask > dev->bus_dma_mask)
++		return 0;
++#endif
++	return 1;
++}
++
+ const struct dma_map_ops dma_noop_ops = {
+ 	.alloc			= dma_noop_alloc,
+ 	.free			= dma_noop_free,
+ 	.map_page		= dma_noop_map_page,
+ 	.map_sg			= dma_noop_map_sg,
++	dma_supported		= dma_noop_supported
+ };
+ 
+ EXPORT_SYMBOL(dma_noop_ops);
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index a2703d9c7..f95915561 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -4366,8 +4366,14 @@ void page_frag_free(void *addr)
+ {
+ 	struct page *page = virt_to_head_page(addr);
+ 
+-	if (unlikely(put_page_testzero(page)))
+-		__free_pages_ok(page, compound_order(page));
++	if (unlikely(put_page_testzero(page))) {
++		unsigned int order = compound_order(page);
++
++		if (order == 0)		/* Via pcp? */
++			free_hot_cold_page(page, false);
++		else
++			__free_pages_ok(page, order);
++	}
+ }
+ EXPORT_SYMBOL(page_frag_free);
+ 
+diff --git a/net/batman-adv/soft-interface.c b/net/batman-adv/soft-interface.c
+index 899650263..4255d5e98 100644
 --- a/net/batman-adv/soft-interface.c
 +++ b/net/batman-adv/soft-interface.c
 @@ -876,7 +876,8 @@ free_bat_counters:
@@ -273,9 +793,11 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  {
  	struct batadv_hard_iface *hard_iface;
  	struct net *net = dev_net(dev);
+diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
+index 4247ce0b5..ad1a47845 100644
 --- a/net/bridge/br_device.c
 +++ b/net/bridge/br_device.c
-@@ -324,7 +324,8 @@ void br_netpoll_disable(struct net_bridg
+@@ -324,7 +324,8 @@ void br_netpoll_disable(struct net_bridge_port *p)
  
  #endif
  
@@ -285,9 +807,11 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  
  {
  	struct net_bridge *br = netdev_priv(dev);
+diff --git a/net/core/dev.c b/net/core/dev.c
+index 70ea752b9..7270a7df2 100644
 --- a/net/core/dev.c
 +++ b/net/core/dev.c
-@@ -162,7 +162,6 @@ static struct list_head offload_base __r
+@@ -162,7 +162,6 @@ static struct list_head offload_base __read_mostly;
  
  static int netif_rx_internal(struct sk_buff *skb);
  static int call_netdevice_notifiers_info(unsigned long val,
@@ -323,7 +847,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  	return nb->notifier_call(nb, val, &info);
  }
  
-@@ -1663,11 +1664,9 @@ EXPORT_SYMBOL(unregister_netdevice_notif
+@@ -1663,11 +1664,9 @@ EXPORT_SYMBOL(unregister_netdevice_notifier);
   */
  
  static int call_netdevice_notifiers_info(unsigned long val,
@@ -335,7 +859,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  	return raw_notifier_call_chain(&netdev_chain, val, info);
  }
  
-@@ -1682,9 +1681,11 @@ static int call_netdevice_notifiers_info
+@@ -1682,9 +1681,11 @@ static int call_netdevice_notifiers_info(unsigned long val,
  
  int call_netdevice_notifiers(unsigned long val, struct net_device *dev)
  {
@@ -349,7 +873,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  }
  EXPORT_SYMBOL(call_netdevice_notifiers);
  
-@@ -1707,7 +1708,7 @@ static int call_netdevice_notifiers_mtu(
+@@ -1707,7 +1708,7 @@ static int call_netdevice_notifiers_mtu(unsigned long val,
  
  	BUILD_BUG_ON(offsetof(struct netdev_notifier_info_ext, info) != 0);
  
@@ -358,7 +882,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  }
  
  #ifdef CONFIG_NET_INGRESS
-@@ -6338,7 +6339,15 @@ static int __netdev_upper_dev_link(struc
+@@ -6338,7 +6339,15 @@ static int __netdev_upper_dev_link(struct net_device *dev,
  				   struct net_device *upper_dev, bool master,
  				   void *upper_priv, void *upper_info)
  {
@@ -375,7 +899,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  	int ret = 0;
  
  	ASSERT_RTNL();
-@@ -6356,12 +6365,7 @@ static int __netdev_upper_dev_link(struc
+@@ -6356,12 +6365,7 @@ static int __netdev_upper_dev_link(struct net_device *dev,
  	if (master && netdev_master_upper_dev_get(dev))
  		return -EBUSY;
  
@@ -389,7 +913,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  					    &changeupper_info.info);
  	ret = notifier_to_errno(ret);
  	if (ret)
-@@ -6373,7 +6377,7 @@ static int __netdev_upper_dev_link(struc
+@@ -6373,7 +6377,7 @@ static int __netdev_upper_dev_link(struct net_device *dev,
  		return ret;
  
  	netdev_update_addr_mask(dev);
@@ -398,7 +922,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  					    &changeupper_info.info);
  	ret = notifier_to_errno(ret);
  	if (ret)
-@@ -6437,21 +6441,25 @@ EXPORT_SYMBOL(netdev_master_upper_dev_li
+@@ -6437,21 +6441,25 @@ EXPORT_SYMBOL(netdev_master_upper_dev_link);
  void netdev_upper_dev_unlink(struct net_device *dev,
  			     struct net_device *upper_dev)
  {
@@ -461,28 +985,31 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  				      &changelowerstate_info.info);
  }
  EXPORT_SYMBOL(netdev_lower_state_changed);
-@@ -6892,11 +6904,14 @@ void __dev_notify_flags(struct net_devic
+@@ -6892,11 +6904,14 @@ void __dev_notify_flags(struct net_device *dev, unsigned int old_flags,
  
  	if (dev->flags & IFF_UP &&
  	    (changes & ~(IFF_UP | IFF_PROMISC | IFF_ALLMULTI | IFF_VOLATILE))) {
 -		struct netdev_notifier_change_info change_info;
+-
+-		change_info.flags_changed = changes;
+-		call_netdevice_notifiers_info(NETDEV_CHANGE, dev,
+-					      &change_info.info);
 +		struct netdev_notifier_change_info change_info = {
 +			.info = {
 +				.dev = dev,
 +			},
 +			.flags_changed = changes,
 +		};
- 
--		change_info.flags_changed = changes;
--		call_netdevice_notifiers_info(NETDEV_CHANGE, dev,
--					      &change_info.info);
++
 +		call_netdevice_notifiers_info(NETDEV_CHANGE, &change_info.info);
  	}
  }
  
+diff --git a/net/core/rtnetlink.c b/net/core/rtnetlink.c
+index 925af6b43..6cd1061c7 100644
 --- a/net/core/rtnetlink.c
 +++ b/net/core/rtnetlink.c
-@@ -1912,7 +1912,8 @@ static int do_setvfinfo(struct net_devic
+@@ -1912,7 +1912,8 @@ static int do_setvfinfo(struct net_device *dev, struct nlattr **tb)
  	return err;
  }
  
@@ -492,7 +1019,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  {
  	struct net_device *upper_dev = netdev_master_upper_dev_get(dev);
  	const struct net_device_ops *ops;
-@@ -1937,7 +1938,7 @@ static int do_set_master(struct net_devi
+@@ -1937,7 +1938,7 @@ static int do_set_master(struct net_device *dev, int ifindex)
  			return -EINVAL;
  		ops = upper_dev->netdev_ops;
  		if (ops->ndo_add_slave) {
@@ -501,7 +1028,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  			if (err)
  				return err;
  		} else {
-@@ -2074,7 +2075,7 @@ static int do_setlink(const struct sk_bu
+@@ -2074,7 +2075,7 @@ static int do_setlink(const struct sk_buff *skb,
  	}
  
  	if (tb[IFLA_MASTER]) {
@@ -520,9 +1047,11 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  			if (err)
  				goto out_unregister;
  		}
+diff --git a/net/core/skbuff.c b/net/core/skbuff.c
+index 1eccebc2f..e71d83f63 100644
 --- a/net/core/skbuff.c
 +++ b/net/core/skbuff.c
-@@ -803,6 +803,32 @@ void napi_consume_skb(struct sk_buff *sk
+@@ -803,6 +803,32 @@ void napi_consume_skb(struct sk_buff *skb, int budget)
  }
  EXPORT_SYMBOL(napi_consume_skb);
  
@@ -555,7 +1084,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  /* Make sure a field is enclosed inside headers_start/headers_end section */
  #define CHECK_SKB_FIELD(field) \
  	BUILD_BUG_ON(offsetof(struct sk_buff, field) <		\
-@@ -1322,7 +1348,7 @@ static void skb_headers_offset_update(st
+@@ -1322,7 +1348,7 @@ static void skb_headers_offset_update(struct sk_buff *skb, int off)
  	skb->inner_mac_header += off;
  }
  
@@ -564,7 +1093,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  {
  	__copy_skb_header(new, old);
  
-@@ -1330,6 +1356,7 @@ static void copy_skb_header(struct sk_bu
+@@ -1330,6 +1356,7 @@ static void copy_skb_header(struct sk_buff *new, const struct sk_buff *old)
  	skb_shinfo(new)->gso_segs = skb_shinfo(old)->gso_segs;
  	skb_shinfo(new)->gso_type = skb_shinfo(old)->gso_type;
  }
@@ -572,6 +1101,8 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  
  static inline int skb_alloc_rx_flag(const struct sk_buff *skb)
  {
+diff --git a/samples/bpf/Makefile b/samples/bpf/Makefile
+index c1dc632d4..d3febf80e 100644
 --- a/samples/bpf/Makefile
 +++ b/samples/bpf/Makefile
 @@ -178,6 +178,12 @@ HOSTLOADLIBES_syscall_tp += -lelf
@@ -587,7 +1118,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  # Trick to allow make to be run from this directory
  all: $(LIBBPF)
  	$(MAKE) -C ../../ $(CURDIR)/
-@@ -228,9 +234,9 @@ $(obj)/tracex5_kern.o: $(obj)/syscall_nr
+@@ -228,9 +234,9 @@ $(obj)/tracex5_kern.o: $(obj)/syscall_nrs.h
  $(obj)/%.o: $(src)/%.c
  	$(CLANG) $(NOSTDINC_FLAGS) $(LINUXINCLUDE) $(EXTRA_CFLAGS) -I$(obj) \
  		-I$(srctree)/tools/testing/selftests/bpf/ \
@@ -600,9 +1131,11 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
 -		-Wno-unknown-warning-option \
 +		-Wno-unknown-warning-option $(CLANG_ARCH_ARGS) \
  		-O2 -emit-llvm -c $< -o -| $(LLC) -march=bpf -filetype=obj -o $@
+diff --git a/samples/bpf/map_perf_test_kern.c b/samples/bpf/map_perf_test_kern.c
+index 098c857f1..2b2ffb970 100644
 --- a/samples/bpf/map_perf_test_kern.c
 +++ b/samples/bpf/map_perf_test_kern.c
-@@ -266,7 +266,7 @@ int stress_hash_map_lookup(struct pt_reg
+@@ -266,7 +266,7 @@ int stress_hash_map_lookup(struct pt_regs *ctx)
  	return 0;
  }
  
@@ -611,6 +1144,8 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  int stress_array_map_lookup(struct pt_regs *ctx)
  {
  	u32 key = 1, i;
+diff --git a/samples/bpf/map_perf_test_user.c b/samples/bpf/map_perf_test_user.c
+index f38825489..a0310fc70 100644
 --- a/samples/bpf/map_perf_test_user.c
 +++ b/samples/bpf/map_perf_test_user.c
 @@ -282,7 +282,7 @@ static void test_array_lookup(int cpu)
@@ -622,9 +1157,11 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  	printf("%d:array_lookup %lld lookups per sec\n",
  	       cpu, max_cnt * 1000000000ll * 64 / (time_get_ns() - start_time));
  }
+diff --git a/tools/testing/selftests/bpf/bpf_helpers.h b/tools/testing/selftests/bpf/bpf_helpers.h
+index 50353c105..ece61ab2f 100644
 --- a/tools/testing/selftests/bpf/bpf_helpers.h
 +++ b/tools/testing/selftests/bpf/bpf_helpers.h
-@@ -110,7 +110,47 @@ static int (*bpf_skb_under_cgroup)(void
+@@ -110,7 +110,47 @@ static int (*bpf_skb_under_cgroup)(void *ctx, void *map, int index) =
  static int (*bpf_skb_change_head)(void *, int len, int flags) =
  	(void *) BPF_FUNC_skb_change_head;
  
@@ -672,7 +1209,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  
  #define PT_REGS_PARM1(x) ((x)->di)
  #define PT_REGS_PARM2(x) ((x)->si)
-@@ -123,7 +163,7 @@ static int (*bpf_skb_change_head)(void *
+@@ -123,7 +163,7 @@ static int (*bpf_skb_change_head)(void *, int len, int flags) =
  #define PT_REGS_SP(x) ((x)->sp)
  #define PT_REGS_IP(x) ((x)->ip)
  
@@ -681,7 +1218,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  
  #define PT_REGS_PARM1(x) ((x)->gprs[2])
  #define PT_REGS_PARM2(x) ((x)->gprs[3])
-@@ -136,7 +176,7 @@ static int (*bpf_skb_change_head)(void *
+@@ -136,7 +176,7 @@ static int (*bpf_skb_change_head)(void *, int len, int flags) =
  #define PT_REGS_SP(x) ((x)->gprs[15])
  #define PT_REGS_IP(x) ((x)->psw.addr)
  
@@ -690,7 +1227,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  
  #define PT_REGS_PARM1(x) ((x)->regs[0])
  #define PT_REGS_PARM2(x) ((x)->regs[1])
-@@ -149,7 +189,7 @@ static int (*bpf_skb_change_head)(void *
+@@ -149,7 +189,7 @@ static int (*bpf_skb_change_head)(void *, int len, int flags) =
  #define PT_REGS_SP(x) ((x)->sp)
  #define PT_REGS_IP(x) ((x)->pc)
  
@@ -699,7 +1236,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  
  #define PT_REGS_PARM1(x) ((x)->regs[4])
  #define PT_REGS_PARM2(x) ((x)->regs[5])
-@@ -162,7 +202,7 @@ static int (*bpf_skb_change_head)(void *
+@@ -162,7 +202,7 @@ static int (*bpf_skb_change_head)(void *, int len, int flags) =
  #define PT_REGS_SP(x) ((x)->regs[29])
  #define PT_REGS_IP(x) ((x)->cp0_epc)
  
@@ -708,7 +1245,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  
  #define PT_REGS_PARM1(x) ((x)->gpr[3])
  #define PT_REGS_PARM2(x) ((x)->gpr[4])
-@@ -173,7 +213,7 @@ static int (*bpf_skb_change_head)(void *
+@@ -173,7 +213,7 @@ static int (*bpf_skb_change_head)(void *, int len, int flags) =
  #define PT_REGS_SP(x) ((x)->sp)
  #define PT_REGS_IP(x) ((x)->nip)
  
@@ -717,7 +1254,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  
  #define PT_REGS_PARM1(x) ((x)->u_regs[UREG_I0])
  #define PT_REGS_PARM2(x) ((x)->u_regs[UREG_I1])
-@@ -183,6 +223,8 @@ static int (*bpf_skb_change_head)(void *
+@@ -183,6 +223,8 @@ static int (*bpf_skb_change_head)(void *, int len, int flags) =
  #define PT_REGS_RET(x) ((x)->u_regs[UREG_I7])
  #define PT_REGS_RC(x) ((x)->u_regs[UREG_I0])
  #define PT_REGS_SP(x) ((x)->u_regs[UREG_FP])
@@ -726,7 +1263,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  #if defined(__arch64__)
  #define PT_REGS_IP(x) ((x)->tpc)
  #else
-@@ -191,10 +233,10 @@ static int (*bpf_skb_change_head)(void *
+@@ -191,10 +233,10 @@ static int (*bpf_skb_change_head)(void *, int len, int flags) =
  
  #endif
  
@@ -739,3 +1276,6 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  #define BPF_KPROBE_READ_RET_IP(ip, ctx)		({ (ip) = PT_REGS_RET(ctx); })
  #define BPF_KRETPROBE_READ_RET_IP		BPF_KPROBE_READ_RET_IP
  #else
+-- 
+2.17.1
+

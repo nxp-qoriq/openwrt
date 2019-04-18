@@ -1,16 +1,14 @@
-From d2e808b0dcca1b5e850274f770775c355ae36c48 Mon Sep 17 00:00:00 2001
+From dcf45ca7f1b92e3e38a94bcc7d8ce2fd17311f9b Mon Sep 17 00:00:00 2001
 From: Biwen Li <biwen.li@nxp.com>
-Date: Tue, 30 Oct 2018 18:27:03 +0800
-Subject: [PATCH 34/40] platfrom-security: support layerscape
-This is an integrated patch of platform-security for
- layerscape
+Date: Wed, 17 Apr 2019 18:58:50 +0800
+Subject: [PATCH] platform-security: support layerscape
 
+This is an integrated patch of platform-security for layerscape
+
+Signed-off-by: Biwen Li <biwen.li@nxp.com>
 Signed-off-by: Sahil Malhotra <sahil.malhotra@nxp.com>
 Signed-off-by: Udit Agarwal <udit.agarwal@nxp.com>
-Signed-off-by: Biwen Li <biwen.li@nxp.com>
 ---
- Documentation/security/keys/secure-key.rst    |  67 ++
- MAINTAINERS                                   |  12 +
  drivers/tee/optee/Kconfig                     |   8 +
  drivers/tee/optee/core.c                      |   2 +-
  include/keys/secure-type.h                    |  33 +
@@ -23,105 +21,15 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  security/keys/secure_key.c                    | 339 ++++++++++
  security/keys/securekey_desc.c                | 608 ++++++++++++++++++
  security/keys/securekey_desc.h                | 141 ++++
- 14 files changed, 1288 insertions(+), 3 deletions(-)
- create mode 100644 Documentation/security/keys/secure-key.rst
+ 12 files changed, 1209 insertions(+), 3 deletions(-)
  create mode 100644 include/keys/secure-type.h
  create mode 100644 security/keys/encrypted-keys/masterkey_secure.c
  create mode 100644 security/keys/secure_key.c
  create mode 100644 security/keys/securekey_desc.c
  create mode 100644 security/keys/securekey_desc.h
 
---- /dev/null
-+++ b/Documentation/security/keys/secure-key.rst
-@@ -0,0 +1,67 @@
-+==========
-+Secure Key
-+==========
-+
-+Secure key is the new type added to kernel key ring service.
-+Secure key is a symmetric type key of minimum length 32 bytes
-+and with maximum possible length to be 128 bytes. It is produced
-+in kernel using the CAAM crypto engine. Userspace can only see
-+the blob for the corresponding key. All the blobs are displayed
-+or loaded in hex ascii.
-+
-+Secure key can be created on platforms which supports CAAM
-+hardware block. Secure key can also be used as a master key to
-+create the encrypted keys along with the existing key types in
-+kernel.
-+
-+Secure key uses CAAM hardware to generate the key and blobify its
-+content for userspace. Generated blobs are tied up with the hardware
-+secret key stored in CAAM, hence the same blob will not be able to
-+de-blobify with the different secret key on another machine.
-+
-+Usage::
-+
-+	keyctl add secure <name> "new <keylen>" <ring>
-+	keyctl load secure <name> "load <hex_blob>" <ring>
-+	keyctl print <key_id>
-+
-+"keyctl add secure" option will create the random data of the
-+specified key len using CAAM and store it as a key in kernel.
-+Key contents will be displayed as blobs to the user in hex ascii.
-+User can input key len from 32 bytes to 128 bytes.
-+
-+"keyctl load secure" option will load the blob contents. In kernel,
-+key will be deirved using input blob and CAAM, along with the secret
-+key stored in CAAM.
-+
-+"keyctl print" will return the hex string of the blob corresponding to
-+key_id. Returned blob will be of key_len + 48 bytes. Extra 48 bytes are
-+the header bytes added by the CAAM.
-+
-+Example of secure key usage::
-+
-+1. Create the secure key with name kmk-master of length 32 bytes::
-+
-+	$ keyctl add secure kmk-master "new 32" @u
-+	46001928
-+
-+	$keyctl show
-+	Session Keyring
-+	1030783626 --alswrv      0 65534  keyring: _uid_ses.0
-+	 695927745 --alswrv      0 65534   \_ keyring: _uid.0
-+	  46001928 --als-rv      0     0       \_ secure: kmk-master
-+
-+2. Print the blob contents for the kmk-master key::
-+
-+	$ keyctl print 46001928
-+	d9743445b640f3d59c1670dddc0bc9c2
-+	34fc9aab7dd05c965e6120025012f029b
-+	07faa4776c4f6ed02899e35a135531e9a
-+	6e5c2b51132f9d5aef28f68738e658296
-+	3fe583177cfe50d2542b659a13039
-+
-+	$ keyctl pipe 46001928 > secure_key.blob
-+
-+3. Load the blob in the user key ring::
-+
-+	$ keyctl load secure kmk-master "load 'cat secure_key.blob'" @u
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -7646,6 +7646,18 @@ F:	include/keys/trusted-type.h
- F:	security/keys/trusted.c
- F:	security/keys/trusted.h
- 
-+KEYS-SECURE
-+M:	Udit Agarwal <udit.agarwal@nxp.com>
-+R:	Sahil Malhotra <sahil.malhotra@nxp.com>
-+L:	linux-security-module@vger.kernel.org
-+L:	keyrings@vger.kernel.org
-+S:	Supported
-+F:	include/keys/secure-type.h
-+F:	security/keys/secure_key.c
-+F:	security/keys/securekey_desc.c
-+F:	security/keys/securekey_desc.h
-+F:	security/keys/encrypted-keys/masterkey_secure.c
-+
- KEYS/KEYRINGS:
- M:	David Howells <dhowells@redhat.com>
- L:	keyrings@vger.kernel.org
+diff --git a/drivers/tee/optee/Kconfig b/drivers/tee/optee/Kconfig
+index 0126de898..3c59e1902 100644
 --- a/drivers/tee/optee/Kconfig
 +++ b/drivers/tee/optee/Kconfig
 @@ -5,3 +5,11 @@ config OPTEE
@@ -136,6 +44,8 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
 +	help
 +	  This sets the number of private shared memory pages to be
 +	  used by OP-TEE TEE driver.
+diff --git a/drivers/tee/optee/core.c b/drivers/tee/optee/core.c
+index edb6e4e9e..690286350 100644
 --- a/drivers/tee/optee/core.c
 +++ b/drivers/tee/optee/core.c
 @@ -31,7 +31,7 @@
@@ -147,6 +57,9 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  
  /**
   * optee_from_msg_param() - convert from OPTEE_MSG parameters to
+diff --git a/include/keys/secure-type.h b/include/keys/secure-type.h
+new file mode 100644
+index 000000000..5b7a5f144
 --- /dev/null
 +++ b/include/keys/secure-type.h
 @@ -0,0 +1,33 @@
@@ -183,6 +96,8 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
 +
 +extern struct key_type key_type_secure;
 +#endif
+diff --git a/security/keys/Kconfig b/security/keys/Kconfig
+index 6462e6654..7eb138b5a 100644
 --- a/security/keys/Kconfig
 +++ b/security/keys/Kconfig
 @@ -71,6 +71,17 @@ config TRUSTED_KEYS
@@ -203,6 +118,8 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  config ENCRYPTED_KEYS
  	tristate "ENCRYPTED KEYS"
  	depends on KEYS
+diff --git a/security/keys/Makefile b/security/keys/Makefile
+index ef1581b33..eec1c350e 100644
 --- a/security/keys/Makefile
 +++ b/security/keys/Makefile
 @@ -28,4 +28,9 @@ obj-$(CONFIG_KEY_DH_OPERATIONS) += dh.o
@@ -215,9 +132,11 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
 +securekey-y := securekey_desc.o \
 +	       secure_key.o
  obj-$(CONFIG_ENCRYPTED_KEYS) += encrypted-keys/
+diff --git a/security/keys/encrypted-keys/Makefile b/security/keys/encrypted-keys/Makefile
+index 7a44dce6f..df2b906b7 100644
 --- a/security/keys/encrypted-keys/Makefile
 +++ b/security/keys/encrypted-keys/Makefile
-@@ -7,5 +7,7 @@ obj-$(CONFIG_ENCRYPTED_KEYS) += encrypte
+@@ -7,5 +7,7 @@ obj-$(CONFIG_ENCRYPTED_KEYS) += encrypted-keys.o
  
  encrypted-keys-y := encrypted.o ecryptfs_format.o
  masterkey-$(CONFIG_TRUSTED_KEYS) := masterkey_trusted.o
@@ -225,6 +144,8 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  masterkey-$(CONFIG_TRUSTED_KEYS)-$(CONFIG_ENCRYPTED_KEYS) := masterkey_trusted.o
 +masterkey-$(CONFIG_SECURE_KEYS)-$(CONFIG_ENCRYPTED_KEYS) := masterkey_secure.o
  encrypted-keys-y += $(masterkey-y) $(masterkey-m-m)
+diff --git a/security/keys/encrypted-keys/encrypted.c b/security/keys/encrypted-keys/encrypted.c
+index d92cbf968..258b38094 100644
 --- a/security/keys/encrypted-keys/encrypted.c
 +++ b/security/keys/encrypted-keys/encrypted.c
 @@ -39,6 +39,7 @@
@@ -243,7 +164,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  #define KEY_USER_PREFIX_LEN (sizeof (KEY_USER_PREFIX) - 1)
  #define KEY_ECRYPTFS_DESC_LEN 16
  #define HASH_SIZE SHA256_DIGEST_SIZE
-@@ -125,7 +127,7 @@ static int valid_ecryptfs_desc(const cha
+@@ -125,7 +127,7 @@ static int valid_ecryptfs_desc(const char *ecryptfs_desc)
  /*
   * valid_master_desc - verify the 'key-type:desc' of a new/updated master-key
   *
@@ -252,7 +173,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
   * desc:= master-key description
   *
   * Verify that 'key-type' is valid and that 'desc' exists. On key update,
-@@ -140,6 +142,8 @@ static int valid_master_desc(const char
+@@ -140,6 +142,8 @@ static int valid_master_desc(const char *new_desc, const char *orig_desc)
  
  	if (!strncmp(new_desc, KEY_TRUSTED_PREFIX, KEY_TRUSTED_PREFIX_LEN))
  		prefix_len = KEY_TRUSTED_PREFIX_LEN;
@@ -261,7 +182,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  	else if (!strncmp(new_desc, KEY_USER_PREFIX, KEY_USER_PREFIX_LEN))
  		prefix_len = KEY_USER_PREFIX_LEN;
  	else
-@@ -358,7 +362,7 @@ static int calc_hmac(u8 *digest, const u
+@@ -358,7 +362,7 @@ static int calc_hmac(u8 *digest, const u8 *key, unsigned int keylen,
  
  enum derived_key_type { ENC_KEY, AUTH_KEY };
  
@@ -270,7 +191,7 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  static int get_derived_key(u8 *derived_key, enum derived_key_type key_type,
  			   const u8 *master_key, size_t master_keylen)
  {
-@@ -429,6 +433,11 @@ static struct key *request_master_key(st
+@@ -429,6 +433,11 @@ static struct key *request_master_key(struct encrypted_key_payload *epayload,
  		mkey = request_trusted_key(epayload->master_desc +
  					   KEY_TRUSTED_PREFIX_LEN,
  					   master_key, master_keylen);
@@ -282,9 +203,11 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  	} else if (!strncmp(epayload->master_desc, KEY_USER_PREFIX,
  			    KEY_USER_PREFIX_LEN)) {
  		mkey = request_user_key(epayload->master_desc +
+diff --git a/security/keys/encrypted-keys/encrypted.h b/security/keys/encrypted-keys/encrypted.h
+index 1809995db..f1cb73611 100644
 --- a/security/keys/encrypted-keys/encrypted.h
 +++ b/security/keys/encrypted-keys/encrypted.h
-@@ -16,6 +16,19 @@ static inline struct key *request_truste
+@@ -16,6 +16,19 @@ static inline struct key *request_trusted_key(const char *trusted_desc,
  }
  #endif
  
@@ -304,6 +227,9 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  #if ENCRYPTED_DEBUG
  static inline void dump_master_key(const u8 *master_key, size_t master_keylen)
  {
+diff --git a/security/keys/encrypted-keys/masterkey_secure.c b/security/keys/encrypted-keys/masterkey_secure.c
+new file mode 100644
+index 000000000..87068c966
 --- /dev/null
 +++ b/security/keys/encrypted-keys/masterkey_secure.c
 @@ -0,0 +1,37 @@
@@ -344,6 +270,9 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
 +error:
 +	return skey;
 +}
+diff --git a/security/keys/secure_key.c b/security/keys/secure_key.c
+new file mode 100644
+index 000000000..ec8ad4394
 --- /dev/null
 +++ b/security/keys/secure_key.c
 @@ -0,0 +1,339 @@
@@ -686,6 +615,9 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
 +module_exit(cleanup_secure_key);
 +
 +MODULE_LICENSE("GPL");
+diff --git a/security/keys/securekey_desc.c b/security/keys/securekey_desc.c
+new file mode 100644
+index 000000000..03a57cb93
 --- /dev/null
 +++ b/security/keys/securekey_desc.c
 @@ -0,0 +1,608 @@
@@ -1297,6 +1229,9 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
 +
 +}
 +EXPORT_SYMBOL(key_blob);
+diff --git a/security/keys/securekey_desc.h b/security/keys/securekey_desc.h
+new file mode 100644
+index 000000000..0ee26e95b
 --- /dev/null
 +++ b/security/keys/securekey_desc.h
 @@ -0,0 +1,141 @@
@@ -1441,3 +1376,6 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
 +	       struct device *dev);
 +
 +#endif /*_SECUREKEY_DESC_H_*/
+-- 
+2.17.1
+

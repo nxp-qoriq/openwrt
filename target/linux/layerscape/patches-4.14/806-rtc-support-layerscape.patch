@@ -1,68 +1,24 @@
-From f8d89482075e2a4a62fc5cbacf6bea6baf4dc65f Mon Sep 17 00:00:00 2001
+From 9fe0a1b94a5b5af5bdfa4d6a970834e63430fc14 Mon Sep 17 00:00:00 2001
 From: Biwen Li <biwen.li@nxp.com>
-Date: Tue, 30 Oct 2018 18:27:31 +0800
-Subject: [PATCH 23/40] rtc: support layerscape
+Date: Wed, 17 Apr 2019 18:59:00 +0800
+Subject: [PATCH] rtc: support layerscape
+
 This is an integrated patch of rtc for layerscape
 
+Signed-off-by: Biwen Li <biwen.li@nxp.com>
 Signed-off-by: Martin Fuzzey <mfuzzey@parkeon.com>
 Signed-off-by: Zhang Ying-22455 <ying.zhang22455@nxp.com>
-Signed-off-by: Biwen Li <biwen.li@nxp.com>
 ---
- .../devicetree/bindings/rtc/nxp,pcf85263.txt  |  42 ++
- drivers/rtc/Kconfig                           |   8 +
- drivers/rtc/Makefile                          |   1 +
- drivers/rtc/rtc-pcf85263.c                    | 664 ++++++++++++++++++
- include/dt-bindings/rtc/nxp,pcf85263.h        |  14 +
- 5 files changed, 729 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/rtc/nxp,pcf85263.txt
+ drivers/rtc/Kconfig                    |   8 +
+ drivers/rtc/Makefile                   |   1 +
+ drivers/rtc/rtc-pcf85263.c             | 664 +++++++++++++++++++++++++
+ include/dt-bindings/rtc/nxp,pcf85263.h |  14 +
+ 4 files changed, 687 insertions(+)
  create mode 100644 drivers/rtc/rtc-pcf85263.c
  create mode 100644 include/dt-bindings/rtc/nxp,pcf85263.h
 
---- /dev/null
-+++ b/Documentation/devicetree/bindings/rtc/nxp,pcf85263.txt
-@@ -0,0 +1,42 @@
-+NXP PCF85263 I2C Real Time Clock
-+
-+Required properties:
-+- compatible: must be: "nxp,rtc-pcf85263"
-+- reg: must be the I2C address
-+
-+Optional properties:
-+- interrupt-names: Which interrupt signal is used must be "INTA" or "INTB"
-+    Defaults to "INTA"
-+
-+- quartz-load-capacitance: The internal capacitor to select for the quartz:
-+	PCF85263_QUARTZCAP_7pF		[0]
-+	PCF85263_QUARTZCAP_6pF		[1]
-+	PCF85263_QUARTZCAP_12p5pF	[2] DEFAULT
-+
-+- quartz-drive-strength: Drive strength for the quartz:
-+	PCF85263_QUARTZDRIVE_NORMAL	[0] DEFAULT
-+	PCF85263_QUARTZDRIVE_LOW	[1]
-+	PCF85263_QUARTZDRIVE_HIGH	[2]
-+
-+- quartz-low-jitter: Boolean property, if present enables low jitter mode
-+which
-+    reduces jitter at the cost of increased power consumption.
-+
-+- wakeup-source: mark the chip as a wakeup source, independently of
-+    the availability of an IRQ line connected to the SoC.
-+    This is useful if the IRQ line is connected to a PMIC or other circuit
-+    that can power up the device rather than to a normal SOC interrupt.
-+
-+Example:
-+
-+rtc@51 {
-+	compatible = "nxp,pcf85263";
-+	reg = <0x51>;
-+
-+	interrupt-parent = <&gpio4>;
-+	interrupts = <5 IRQ_TYPE_LEVEL_LOW>;
-+	interrupt-names = "INTB";
-+
-+	quartz-load-capacitance = <PCF85263_QUARTZCAP_12p5pF>;
-+	quartz-drive-strength = <PCF85263_QUARTZDRIVE_LOW>;
-+};
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index e0e58f3b1..df924aa5d 100644
 --- a/drivers/rtc/Kconfig
 +++ b/drivers/rtc/Kconfig
 @@ -433,6 +433,14 @@ config RTC_DRV_PCF85063
@@ -80,9 +36,11 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  config RTC_DRV_PCF8563
  	tristate "Philips PCF8563/Epson RTC8564"
  	help
+diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
+index 0bf1fc02b..9ad821cd7 100644
 --- a/drivers/rtc/Makefile
 +++ b/drivers/rtc/Makefile
-@@ -115,6 +115,7 @@ obj-$(CONFIG_RTC_DRV_PCF2127)	+= rtc-pcf
+@@ -115,6 +115,7 @@ obj-$(CONFIG_RTC_DRV_PCF2127)	+= rtc-pcf2127.o
  obj-$(CONFIG_RTC_DRV_PCF50633)	+= rtc-pcf50633.o
  obj-$(CONFIG_RTC_DRV_PCF85063)	+= rtc-pcf85063.o
  obj-$(CONFIG_RTC_DRV_PCF8523)	+= rtc-pcf8523.o
@@ -90,6 +48,9 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  obj-$(CONFIG_RTC_DRV_PCF8563)	+= rtc-pcf8563.o
  obj-$(CONFIG_RTC_DRV_PCF8583)	+= rtc-pcf8583.o
  obj-$(CONFIG_RTC_DRV_PIC32)	+= rtc-pic32.o
+diff --git a/drivers/rtc/rtc-pcf85263.c b/drivers/rtc/rtc-pcf85263.c
+new file mode 100644
+index 000000000..b8a3e33e4
 --- /dev/null
 +++ b/drivers/rtc/rtc-pcf85263.c
 @@ -0,0 +1,664 @@
@@ -757,6 +718,9 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
 +MODULE_AUTHOR("Martin Fuzzey <mfuzzey@parkeon.com>");
 +MODULE_DESCRIPTION("PCF85263 RTC Driver");
 +MODULE_LICENSE("GPL");
+diff --git a/include/dt-bindings/rtc/nxp,pcf85263.h b/include/dt-bindings/rtc/nxp,pcf85263.h
+new file mode 100644
+index 000000000..ea87ae466
 --- /dev/null
 +++ b/include/dt-bindings/rtc/nxp,pcf85263.h
 @@ -0,0 +1,14 @@
@@ -774,3 +738,6 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
 +#define PCF85263_QUARTZDRIVE_HIGH	2
 +
 +#endif /* _DT_BINDINGS_RTC_NXP_PCF85263_H */
+-- 
+2.17.1
+

@@ -1,13 +1,12 @@
-From 278c2ebd8f04e2b05c87187a3e8b6af552abd57f Mon Sep 17 00:00:00 2001
+From 684cc6d7028779055adf73de2944f6736059c930 Mon Sep 17 00:00:00 2001
 From: Biwen Li <biwen.li@nxp.com>
-Date: Thu, 13 Dec 2018 13:27:22 +0800
+Date: Wed, 17 Apr 2019 18:58:32 +0800
 Subject: [PATCH] dpaa2-virtualbridge: support layerscape
 
 This is an integrated patch of dpaa2-virtualbridge for layerscape
 
-Signed-off-by: Razvan Stefanescu <razvan.stefanescu@nxp.com>
 Signed-off-by: Biwen Li <biwen.li@nxp.com>
-Signed-off-by: Yangbo Lu <yangbo.lu@nxp.com>
+Signed-off-by: Razvan Stefanescu <razvan.stefanescu@nxp.com>
 ---
  drivers/staging/fsl-dpaa2/evb/Kconfig      |    7 +
  drivers/staging/fsl-dpaa2/evb/Makefile     |   10 +
@@ -23,6 +22,9 @@ Signed-off-by: Yangbo Lu <yangbo.lu@nxp.com>
  create mode 100644 drivers/staging/fsl-dpaa2/evb/dpdmux.h
  create mode 100644 drivers/staging/fsl-dpaa2/evb/evb.c
 
+diff --git a/drivers/staging/fsl-dpaa2/evb/Kconfig b/drivers/staging/fsl-dpaa2/evb/Kconfig
+new file mode 100644
+index 000000000..3534f6975
 --- /dev/null
 +++ b/drivers/staging/fsl-dpaa2/evb/Kconfig
 @@ -0,0 +1,7 @@
@@ -33,6 +35,9 @@ Signed-off-by: Yangbo Lu <yangbo.lu@nxp.com>
 +	default y
 +	---help---
 +	Prototype driver for DPAA2 Edge Virtual Bridge.
+diff --git a/drivers/staging/fsl-dpaa2/evb/Makefile b/drivers/staging/fsl-dpaa2/evb/Makefile
+new file mode 100644
+index 000000000..ecc529d74
 --- /dev/null
 +++ b/drivers/staging/fsl-dpaa2/evb/Makefile
 @@ -0,0 +1,10 @@
@@ -46,6 +51,9 @@ Signed-off-by: Yangbo Lu <yangbo.lu@nxp.com>
 +
 +clean:
 +	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
+diff --git a/drivers/staging/fsl-dpaa2/evb/dpdmux-cmd.h b/drivers/staging/fsl-dpaa2/evb/dpdmux-cmd.h
+new file mode 100644
+index 000000000..66306804e
 --- /dev/null
 +++ b/drivers/staging/fsl-dpaa2/evb/dpdmux-cmd.h
 @@ -0,0 +1,279 @@
@@ -328,6 +336,9 @@ Signed-off-by: Yangbo Lu <yangbo.lu@nxp.com>
 +};
 +
 +#endif /* _FSL_DPDMUX_CMD_H */
+diff --git a/drivers/staging/fsl-dpaa2/evb/dpdmux.c b/drivers/staging/fsl-dpaa2/evb/dpdmux.c
+new file mode 100644
+index 000000000..4c4a059e7
 --- /dev/null
 +++ b/drivers/staging/fsl-dpaa2/evb/dpdmux.c
 @@ -0,0 +1,1111 @@
@@ -1442,6 +1453,9 @@ Signed-off-by: Yangbo Lu <yangbo.lu@nxp.com>
 +
 +	return 0;
 +}
+diff --git a/drivers/staging/fsl-dpaa2/evb/dpdmux.h b/drivers/staging/fsl-dpaa2/evb/dpdmux.h
+new file mode 100644
+index 000000000..a6ccc7efa
 --- /dev/null
 +++ b/drivers/staging/fsl-dpaa2/evb/dpdmux.h
 @@ -0,0 +1,453 @@
@@ -1898,6 +1912,9 @@ Signed-off-by: Yangbo Lu <yangbo.lu@nxp.com>
 +			   u16 *minor_ver);
 +
 +#endif /* __FSL_DPDMUX_H */
+diff --git a/drivers/staging/fsl-dpaa2/evb/evb.c b/drivers/staging/fsl-dpaa2/evb/evb.c
+new file mode 100644
+index 000000000..0dea5dbd7
 --- /dev/null
 +++ b/drivers/staging/fsl-dpaa2/evb/evb.c
 @@ -0,0 +1,1353 @@
@@ -3254,3 +3271,6 @@ Signed-off-by: Yangbo Lu <yangbo.lu@nxp.com>
 +
 +MODULE_LICENSE("GPL");
 +MODULE_DESCRIPTION("Layerscape DPAA Edge Virtual Bridge driver (prototype)");
+-- 
+2.17.1
+

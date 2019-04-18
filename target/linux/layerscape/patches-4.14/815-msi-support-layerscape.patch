@@ -1,16 +1,19 @@
-From 56d12979923250799d651b75029ff281928635a4 Mon Sep 17 00:00:00 2001
+From 87019d4d22ca03bd98371ace40f11329c1961b7f Mon Sep 17 00:00:00 2001
 From: Biwen Li <biwen.li@nxp.com>
-Date: Tue, 30 Oct 2018 18:26:53 +0800
-Subject: [PATCH 32/40] msi: support layerscape
+Date: Wed, 17 Apr 2019 18:58:46 +0800
+Subject: [PATCH] msi: support layerscape
+
 This is an integrated patch of msi for layerscape
 
-Signed-off-by: Hou Zhiqiang <Zhiqiang.Hou@nxp.com>
 Signed-off-by: Biwen Li <biwen.li@nxp.com>
+Signed-off-by: Hou Zhiqiang <Zhiqiang.Hou@nxp.com>
 ---
  .../devicetree/bindings/interrupt-controller/fsl,ls-scfg-msi.txt | 1 +
  drivers/irqchip/irq-ls-scfg-msi.c                                | 1 +
  2 files changed, 2 insertions(+)
 
+diff --git a/Documentation/devicetree/bindings/interrupt-controller/fsl,ls-scfg-msi.txt b/Documentation/devicetree/bindings/interrupt-controller/fsl,ls-scfg-msi.txt
+index 49ccabbfa..a4ff93d6b 100644
 --- a/Documentation/devicetree/bindings/interrupt-controller/fsl,ls-scfg-msi.txt
 +++ b/Documentation/devicetree/bindings/interrupt-controller/fsl,ls-scfg-msi.txt
 @@ -8,6 +8,7 @@ Required properties:
@@ -21,9 +24,11 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  - msi-controller: indicates that this is a PCIe MSI controller node
  - reg: physical base address of the controller and length of memory mapped.
  - interrupts: an interrupt to the parent interrupt controller.
+diff --git a/drivers/irqchip/irq-ls-scfg-msi.c b/drivers/irqchip/irq-ls-scfg-msi.c
+index b7f943f96..1ec3bfe56 100644
 --- a/drivers/irqchip/irq-ls-scfg-msi.c
 +++ b/drivers/irqchip/irq-ls-scfg-msi.c
-@@ -319,6 +319,7 @@ static const struct of_device_id ls_scfg
+@@ -319,6 +319,7 @@ static const struct of_device_id ls_scfg_msi_id[] = {
  	{ .compatible = "fsl,1s1021a-msi", .data = &ls1021_msi_cfg},
  	{ .compatible = "fsl,1s1043a-msi", .data = &ls1021_msi_cfg},
  
@@ -31,3 +36,6 @@ Signed-off-by: Biwen Li <biwen.li@nxp.com>
  	{ .compatible = "fsl,ls1021a-msi", .data = &ls1021_msi_cfg },
  	{ .compatible = "fsl,ls1043a-msi", .data = &ls1021_msi_cfg },
  	{ .compatible = "fsl,ls1043a-v1.1-msi", .data = &ls1043_v1_1_msi_cfg },
+-- 
+2.17.1
+
