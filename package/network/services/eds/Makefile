@@ -8,13 +8,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=eds
-PKG_VERSION:=lsdk-1903-tc1
+PKG_VERSION:=lsdk-1903
 PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/NXP/qoriq-edgescale-eds.git
-PKG_SOURCE_VERSION:=43afb19fb0c1b5aafd6c3069af4f6855ba5e99e1
-PKG_MIRROR_HASH:=69b267b4141a654c1b62b6feed4f79d9a01a98a02c8732d69388212a380de4c4
+PKG_SOURCE_VERSION:=7d70a8767941aed135d609300a0594dfdc60e5ea
+PKG_MIRROR_HASH:=6add268eee57dd9b1fd8acfcafd529caf921b7c7b3c8a1fd0bd84b3a44d613d2
 
 HOST_GO_PREFIX:=$(STAGING_DIR_HOSTPKG)
 HOST_GO_VERSION_ID:=cross
@@ -46,8 +46,9 @@ define Build/Compile
 	export GOPATH=$(TARGET_GO_PATH); \
 	cd $(PKG_BUILD_DIR)/cert-agent; \
 	go get github.com/edgeiot/est-client-go; \
+	go get github.com/go-yaml/yaml; \
 	env CGO_ENABLED=1 GOOS=linux GOARCH=$(LINUX_KARCH) CC=$(KERNEL_CROSS)gcc \
-	    go build --ldflags="-w -s" --tags "default"; \
+	    go build -o cert-agent --ldflags="-w -s" --tags "default"; \
 	cd $(PKG_BUILD_DIR)/mq-agent; \
 	go get github.com/sirupsen/logrus; \
 	go get github.com/sigma/systemstat; \
