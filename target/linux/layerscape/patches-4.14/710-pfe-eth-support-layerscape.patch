@@ -1,6 +1,6 @@
-From 211b8351a538d6d4b47e18df34e68cf26a481fe7 Mon Sep 17 00:00:00 2001
+From 35745905430a4c9827c235d42f3a61bef34043e8 Mon Sep 17 00:00:00 2001
 From: Biwen Li <biwen.li@nxp.com>
-Date: Wed, 17 Apr 2019 18:58:49 +0800
+Date: Fri, 19 Apr 2019 13:21:09 +0800
 Subject: [PATCH] pfe-eth: support layerscape
 
 This is an integrated patch of pfe-eth for layerscape
@@ -53,9 +53,9 @@ Signed-off-by: Yangbo Lu <yangbo.lu@nxp.com>
  drivers/staging/fsl_ppfe/pfe_mod.c            |  158 +
  drivers/staging/fsl_ppfe/pfe_mod.h            |  103 +
  drivers/staging/fsl_ppfe/pfe_perfmon.h        |   26 +
- drivers/staging/fsl_ppfe/pfe_sysfs.c          |  813 ++++++
+ drivers/staging/fsl_ppfe/pfe_sysfs.c          |  806 ++++++
  drivers/staging/fsl_ppfe/pfe_sysfs.h          |   17 +
- 37 files changed, 10828 insertions(+)
+ 37 files changed, 10821 insertions(+)
  create mode 100644 Documentation/devicetree/bindings/net/fsl_ppfe/pfe.txt
  create mode 100644 drivers/staging/fsl_ppfe/Kconfig
  create mode 100644 drivers/staging/fsl_ppfe/Makefile
@@ -1694,7 +1694,7 @@ Signed-off-by: Yangbo Lu <yangbo.lu@nxp.com>
 +
 +/* Drop counter definitions */
 +
-+#define	CLASS_NUM_DROP_COUNTERS	15
++#define	CLASS_NUM_DROP_COUNTERS	13
 +#define	UTIL_NUM_DROP_COUNTERS	8
 +
 +/* PE information.
@@ -10199,7 +10199,7 @@ Signed-off-by: Yangbo Lu <yangbo.lu@nxp.com>
 +#endif /* _PFE_PERFMON_H_ */
 --- /dev/null
 +++ b/drivers/staging/fsl_ppfe/pfe_sysfs.c
-@@ -0,0 +1,813 @@
+@@ -0,0 +1,806 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * Copyright 2015-2016 Freescale Semiconductor, Inc.
@@ -10587,16 +10587,10 @@ Signed-off-by: Yangbo Lu <yangbo.lu@nxp.com>
 +	"Reassembly",
 +	"Fragmenter",
 +	"NAT-T",
-+/*	"Socket",
++	"Socket",
 +	"Multicast",
 +	"NAT-PT",
-+	"Tx Disabled", */
-+	"len err",
-+	"crc err",
-+	"too short err",
-+	"too long err",
-+	"code err",
-+	"overflow err",
++	"Tx Disabled",
 +};
 +
 +#if !defined(CONFIG_FSL_PPFE_UTIL_DISABLED)
@@ -10634,15 +10628,14 @@ Signed-off-by: Yangbo Lu <yangbo.lu@nxp.com>
 +	for (id = CLASS0_ID; id <= CLASS_MAX_ID; id++) {
 +		if (drops_do_clear)
 +			pe_sync_stop(ctrl, (1 << id));
-+		dmem_addr = CLASS_DM_DROP_CNTR;
 +		for (dropnum = 0; dropnum < CLASS_NUM_DROP_COUNTERS;
 +			dropnum++) {
++			dmem_addr = CLASS_DM_DROP_CNTR;
 +			val = be32_to_cpu(pe_dmem_read(id, dmem_addr, 4));
 +			class_drop_counter[dropnum] += val;
 +			num_class_drops += val;
 +			if (drops_do_clear)
 +				pe_dmem_write(id, 0, dmem_addr, 4);
-+			dmem_addr += 4;
 +		}
 +		if (drops_do_clear)
 +			pe_start(ctrl, (1 << id));

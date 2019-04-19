@@ -1,75 +1,71 @@
-From f2a851e70fc94d90a804b87fba5cfde5c5996c50 Mon Sep 17 00:00:00 2001
+From 9875df1e872eb2b0f9d2d72c9a761a5f03400d9f Mon Sep 17 00:00:00 2001
 From: Biwen Li <biwen.li@nxp.com>
-Date: Wed, 17 Apr 2019 18:58:36 +0800
+Date: Fri, 19 Apr 2019 13:23:01 +0800
 Subject: [PATCH] flexspi: support layerscape
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
 
 This is an integrated patch of flexspi for layerscape
 
-Signed-off-by: Alistair Strachan <astrachan@google.com>
-Signed-off-by: Ariel Elior <Ariel.Elior@cavium.com>
 Signed-off-by: Ashish Kumar <Ashish.Kumar@nxp.com>
 Signed-off-by: Biwen Li <biwen.li@nxp.com>
-Signed-off-by: Brandon Maier <brandon.maier@rockwellcollins.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Joe Thornber <ejt@redhat.com>
-Signed-off-by: Kirill Kapranov <kirill.kapranov@compulab.co.il>
-Signed-off-by: Liam Girdwood <liam.r.girdwood@linux.intel.com>
-Signed-off-by: Marcel Ziswiler <marcel.ziswiler@toradex.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
-Signed-off-by: Peng Li <lipeng321@huawei.com>
 Signed-off-by: Rajat Srivastava <rajat.srivastava@nxp.com>
-Signed-off-by: Reinette Chatre <reinette.chatre@intel.com>
-Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Tomer Tayar <Tomer.Tayar@cavium.com>
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Yangbo Lu <yangbo.lu@nxp.com>
 Signed-off-by: Yogesh Gaur <yogeshnarayan.gaur@nxp.com>
 ---
- drivers/md/dm-thin.c                      |   13 +
- drivers/mtd/spi-nor/Kconfig               |   10 +
- drivers/mtd/spi-nor/Makefile              |    1 +
- drivers/mtd/spi-nor/nxp-flexspi.c         | 1404 +++++++++++++++++++++
- drivers/mtd/spi-nor/spi-nor.c             |   14 +-
- drivers/net/ethernet/qlogic/qed/qed_mcp.c |    7 +
- drivers/net/phy/xilinx_gmii2rgmii.c       |    5 +
- drivers/spi/spi-tegra20-slink.c           |   18 +
- drivers/staging/android/ashmem.c          |    6 +
- drivers/tty/serial/imx.c                  |    8 +
- include/linux/mtd/cfi.h                   |    1 +
- include/linux/mtd/spi-nor.h               |    3 +-
- kernel/events/core.c                      |    6 +
- sound/soc/soc-dapm.c                      |    7 +
- 14 files changed, 1499 insertions(+), 4 deletions(-)
+ .../devicetree/bindings/mtd/nxp-flexspi.txt   |   41 +
+ drivers/mtd/spi-nor/Kconfig                   |   10 +
+ drivers/mtd/spi-nor/Makefile                  |    1 +
+ drivers/mtd/spi-nor/nxp-flexspi.c             | 1404 +++++++++++++++++
+ drivers/mtd/spi-nor/spi-nor.c                 |   13 +-
+ include/linux/mtd/cfi.h                       |    1 +
+ include/linux/mtd/spi-nor.h                   |    3 +-
+ 7 files changed, 1470 insertions(+), 3 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/mtd/nxp-flexspi.txt
  create mode 100644 drivers/mtd/spi-nor/nxp-flexspi.c
 
---- a/drivers/md/dm-thin.c
-+++ b/drivers/md/dm-thin.c
-@@ -3690,6 +3690,19 @@ static int process_create_thin_mesg(unsi
- 		return r;
- 	}
- 
-+	r = dm_pool_get_free_metadata_block_count(pool->pmd, &free_blocks);
-+	if (r) {
-+		metadata_operation_failed(pool, "dm_pool_get_free_metadata_block_count", r);
-+		return r;
-+	}
+--- /dev/null
++++ b/Documentation/devicetree/bindings/mtd/nxp-flexspi.txt
+@@ -0,0 +1,41 @@
++* NXP Flex Serial Peripheral Interface(FlexSPI)
 +
-+	if (!free_blocks) {
-+		/* Let's commit before we use up the metadata reserve. */
-+		r = commit(pool);
-+		if (r)
-+			return r;
-+	}
++Required properties:
++  - compatible : Should be "nxp,lx2160a-fspi"
++  - reg : the first contains the register location and length,
++          the second contains the memory mapping address and length
++  - reg-names: Should contain the reg names "FSPI" and "FSPI-memory"
++  - interrupts : Should contain the interrupt for the device
++  - clocks : The clocks needed by the FlexSPI controller
++  - clock-names : Should contain the name of the clocks: "fspi_en" and "fspi"
 +
- 	return 0;
- }
- 
++Optional properties:
++  - nxp,fspi-has-second-chip: The controller has two buses, bus A and bus B.
++			      Each bus can be connected with two NOR flashes.
++			      Most of the time, each bus only has one NOR flash
++			      connected, this is the default case.
++			      But if there are two NOR flashes connected to the
++			      bus, you should enable this property.
++			      (Please check the board's schematic.)
++Example:
++fspi0: flexspi@20c0000 {
++	compatible = "nxp,lx2160a-fspi";
++	reg = <0x0 0x20c0000 0x0 0x10000>, <0x0 0x20000000 0x0 0x10000000>;
++	reg-names = "FSPI", "FSPI-memory";
++	interrupts = <0 25 0x4>; /* Level high type */
++	clocks = <&clockgen 4 3>, <&clockgen 4 3>;
++	clock-names = "fspi_en", "fspi";
++
++	status = "okay";
++	nxp,fspi-has-second-chip;
++	flash0: mt35xu512aba@0 {
++		reg = <0>;
++		....
++	};
++
++	flash1: mt35xu512aba@1 {
++		reg = <1>;
++		....
++	};
++
++};
 --- a/drivers/mtd/spi-nor/Kconfig
 +++ b/drivers/mtd/spi-nor/Kconfig
 @@ -97,6 +97,16 @@ config SPI_NXP_SPIFI
@@ -1546,106 +1542,16 @@ Signed-off-by: Yogesh Gaur <yogeshnarayan.gaur@nxp.com>
  		case SNOR_MFR_MICRON:
  			break;
  
-@@ -2749,8 +2757,8 @@ int spi_nor_scan(struct spi_nor *nor, co
+@@ -2749,7 +2757,8 @@ int spi_nor_scan(struct spi_nor *nor, co
  	mtd->_read = spi_nor_read;
  
  	/* NOR protection support for STmicro/Micron chips and similar */
 -	if (JEDEC_MFR(info) == SNOR_MFR_MICRON ||
--	    JEDEC_MFR(info) == SNOR_MFR_WINBOND ||
 +	if (JEDEC_MFR(info) == SNOR_MFR_ST ||
 +	    JEDEC_MFR(info) == SNOR_MFR_MICRON ||
+ 	    JEDEC_MFR(info) == SNOR_MFR_WINBOND ||
  	    info->flags & SPI_NOR_HAS_LOCK) {
  		nor->flash_lock = stm_lock;
- 		nor->flash_unlock = stm_unlock;
---- a/drivers/net/ethernet/qlogic/qed/qed_mcp.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_mcp.c
-@@ -616,6 +616,13 @@ static int qed_mcp_cmd_and_union(struct
- 		return -EBUSY;
- 	}
- 
-+	if (p_hwfn->mcp_info->b_block_cmd) {
-+		DP_NOTICE(p_hwfn,
-+			  "The MFW is not responsive. Avoid sending mailbox command 0x%08x [param 0x%08x].\n",
-+			  p_mb_params->cmd, p_mb_params->param);
-+		return -EBUSY;
-+	}
-+
- 	if (p_mb_params->data_src_size > union_data_size ||
- 	    p_mb_params->data_dst_size > union_data_size) {
- 		DP_ERR(p_hwfn,
---- a/drivers/net/phy/xilinx_gmii2rgmii.c
-+++ b/drivers/net/phy/xilinx_gmii2rgmii.c
-@@ -92,6 +92,11 @@ static int xgmiitorgmii_probe(struct mdi
- 		return -EPROBE_DEFER;
- 	}
- 
-+	if (!priv->phy_dev->drv) {
-+		dev_info(dev, "Attached phy not ready\n");
-+		return -EPROBE_DEFER;
-+	}
-+
- 	priv->addr = mdiodev->addr;
- 	priv->phy_drv = priv->phy_dev->drv;
- 	memcpy(&priv->conv_phy_drv, priv->phy_dev->drv,
---- a/drivers/spi/spi-tegra20-slink.c
-+++ b/drivers/spi/spi-tegra20-slink.c
-@@ -1081,6 +1081,24 @@ static int tegra_slink_probe(struct plat
- 		goto exit_free_master;
- 	}
- 
-+	/* disabled clock may cause interrupt storm upon request */
-+	tspi->clk = devm_clk_get(&pdev->dev, NULL);
-+	if (IS_ERR(tspi->clk)) {
-+		ret = PTR_ERR(tspi->clk);
-+		dev_err(&pdev->dev, "Can not get clock %d\n", ret);
-+		goto exit_free_master;
-+	}
-+	ret = clk_prepare(tspi->clk);
-+	if (ret < 0) {
-+		dev_err(&pdev->dev, "Clock prepare failed %d\n", ret);
-+		goto exit_free_master;
-+	}
-+	ret = clk_enable(tspi->clk);
-+	if (ret < 0) {
-+		dev_err(&pdev->dev, "Clock enable failed %d\n", ret);
-+		goto exit_free_master;
-+	}
-+
- 	spi_irq = platform_get_irq(pdev, 0);
- 	tspi->irq = spi_irq;
- 	ret = request_threaded_irq(tspi->irq, tegra_slink_isr,
---- a/drivers/staging/android/ashmem.c
-+++ b/drivers/staging/android/ashmem.c
-@@ -380,6 +380,12 @@ static int ashmem_mmap(struct file *file
- 		goto out;
- 	}
- 
-+	/* requested mapping size larger than object size */
-+	if (vma->vm_end - vma->vm_start > PAGE_ALIGN(asma->size)) {
-+		ret = -EINVAL;
-+		goto out;
-+	}
-+
- 	/* requested protection bits must match our allowed protection mask */
- 	if (unlikely((vma->vm_flags & ~calc_vm_prot_bits(asma->prot_mask, 0)) &
- 		     calc_vm_prot_bits(PROT_MASK, 0))) {
---- a/drivers/tty/serial/imx.c
-+++ b/drivers/tty/serial/imx.c
-@@ -2221,6 +2221,14 @@ static int serial_imx_probe(struct platf
- 				ret);
- 			return ret;
- 		}
-+
-+		ret = devm_request_irq(&pdev->dev, rtsirq, imx_rtsint, 0,
-+				       dev_name(&pdev->dev), sport);
-+		if (ret) {
-+			dev_err(&pdev->dev, "failed to request rts irq: %d\n",
-+				ret);
-+			return ret;
-+		}
- 	} else {
- 		ret = devm_request_irq(&pdev->dev, rxirq, imx_int, 0,
- 				       dev_name(&pdev->dev), sport);
 --- a/include/linux/mtd/cfi.h
 +++ b/include/linux/mtd/cfi.h
 @@ -377,6 +377,7 @@ struct cfi_fixup {
@@ -1668,34 +1574,3 @@ Signed-off-by: Yogesh Gaur <yogeshnarayan.gaur@nxp.com>
  #define SNOR_MFR_MACRONIX	CFI_MFR_MACRONIX
  #define SNOR_MFR_SPANSION	CFI_MFR_AMD
  #define SNOR_MFR_SST		CFI_MFR_SST
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -3763,6 +3763,12 @@ int perf_event_read_local(struct perf_ev
- 		goto out;
- 	}
- 
-+	/* If this is a pinned event it must be running on this CPU */
-+	if (event->attr.pinned && event->oncpu != smp_processor_id()) {
-+		ret = -EBUSY;
-+		goto out;
-+	}
-+
- 	/*
- 	 * If the event is currently on this CPU, its either a per-task event,
- 	 * or local to this CPU. Furthermore it means its ACTIVE (otherwise
---- a/sound/soc/soc-dapm.c
-+++ b/sound/soc/soc-dapm.c
-@@ -4036,6 +4036,13 @@ int snd_soc_dapm_link_dai_widgets(struct
- 			continue;
- 		}
- 
-+		/* let users know there is no DAI to link */
-+		if (!dai_w->priv) {
-+			dev_dbg(card->dev, "dai widget %s has no DAI\n",
-+				dai_w->name);
-+			continue;
-+		}
-+
- 		dai = dai_w->priv;
- 
- 		/* ...find all widgets with the same stream and link them */
