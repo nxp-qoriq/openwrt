@@ -8026,7 +8026,7 @@ Signed-off-by: Zhao Qiang <qiang.zhao@nxp.com>
 + */
 --- /dev/null
 +++ b/arch/arm64/boot/dts/freescale/fsl-lx2160a-rdb.dts
-@@ -0,0 +1,241 @@
+@@ -0,0 +1,233 @@
 +// SPDX-License-Identifier: (GPL-2.0 OR MIT)
 +//
 +// Device Tree file for LX2160ARDB
@@ -8061,14 +8061,6 @@ Signed-off-by: Zhao Qiang <qiang.zhao@nxp.com>
 +};
 +
 +&crypto {
-+	status = "okay";
-+};
-+
-+&emdio1 {
-+	status = "okay";
-+};
-+
-+&emdio2 {
 +	status = "okay";
 +};
 +
