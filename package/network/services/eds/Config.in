@@ -6,3 +6,11 @@ config EDGESCALE_BUSYBOX_SUPPORT
 	default y
 	help
 	  This enables Busybox options required by Edgescale.
+
+config EDGESCALE_KERNEL_SUPPORT
+	bool "Kernel support for Edgescale"
+	depends on PACKAGE_edgescale
+	select KERNEL_DEVMEM
+	default y
+	help
+	  This enables kerenl options required by Edgescale.
