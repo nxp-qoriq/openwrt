@@ -197,7 +197,8 @@ define Device/fsl_ls1046a-rdb
   DEVICE_PACKAGES += \
     layerscape-fman \
     tfa-ls1046a-rdb \
-    fmc fmc-eth-config
+    fmc fmc-eth-config \
+    kmod-rtc-pcf2127
   DEVICE_DTS := freescale/fsl-ls1046a-rdb-sdk
   IMAGE/firmware.bin := \
     ls-clean | \
@@ -218,7 +219,8 @@ define Device/fsl_ls1046a-rdb-sdboot
   DEVICE_PACKAGES += \
     layerscape-fman \
     tfa-ls1046a-rdb-sdboot \
-    fmc fmc-eth-config
+    fmc fmc-eth-config \
+    kmod-rtc-pcf2127
   DEVICE_DTS := freescale/fsl-ls1046a-rdb-sdk
   FILESYSTEMS := ext4
   IMAGES := sdcard.img sysupgrade.bin
