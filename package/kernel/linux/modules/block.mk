@@ -75,6 +75,24 @@ endef
 $(eval $(call KernelPackage,ata-ahci-platform))
 
 
+define KernelPackage/ahci-qoriq
+  SUBMENU:=$(BLOCK_MENU)
+  TITLE:=Freescale QorIQ AHCI SATA support
+  DEPENDS:=@TARGET_layerscape +kmod-ata-ahci
+  KCONFIG:=CONFIG_AHCI_QORIQ
+  FILES:= \
+    $(LINUX_DIR)/drivers/ata/ahci_qoriq.ko \
+    $(LINUX_DIR)/drivers/ata/libahci_platform.ko
+  AUTOLOAD:=$(call AutoLoad,41,libahci_platform ahci_qoriq,1)
+endef
+
+define KernelPackage/ahci-qoriq/description
+ Support for Freescale QorIQ AHCI SATA support
+endef
+
+$(eval $(call KernelPackage,ahci-qoriq))
+
+
 define KernelPackage/ata-artop
   TITLE:=ARTOP 6210/6260 PATA support
   KCONFIG:=CONFIG_PATA_ARTOP
