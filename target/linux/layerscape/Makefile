@@ -19,6 +19,6 @@ endef
 include $(INCLUDE_DIR)/target.mk
 
 DEFAULT_PACKAGES += kmod-usb3 kmod-usb-dwc3 kmod-usb-storage \
-  partx-utils
+  partx-utils kmod-ahci-qoriq
 
 $(eval $(call BuildTarget))
