@@ -34,6 +34,8 @@ define Build/InstallDev
 		$(STAGING_DIR_IMAGE)/fsl_ls1088a-rdb-mc.itb
 	$(CP) $(PKG_BUILD_DIR)/ls2088a/mc_10.20.4_ls2088a.itb \
 		$(STAGING_DIR_IMAGE)/fsl_ls2088a-rdb-mc.itb
+	$(CP) $(PKG_BUILD_DIR)/lx2160a/mc_10.20.4_lx2160a.itb \
+		$(STAGING_DIR_IMAGE)/fsl_lx2160a-rdb-mc.itb
 endef
 
 $(eval $(call BuildPackage,layerscape-mc))
