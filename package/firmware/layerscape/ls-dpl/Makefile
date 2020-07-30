@@ -40,6 +40,10 @@ define Build/InstallDev
 		$(STAGING_DIR_IMAGE)/fsl_ls2088a-rdb-dpl.dtb
 	$(CP) $(PKG_BUILD_DIR)/config/ls2088a/RDB/dpc.0x2A_0x41.dtb \
 		$(STAGING_DIR_IMAGE)/fsl_ls2088a-rdb-dpc.dtb
+	$(CP) $(PKG_BUILD_DIR)/config/lx2160a/RDB/dpl-eth.19.dtb \
+		$(STAGING_DIR_IMAGE)/fsl_lx2160a-rdb-dpl.dtb
+	$(CP) $(PKG_BUILD_DIR)/config/lx2160a/RDB/dpc-usxgmii.dtb \
+		$(STAGING_DIR_IMAGE)/fsl_lx2160a-rdb-dpc.dtb
 endef
 
 $(eval $(call BuildPackage,layerscape-dpl))
