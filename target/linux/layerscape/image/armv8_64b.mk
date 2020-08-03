@@ -95,6 +95,49 @@ define Device/fsl_ls1012a-frwy-sdboot
 endef
 TARGET_DEVICES += fsl_ls1012a-frwy-sdboot
 
+define Device/fsl_ls1028a-rdb
+  DEVICE_VENDOR := NXP
+  DEVICE_MODEL := LS1028A-RDB
+  DEVICE_VARIANT := Default
+  DEVICE_PACKAGES += \
+    tfa-ls1028a-rdb
+  IMAGE/firmware.bin := \
+    ls-clean | \
+    ls-append $(1)-bl2.pbl | pad-to 1M | \
+    ls-append $(1)-fip.bin | pad-to 5M | \
+    ls-append $(1)-uboot-env.bin | pad-to 15M | \
+    ls-append-dtb $$(DEVICE_DTS) | pad-to 16M | \
+    append-kernel | pad-to 32M | \
+    append-rootfs | pad-rootfs | check-size
+endef
+TARGET_DEVICES += fsl_ls1028a-rdb
+
+define Device/fsl_ls1028a-rdb-sdboot
+  DEVICE_VENDOR := NXP
+  DEVICE_MODEL := LS1028A-RDB
+  DEVICE_VARIANT := SD Card Boot
+  DEVICE_PACKAGES += \
+    tfa-ls1028a-rdb-sdboot
+  DEVICE_DTS := freescale/fsl-ls1028a-rdb
+  FILESYSTEMS := ext4
+  IMAGES := sdcard.img sysupgrade.bin
+  IMAGE/sdcard.img := \
+    ls-clean | \
+    ls-append-sdhead $(1) | pad-to 4K | \
+    ls-append $(1)-bl2.pbl | pad-to 1M | \
+    ls-append $(1)-fip.bin | pad-to 5M | \
+    ls-append $(1)-uboot-env.bin | pad-to 15M | \
+    ls-append-dtb $$(DEVICE_DTS) | pad-to 16M | \
+    append-kernel | pad-to $(LS_SD_ROOTFSPART_OFFSET)M | \
+    append-rootfs | check-size $(LS_SD_IMAGE_SIZE)
+  IMAGE/sysupgrade.bin := \
+    ls-clean | \
+    ls-append-sdhead $(1) | pad-to 16M | \
+    append-kernel | pad-to $(LS_SD_ROOTFSPART_OFFSET)M | \
+    append-rootfs | check-size $(LS_SD_IMAGE_SIZE) | append-metadata
+endef
+TARGET_DEVICES += fsl_ls1028a-rdb-sdboot
+
 define Device/fsl_ls1043a-rdb
   DEVICE_VENDOR := NXP
   DEVICE_MODEL := LS1043A-RDB
