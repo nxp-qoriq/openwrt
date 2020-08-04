@@ -100,7 +100,8 @@ define Device/fsl_ls1028a-rdb
   DEVICE_MODEL := LS1028A-RDB
   DEVICE_VARIANT := Default
   DEVICE_PACKAGES += \
-    tfa-ls1028a-rdb
+    tfa-ls1028a-rdb \
+    tsntool
   IMAGE/firmware.bin := \
     ls-clean | \
     ls-append $(1)-bl2.pbl | pad-to 1M | \
@@ -117,7 +118,8 @@ define Device/fsl_ls1028a-rdb-sdboot
   DEVICE_MODEL := LS1028A-RDB
   DEVICE_VARIANT := SD Card Boot
   DEVICE_PACKAGES += \
-    tfa-ls1028a-rdb-sdboot
+    tfa-ls1028a-rdb-sdboot \
+    tsntool
   DEVICE_DTS := freescale/fsl-ls1028a-rdb
   FILESYSTEMS := ext4
   IMAGES := sdcard.img sysupgrade.bin
