@@ -4,8 +4,11 @@ Layerscape Quick Start
 1. Layerscape target support
 ----------------------------
 * ARMv8 64-bit
-  LS1012ARDB LS1012AFRWY LS1043ARDB LS1046ARDB LS1088ARDB LS2088ARDB
-  (SD card boot support on LS1043ARDB/LS1046ARDB/LS1088ARDB)
+  LS1012ARDB LS1012AFRWY LS1028ARDB LS1043ARDB LS1046AFRWY
+  LS1046ARDB LS1088ARDB LS2088ARDB LX2160ARDB(Rev2.0)
+
+  (SD card boot support on LS1028ARDB/LS1043ARDB/LS1046AFRWY/
+  LS1046ARDB/LS1088ARDB/LX2160ARDB(Rev2.0))
 
 * ARMv7
   LS1021ATWR LS1021AIOT
@@ -82,6 +85,14 @@ from SD card.
   => sf write a0000000 0 $filesize
   => reset
 
+* LS1028ARDB (XSPI NOR flash), LS1046AFRWY (QSPI NOR flash)
+  Program firmware to NOR flash with below commands.
+  => tftp a0000000 <firmware_name>-firmware.bin
+  => sf probe
+  => sf erase 0 +$filesize
+  => sf write a0000000 0 $filesize
+  => reset
+
 * LS1043ARDB (NOR flash)
   Start up from bank0, and program firmware to bank4 with below commands.
   Switch to bank4 to start up OpenWrt.
@@ -102,7 +113,7 @@ from SD card.
   => sf write a0000000 0 $filesize
   => cpld reset altbank
 
-* LS1088ARDB (QSPI flash)
+* LS1088ARDB (QSPI NOR flash), LX2160ARDB (XSPI NOR flash)
   Start up from bank0, and program firmware to bank1 with below commands.
   Switch to bank1 to start up OpenWrt.
 
@@ -157,7 +168,33 @@ from SD card.
   => setenv eth1addr 00:04:9F:04:65:4c
 
 
-5. Other references
+5. Support sysupgrade
+---------------------
+5.1 Using Command
+  $ sysupgrade <image_name>-sysupgrade.bin
+
+5.2 Using Web GUI
+- Enable luci package, then program the image to sdcard/flash
+
+  $ make menuconfig
+  LuCI --->
+	1. Collections --->
+		<*> luci
+
+  $ make
+
+- Test sysupgrade
+  1. Log you in OpenWrt LuCI web GUI(username: root, password: root)
+  2. flash sysupgrade.bin
+
+  In web GUI
+
+  Sysytem ->
+	-> Backup/Flash Firmware
+		-> Flash New Firmware Image
+
+
+6. Other references
 -------------------
 - NXP LSDK site: https://lsdk.github.io/
 - OpenWrt documentation: https://openwrt.org/docs/start
