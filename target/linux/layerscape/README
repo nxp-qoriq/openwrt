@@ -194,7 +194,24 @@ from SD card.
 		-> Flash New Firmware Image
 
 
-6. Other references
+6. LS1028ARDB network configuration
+- Default configuration
+      WAN: eno0
+      LAN: swp0 ~ swp3
+
+- Other configurations
+  Refer to "8.6 ENETC ethernet and Felix switch drivers" of LSDK doc
+
+- TSN (Time-sensitive Networking) usage
+  Refer to "8.7 Time Sensitive Networking (TSN)" of LSDK doc
+
+  You may need to disable WAN/LAN functions before using other configurations and TSN.
+  # ip link set br-lan down
+  # ip link del name br-lan
+
+
+7. Other references
 -------------------
 - NXP LSDK site: https://lsdk.github.io/
 - OpenWrt documentation: https://openwrt.org/docs/start
+- LSDK doc: https://www.nxp.com/design/software/embedded-software/linux-software-and-development-tools/layerscape-software-development-kit:LAYERSCAPE-SDK
