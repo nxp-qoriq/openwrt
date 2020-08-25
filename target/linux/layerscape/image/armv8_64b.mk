@@ -147,7 +147,8 @@ define Device/fsl_ls1043a-rdb
   DEVICE_PACKAGES += \
     layerscape-fman \
     tfa-ls1043a-rdb \
-    fmc fmc-eth-config
+    fmc fmc-eth-config \
+    kmod-rtc-ds1307
   DEVICE_DTS := freescale/fsl-ls1043a-rdb-sdk
   IMAGE/firmware.bin := \
     ls-clean | \
@@ -168,7 +169,8 @@ define Device/fsl_ls1043a-rdb-sdboot
   DEVICE_PACKAGES += \
     layerscape-fman \
     tfa-ls1043a-rdb-sdboot \
-    fmc fmc-eth-config
+    fmc fmc-eth-config \
+    kmod-rtc-ds1307
   DEVICE_DTS := freescale/fsl-ls1043a-rdb-sdk
   FILESYSTEMS := ext4
   IMAGES := sdcard.img sysupgrade.bin
