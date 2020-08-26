@@ -25,9 +25,11 @@ define Package/restool
   DEPENDS:=@TARGET_layerscape
 endef
 
-MAKE_FLAGS += \
-	DESTDIR="$(PKG_BUILD_DIR)"/output/ \
-	install
+define Build/Compile
+	cd $(PKG_BUILD_DIR); \
+	sed -i 's/v1.6/$(PKG_VERSION)/g' Makefile; \
+	$(MAKE) CROSS_COMPILE=$(TARGET_CROSS) DESTDIR=$(PKG_BUILD_DIR)/output/ install
+endef
 
 define Package/restool/install
 	$(INSTALL_DIR) $(1)/usr/bin/
