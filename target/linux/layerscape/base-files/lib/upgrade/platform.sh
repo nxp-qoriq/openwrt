@@ -104,7 +104,7 @@ platform_do_upgrade_traverse_nandubi() {
 	nand_do_upgrade "$1" || (echo "Upgrade failed, setting bootsys ${bootsys}" && fw_setenv bootsys $bootsys)
 
 }
-platform_copy_config() {
+platform_copy_config_sdcard() {
 	local partdev parttype=ext4
 
 	if export_partdevice partdev 1; then
@@ -113,6 +113,15 @@ platform_copy_config() {
 		umount /mnt
 	fi
 }
+
+platform_copy_config() {
+	case "$(board_name)" in
+	*-sdboot)
+		platform_copy_config_sdcard
+		;;
+	esac
+}
+
 platform_check_image() {
 	local board=$(board_name)
 
