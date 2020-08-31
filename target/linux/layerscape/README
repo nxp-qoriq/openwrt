@@ -1,18 +1,28 @@
 
 Layerscape Quick Start
 
+This is a quick start guide for Layerscape specific usage like introducing
+how to configure, build, and deploy OpenWrt to Layerscape boards, so that
+users can bring up the board without difficulty. There is nothing more to
+introduce by the guide, but it may recommend links to OpenWrt official doc
+for some common features in case users want.
+
+
 1. Layerscape target support
 ----------------------------
 * ARMv8 64-bit
-  LS1012ARDB LS1012AFRWY LS1028ARDB LS1043ARDB LS1046AFRWY
-  LS1046ARDB LS1088ARDB LS2088ARDB LX2160ARDB(Rev2.0)
 
-  (SD card boot support on LS1028ARDB/LS1043ARDB/LS1046AFRWY/
-  LS1046ARDB/LS1088ARDB/LX2160ARDB(Rev2.0))
+  LS1012ARDB LS1012AFRWY LS1028ARDB LS1043ARDB LS1046AFRWY
+  LS1046ARDB LS1088ARDB  LS2088ARDB LX2160ARDB(Rev2.0)
+
+  (SD card boot also supported on LS1028ARDB/LS1043ARDB/
+   LS1046AFRWY/LS1046ARDB/LS1088ARDB/LX2160ARDB(Rev2.0))
 
 * ARMv7
+
   LS1021ATWR LS1021AIOT
-  (SD card boot support on LS1021ATWR/LS1021AIOT)
+
+  (SD card boot also supported on LS1021ATWR/LS1021AIOT)
 
 
 2. Build
@@ -23,11 +33,12 @@ $ ./scripts/feeds update -a
 $ ./scripts/feeds install -a
 
 * make menuconfig
+
   Target System:   "NXP Layerscape"
   Subtarget:       (Select subtarget)
   Target Profile:  (Select device, or "Multiple devices")
   Target Devices:  (Select devices. Available when Target Profile is "Multiple devices")
-  Target Images:   (Disable "GZip images" if don't want to unzip manually to use the images.)
+  Target Images:   (Disable "GZip images" if don't want to compress images)
 
   Note: The first time make menuconfig would create a .config file which
   would include all dependencies for selected target. After that, make
@@ -40,12 +51,13 @@ $ ./scripts/feeds install -a
 * make (or make -j<n>)
 
 * Final firmware/image
-  Path: bin/targets/layerscape/<subtarget>/
-  Firmware for flash: openwrt-layerscape-<subtarget>-<device>-<rootfs>-firmware.bin
-  Image for SD card: openwrt-layerscape-<subtarget>-<device>-<rootfs>-sdcard.img
+
+  Path:                bin/targets/layerscape/<subtarget>/
+  Firmware for flash:  openwrt-layerscape-<subtarget>-<device>-<rootfs>-firmware.bin
+  Image for SD card:   openwrt-layerscape-<subtarget>-<device>-<rootfs>-sdcard.img
 
 
-3. Program NOR/QSPI flash or SD card
+3. Program flash or SD card
 ------------------------------------
 The firmware.bin or sdcard.img is an all-in-one image including all things for
 OpenWrt staring up. (except LS1012AFRWY. Refer to 3.3.)
@@ -74,7 +86,8 @@ from SD card.
 
 3.2 Program firmware.bin to flash
 ---------------------------------
-* LS1012ARDB (QSPI flash)
+* LS1012ARDB
+
   Start up from bank1, and program firmware to bank2 with below commands.
   Switch to bank2 to start up OpenWrt.
 
@@ -85,15 +98,17 @@ from SD card.
   => sf write a0000000 0 $filesize
   => reset
 
-* LS1028ARDB (XSPI NOR flash), LS1046AFRWY (QSPI NOR flash)
-  Program firmware to NOR flash with below commands.
+* LS1028ARDB/LS1046AFRWY
+
+  Program firmware to current flash with below commands.
   => tftp a0000000 <firmware_name>-firmware.bin
   => sf probe
   => sf erase 0 +$filesize
   => sf write a0000000 0 $filesize
   => reset
 
-* LS1043ARDB (NOR flash)
+* LS1043ARDB
+
   Start up from bank0, and program firmware to bank4 with below commands.
   Switch to bank4 to start up OpenWrt.
 
@@ -103,7 +118,8 @@ from SD card.
   => cp.b a0000000 64000000 $filesize
   => cpld reset altbank
 
-* LS1046ARDB (QSPI flash)
+* LS1046ARDB
+
   Start up from bank1, and program firmware to bank2 with below commands.
   Switch to bank2 to start up OpenWrt.
 
@@ -113,7 +129,8 @@ from SD card.
   => sf write a0000000 0 $filesize
   => cpld reset altbank
 
-* LS1088ARDB (QSPI NOR flash), LX2160ARDB (XSPI NOR flash)
+* LS1088ARDB/LX2160ARDB
+
   Start up from bank0, and program firmware to bank1 with below commands.
   Switch to bank1 to start up OpenWrt.
 
@@ -127,7 +144,8 @@ from SD card.
   bank1 instead of 'qix altbank'.
   => i2c mw 66 50 20;i2c mw 66 10 20;i2c mw 66 10 21
 
-* LS2088ARDB (NOR flash)
+* LS2088ARDB
+
   Start up from bank0, and program firmware to bank4 with below commands.
   Switch to bank4 to start up OpenWrt.
 
@@ -139,16 +157,16 @@ from SD card.
 
 3.3 Program LS1012AFRWY
 -----------------------
-* LS1012AFRWY (QSPI flash + SD card)
-  LS1012AFRWY only supports 2MB QSPI flash. We have to put u-boot, and
-  some firmwares on QSPI flash, and kernel/dtb/rootfs on SD card.
-  So both firmware.bin and sdcard.img are needed for OpenWrt starting up.
+* LS1012AFRWY (flash + SD card)
+
+  LS1012AFRWY only supports 2MB flash. We have to put u-boot, and
+  some firmwares on flash, and kernel/dtb/rootfs on SD card. So both
+  firmware.bin and sdcard.img are needed for OpenWrt starting up.
 
   To program sdcard.img, please use linux command described in 3.1 on a
-  linux machine.
-  To program firmware.bin, start up board from QSPI flash, and program
-  firmware with below commands. Reset to start up OpenWrt. (LS1012AFRWY
-  supports only one bank.)
+  linux machine. To program firmware.bin, start up board from flash, and
+  program firmware to current flash with below commands. Reset to start
+  up OpenWrt.
 
   => tftp 96000000 <firmware_name>-firmware.bin
   => sf probe 0:0
@@ -167,51 +185,38 @@ from SD card.
   => setenv ethaddr 00:04:9F:04:65:4b
   => setenv eth1addr 00:04:9F:04:65:4c
 
+* In case users want to refer to Layerscape SDK doc for network configuration,
+  like TSN (Time-Sensitive Networking), the OpenWrt LAN/WAN setting for router
+  should be removed before that.
 
-5. Support sysupgrade
----------------------
-5.1 Using Command
-  $ sysupgrade <image_name>-sysupgrade.bin
-
-5.2 Using Web GUI
-- Enable luci package, then program the image to sdcard/flash
-
-  $ make menuconfig
-  LuCI --->
-	1. Collections --->
-		<*> luci
-
-  $ make
-
-- Test sysupgrade
-  1. Log you in OpenWrt LuCI web GUI(username: root, password: root)
-  2. flash sysupgrade.bin
-
-  In web GUI
-
-  Sysytem ->
-	-> Backup/Flash Firmware
-		-> Flash New Firmware Image
+  # ubus call network.interface.lan remove
+  # ubus call network.interface.wan remove
+  # ubus call network.interface.wan6 remove
 
 
-6. LS1028ARDB network configuration
-- Default configuration
-      WAN: eno0
-      LAN: swp0 ~ swp3
-
-- Other configurations
-  Refer to "8.6 ENETC ethernet and Felix switch drivers" of LSDK doc
-
-- TSN (Time-sensitive Networking) usage
-  Refer to "8.7 Time Sensitive Networking (TSN)" of LSDK doc
-
-  You may need to disable WAN/LAN functions before using other configurations and TSN.
-  # ip link set br-lan down
-  # ip link del name br-lan
-
-
-7. Other references
+5. Other references
 -------------------
-- NXP LSDK site: https://lsdk.github.io/
-- OpenWrt documentation: https://openwrt.org/docs/start
-- LSDK doc: https://www.nxp.com/design/software/embedded-software/linux-software-and-development-tools/layerscape-software-development-kit:LAYERSCAPE-SDK
+* NXP LSDK
+  https://www.nxp.com/design/software/embedded-software/linux-software-and-development-tools/layerscape-software-development-kit:LAYERSCAPE-SDK
+
+* NXP LSDK source
+  https://lsdk.github.io/
+
+6. Quick access to OpenWrt doc
+
+* OpenWrt doc
+  https://openwrt.org/docs/start
+
+* Network basics
+  https://openwrt.org/docs/guide-user/base-system/basic-networking
+
+* Log into LuCI
+  https://openwrt.org/docs/guide-quick-start/walkthrough_login
+
+* Sysupgrade
+
+  - Sysupgrade via CLI
+    https://openwrt.org/docs/guide-user/installation/sysupgrade.cli
+
+  - Sysupgrade via web interface
+    https://openwrt.org/docs/guide-quick-start/sysupgrade.luci
