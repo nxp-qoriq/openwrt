@@ -193,6 +193,16 @@ from SD card.
   # ubus call network.interface.wan remove
   # ubus call network.interface.wan6 remove
 
+* For most Layerscape development board, the LAN/WAN configuration is using the
+  default configuration which configures eth0 as LAN and eth1 as WAN. It does
+  not cover other ports. So before connecting cable to access LuCI web interface
+  (192.168.1.1), just make sure the cable is being connected to right LAN port.
+  For example below. Or you can configure other ports into LAN per OpenWrt network
+  doc.
+
+  # uci show network.lan.ifname
+  # network.lan.ifname='eth0'
+
 
 5. Other references
 -------------------
