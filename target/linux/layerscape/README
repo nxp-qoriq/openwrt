@@ -193,6 +193,10 @@ from SD card.
   # ubus call network.interface.wan remove
   # ubus call network.interface.wan6 remove
 
+  And firewall may be needed to stop.
+
+  # /etc/init.d/firewall stop
+
 * For most Layerscape development board, the LAN/WAN configuration is using the
   default configuration which configures eth0 as LAN and eth1 as WAN. It does
   not cover other ports. So before connecting cable to access LuCI web interface
