@@ -1,0 +1,35 @@
+From 99b36d108d52cf5884c3e12ded63ee78e873ca04 Mon Sep 17 00:00:00 2001
+From: Priyanka Singh <priyanka.singh@nxp.com>
+Date: Thu, 10 Sep 2020 13:34:09 +0530
+Subject: [PATCH 14/22] dts/fsl-ls1046a-db.dts: Update i2c eeprom node
+
+Update eeprom compatible field to "atmel,24c04"
+to support EEPROM Read/Write
+
+Signed-off-by: Priyanka Singh <priyanka.singh@nxp.com>
+---
+ arch/arm64/boot/dts/freescale/fsl-ls1046a-db.dts | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1046a-db.dts b/arch/arm64/boot/dts/freescale/fsl-ls1046a-db.dts
+index e5220b3632f2..b36b9a85e171 100644
+--- a/arch/arm64/boot/dts/freescale/fsl-ls1046a-db.dts
++++ b/arch/arm64/boot/dts/freescale/fsl-ls1046a-db.dts
+@@ -72,12 +72,12 @@
+ 	};
+ 
+ 	eeprom@52 {
+-		compatible = "atmel,24c02";
++		compatible = "atmel,24c04";
+ 		reg = <0x52>;
+ 	};
+ 
+ 	eeprom@53 {
+-		compatible = "atmel,24c02";
++		compatible = "atmel,24c04";
+ 		reg = <0x53>;
+ 	};
+ };
+-- 
+2.17.1
+

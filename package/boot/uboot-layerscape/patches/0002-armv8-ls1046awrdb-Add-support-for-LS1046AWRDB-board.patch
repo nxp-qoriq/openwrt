@@ -1,0 +1,1072 @@
+From 1d98da00e44be66b1d669bc43e2098bddf894b65 Mon Sep 17 00:00:00 2001
+From: Priyanka Jain <priyanka.jain@nxp.com>
+Date: Thu, 30 Apr 2020 12:38:08 +0800
+Subject: [PATCH 2/9] armv8: ls1046awrdb: Add support for LS1046AWRDB board
+
+LS1046AWRDB is an ARMv8 implementation. LS1046AWRDB is an evaluation
+platform that supports the LS1046A family SoCs. This patch add basic
+support of the platform.
+
+Signed-off-by: Pankit Garg <pankit.garg@nxp.com>
+Signed-off-by: Tang Yuantian <andy.tang@nxp.com>
+Signed-off-by: Priyanka Jain <priyanka.jain@nxp.com>
+---
+ arch/arm/Kconfig                              |  22 ++
+ arch/arm/cpu/armv8/Kconfig                    |   2 +-
+ .../cpu/armv8/fsl-layerscape/doc/README.qspi  |   1 +
+ .../armv8/fsl-layerscape/fsl_lsch2_speed.c    |  14 +-
+ arch/arm/dts/Makefile                         |   1 +
+ arch/arm/dts/fsl-ls1046a-wrdb.dts             |  54 +++
+ board/freescale/ls1046ardb/eth.c              |   2 +-
+ board/freescale/ls1046awrdb/Kconfig           |  17 +
+ board/freescale/ls1046awrdb/MAINTAINERS       |   8 +
+ board/freescale/ls1046awrdb/Makefile          |   8 +
+ board/freescale/ls1046awrdb/README            |  69 ++++
+ board/freescale/ls1046awrdb/eth.c             | 126 +++++++
+ board/freescale/ls1046awrdb/ls1046awrdb.c     | 307 ++++++++++++++++++
+ configs/ls1046awrdb_tfa_SECURE_BOOT_defconfig |  63 ++++
+ configs/ls1046awrdb_tfa_defconfig             |  62 ++++
+ include/configs/ls1046awrdb.h                 | 114 +++++++
+ 16 files changed, 864 insertions(+), 6 deletions(-)
+ create mode 100644 arch/arm/dts/fsl-ls1046a-wrdb.dts
+ create mode 100644 board/freescale/ls1046awrdb/Kconfig
+ create mode 100644 board/freescale/ls1046awrdb/MAINTAINERS
+ create mode 100644 board/freescale/ls1046awrdb/Makefile
+ create mode 100644 board/freescale/ls1046awrdb/README
+ create mode 100644 board/freescale/ls1046awrdb/eth.c
+ create mode 100644 board/freescale/ls1046awrdb/ls1046awrdb.c
+ create mode 100644 configs/ls1046awrdb_tfa_SECURE_BOOT_defconfig
+ create mode 100644 configs/ls1046awrdb_tfa_defconfig
+ create mode 100644 include/configs/ls1046awrdb.h
+
+diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
+index 5d33526ae9..25912249ba 100644
+--- a/arch/arm/Kconfig
++++ b/arch/arm/Kconfig
+@@ -1490,6 +1490,27 @@ config TARGET_LS1046AFRWY
+ 	  The LS1046A Freeway Board (FRWY) is a high-performance
+ 	  development platform that supports the QorIQ LS1046A
+ 	  Layerscape Architecture processor.
++
++config TARGET_LS1046AWRDB
++	bool "Support ls1046awrdb"
++	select ARCH_LS1046A
++	select ARM64
++	select ARMV8_MULTIENTRY
++	select ARCH_SUPPORT_TFABOOT
++	select BOARD_EARLY_INIT_F
++	select BOARD_LATE_INIT
++	select DM_SPI_FLASH if DM_SPI
++	select POWER_MC34VR500
++	select SUPPORT_SPL
++	select FSL_DDR_BIST
++	select FSL_DDR_INTERACTIVE if !SPL
++	imply SCSI
++	help
++	  Support for Freescale LS1046AWRDB platform.
++	  The LS1046A Reference Design Board (RDB) is a high-performance
++	  development platform that supports the QorIQ LS1046A
++	  Layerscape Architecture processor.
++
+ config TARGET_H2200
+ 	bool "Support h2200"
+ 	select CPU_PXA
+@@ -1791,6 +1812,7 @@ source "board/freescale/ls1021aiot/Kconfig"
+ source "board/freescale/ls1046aqds/Kconfig"
+ source "board/freescale/ls1043ardb/Kconfig"
+ source "board/freescale/ls1046ardb/Kconfig"
++source "board/freescale/ls1046awrdb/Kconfig"
+ source "board/freescale/ls1046afrwy/Kconfig"
+ source "board/freescale/ls1012aqds/Kconfig"
+ source "board/freescale/ls1012ardb/Kconfig"
+diff --git a/arch/arm/cpu/armv8/Kconfig b/arch/arm/cpu/armv8/Kconfig
+index 92a2b58ed4..a38a9aa35e 100644
+--- a/arch/arm/cpu/armv8/Kconfig
++++ b/arch/arm/cpu/armv8/Kconfig
+@@ -107,7 +107,7 @@ config PSCI_RESET
+ 		   !TARGET_LS1028ARDB && !TARGET_LS1028AQDS && \
+ 		   !TARGET_LS1043ARDB && !TARGET_LS1043AQDS && \
+ 		   !TARGET_LS1046ARDB && !TARGET_LS1046AQDS && \
+-		   !TARGET_LS1046AFRWY && \
++		   !TARGET_LS1046AFRWY && !TARGET_LS1046AWRDB && \
+ 		   !TARGET_LS2081ARDB && !TARGET_LX2160ARDB && \
+ 		   !TARGET_LX2160AQDS && \
+ 		   !ARCH_UNIPHIER && !TARGET_S32V234EVB
+diff --git a/arch/arm/cpu/armv8/fsl-layerscape/doc/README.qspi b/arch/arm/cpu/armv8/fsl-layerscape/doc/README.qspi
+index de86f4b307..9658e07e88 100644
+--- a/arch/arm/cpu/armv8/fsl-layerscape/doc/README.qspi
++++ b/arch/arm/cpu/armv8/fsl-layerscape/doc/README.qspi
+@@ -10,6 +10,7 @@ QSPI Boot source support Overview
+ 	4. LS1046A
+ 		LS1046AQDS
+ 		LS1046ARDB
++		LS1046AWRDB
+ 
+ Booting from QSPI
+ -------------------
+diff --git a/arch/arm/cpu/armv8/fsl-layerscape/fsl_lsch2_speed.c b/arch/arm/cpu/armv8/fsl-layerscape/fsl_lsch2_speed.c
+index df4df9aca7..d199054a7d 100644
+--- a/arch/arm/cpu/armv8/fsl-layerscape/fsl_lsch2_speed.c
++++ b/arch/arm/cpu/armv8/fsl-layerscape/fsl_lsch2_speed.c
+@@ -27,6 +27,7 @@ void get_sys_info(struct sys_info *sys_info)
+  */
+ #if defined(CONFIG_SYS_DPAA_FMAN) || \
+ 	    defined(CONFIG_TARGET_LS1046ARDB) || \
++	    defined(CONFIG_TARGET_LS1046AWRDB) || \
+ 	    defined(CONFIG_TARGET_LS1043ARDB)
+ 	u32 rcw_tmp;
+ #endif
+@@ -127,13 +128,16 @@ void get_sys_info(struct sys_info *sys_info)
+ #ifdef CONFIG_FSL_ESDHC
+ #define HWA_CGA_M2_CLK_SEL	0x00000007
+ #define HWA_CGA_M2_CLK_SHIFT	0
+-#if defined(CONFIG_TARGET_LS1046ARDB) || defined(CONFIG_TARGET_LS1043ARDB)
++#if defined(CONFIG_TARGET_LS1046ARDB) || \
++	defined(CONFIG_TARGET_LS1046AWRDB) || \
++	defined(CONFIG_TARGET_LS1043ARDB)
+ 	rcw_tmp = in_be32(&gur->rcwsr[15]);
+ 	switch ((rcw_tmp & HWA_CGA_M2_CLK_SEL) >> HWA_CGA_M2_CLK_SHIFT) {
+ 	case 1:
+ 		sys_info->freq_cga_m2 = freq_c_pll[1];
+ 		break;
+-#if defined(CONFIG_TARGET_LS1046ARDB)
++#if defined(CONFIG_TARGET_LS1046ARDB) || \
++	defined(CONFIG_TARGET_LS1046AWRDB)
+ 	case 2:
+ 		sys_info->freq_cga_m2 = freq_c_pll[1] / 2;
+ 		break;
+@@ -141,7 +145,8 @@ void get_sys_info(struct sys_info *sys_info)
+ 	case 3:
+ 		sys_info->freq_cga_m2 = freq_c_pll[1] / 3;
+ 		break;
+-#if defined(CONFIG_TARGET_LS1046ARDB)
++#if defined(CONFIG_TARGET_LS1046ARDB) || \
++	defined(CONFIG_TARGET_LS1046AWRDB)
+ 	case 6:
+ 		sys_info->freq_cga_m2 = freq_c_pll[0] / 2;
+ 		break;
+@@ -186,7 +191,8 @@ int get_clocks(void)
+ 
+ #ifdef CONFIG_FSL_ESDHC
+ #if defined(CONFIG_FSL_ESDHC_USE_PERIPHERAL_CLK)
+-#if defined(CONFIG_TARGET_LS1046ARDB)
++#if defined(CONFIG_TARGET_LS1046ARDB) || \
++	defined(CONFIG_TARGET_LS1046AWRDB)
+ 	gd->arch.sdhc_clk = sys_info.freq_cga_m2 / 2;
+ #endif
+ #if defined(CONFIG_TARGET_LS1043ARDB)
+diff --git a/arch/arm/dts/Makefile b/arch/arm/dts/Makefile
+index 62da168ef8..e4eadf6853 100644
+--- a/arch/arm/dts/Makefile
++++ b/arch/arm/dts/Makefile
+@@ -355,6 +355,7 @@ dtb-$(CONFIG_FSL_LSCH2) += fsl-ls1043a-qds-duart.dtb \
+ 	fsl-ls1046a-qds-lpuart.dtb \
+ 	fsl-ls1046a-rdb.dtb \
+ 	fsl-ls1046a-frwy.dtb \
++	fsl-ls1046a-wrdb.dtb \
+ 	fsl-ls1012a-qds.dtb \
+ 	fsl-ls1012a-rdb.dtb \
+ 	fsl-ls1012a-2g5rdb.dtb \
+diff --git a/arch/arm/dts/fsl-ls1046a-wrdb.dts b/arch/arm/dts/fsl-ls1046a-wrdb.dts
+new file mode 100644
+index 0000000000..bc5dd1ccaf
+--- /dev/null
++++ b/arch/arm/dts/fsl-ls1046a-wrdb.dts
+@@ -0,0 +1,54 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Device Tree Include file for Layerscape-1046AWRDB board.
++ *
++ * Copyright 2020 NXP
++ *
++ * Yuantian Tang <andy.tang@nxp.com>
++ */
++
++/dts-v1/;
++/include/ "fsl-ls1046a.dtsi"
++
++/ {
++	model = "LS1046A WRDB Board";
++
++	aliases {
++		spi0 = &qspi;
++	};
++
++};
++
++&qspi {
++	bus-num = <0>;
++	status = "okay";
++
++	qflash0: mt25qu512abb8esf@0 {
++		#address-cells = <1>;
++		#size-cells = <1>;
++		compatible = "spi-flash";
++		spi-max-frequency = <50000000>;
++		reg = <0>;
++	};
++
++	qflash1: mt25qu512abb8esf@1 {
++		#address-cells = <1>;
++		#size-cells = <1>;
++		compatible = "spi-flash";
++		spi-max-frequency = <50000000>;
++		reg = <1>;
++	};
++};
++
++&i2c0 {
++	status = "okay";
++
++	rtc@51 {
++		compatible = "pcf2127-rtc";
++		reg = <0x51>;
++	};
++};
++
++&i2c3 {
++	status = "okay";
++};
+diff --git a/board/freescale/ls1046ardb/eth.c b/board/freescale/ls1046ardb/eth.c
+index 7dbfcac307..186fc0ce98 100644
+--- a/board/freescale/ls1046ardb/eth.c
++++ b/board/freescale/ls1046ardb/eth.c
+@@ -1,6 +1,6 @@
+ // SPDX-License-Identifier: GPL-2.0+
+ /*
+- * Copyright 2016 Freescale Semiconductor, Inc.
++ * Copyright 2020 NXP
+  */
+ #include <common.h>
+ #include <asm/io.h>
+diff --git a/board/freescale/ls1046awrdb/Kconfig b/board/freescale/ls1046awrdb/Kconfig
+new file mode 100644
+index 0000000000..ecd716ab4b
+--- /dev/null
++++ b/board/freescale/ls1046awrdb/Kconfig
+@@ -0,0 +1,17 @@
++
++if TARGET_LS1046AWRDB
++
++config SYS_BOARD
++	default "ls1046awrdb"
++
++config SYS_VENDOR
++	default "freescale"
++
++config SYS_SOC
++	default "fsl-layerscape"
++
++config SYS_CONFIG_NAME
++	default "ls1046awrdb"
++
++source "board/freescale/common/Kconfig"
++endif
+diff --git a/board/freescale/ls1046awrdb/MAINTAINERS b/board/freescale/ls1046awrdb/MAINTAINERS
+new file mode 100644
+index 0000000000..a1fa7fad2c
+--- /dev/null
++++ b/board/freescale/ls1046awrdb/MAINTAINERS
+@@ -0,0 +1,8 @@
++LS1046AWRDB BOARD
++M:	Priyanka Jain <priyanka.jain@nxp.com>
++S:	Maintained
++F:	board/freescale/ls1046awrdb/
++F:	board/freescale/ls1046awrdb/ls1046awrdb.c
++F:	include/configs/ls1046awrdb.h
++F:	configs/ls1046awrdb_tfa_defconfig
++F:	configs/ls1046awrdb_tfa_SECURE_BOOT_defconfig
+diff --git a/board/freescale/ls1046awrdb/Makefile b/board/freescale/ls1046awrdb/Makefile
+new file mode 100644
+index 0000000000..6d51e516e2
+--- /dev/null
++++ b/board/freescale/ls1046awrdb/Makefile
+@@ -0,0 +1,8 @@
++# SPDX-License-Identifier: GPL-2.0+
++#
++# Copyright 2020 NXP
++
++obj-y += ls1046awrdb.o
++ifndef CONFIG_SPL_BUILD
++obj-$(CONFIG_NET) += eth.o
++endif
+diff --git a/board/freescale/ls1046awrdb/README b/board/freescale/ls1046awrdb/README
+new file mode 100644
+index 0000000000..b36371b92c
+--- /dev/null
++++ b/board/freescale/ls1046awrdb/README
+@@ -0,0 +1,69 @@
++Overview
++--------
++The LS1046A Wireless Reference Design Board (WRDB) is a high-performance computing,
++evaluation, and development platform that supports the QorIQ LS1046A
++LayerScape Architecture processor. The LS1046AWRDB provides SW development
++platform for the Freescale LS1046A processor series, with a complete
++debugging environment. The LS1046AWRDB is lead-free and RoHS-compliant.
++
++LS1046A SoC Overview
++--------------------
++Please refer arch/arm/cpu/armv8/fsl-layerscape/doc/README.soc for LS1046A
++SoC overview.
++
++ LS1046AWRDB board Overview
++ -----------------------
++ - SERDES1 Connections, 4 lanes supporting:
++      - Lane0: XFI.9 on Daughter card(PON/10GbE)
++      - Lane1: XFI.10 to AQR113
++      - Lane2: SGMII.5 to Realtek
++      - Lane3: SGMII.6 to Realtek
++ - SERDES2 Connections, 4 lanes supporting:
++      - Lane0: PCIe1 x1 to 2G W9064
++      - Lane1: PCIe2 x1 to 5G W9064
++      - Lane2, Lane3: PCIe3 x2 connector
++ - DDR Controller
++     - 8GB 64bits DDR4 SDRAM. Support rates of up to 2133MT/s
++ - USB 3.0
++    - two Type C ports
++ - SDHC
++    - mini SD card slot/EMMC selected via switch
++ - 4 I2C controllers
++ - UART
++   - One UART console upto 115.2 Kbit/s (RJ-45 connector/USB)
++ - ARM JTAG support
++
++Memory map from core's view
++----------------------------
++Start Address	 End Address	 Description		Size
++0x00_0000_0000 - 0x00_000F_FFFF  Secure Boot ROM	1MB
++0x00_0100_0000 - 0x00_0FFF_FFFF  CCSRBAR		240MB
++0x00_1000_0000 - 0x00_1000_FFFF  OCRAM1 		64KB
++0x00_1001_0000 - 0x00_1001_FFFF  OCRAM2 		64KB
++0x00_2000_0000 - 0x00_20FF_FFFF  DCSR			16MB
++0x00_7E80_0000 - 0x00_7E80_FFFF  IFC - NAND Flash	64KB
++0x00_7FB0_0000 - 0x00_7FB0_0FFF  IFC - CPLD		4KB
++0x00_8000_0000 - 0x00_FFFF_FFFF  DRAM1			2GB
++0x05_0000_0000 - 0x05_07FF_FFFF  QMAN S/W Portal	128M
++0x05_0800_0000 - 0x05_0FFF_FFFF  BMAN S/W Portal	128M
++0x08_8000_0000 - 0x09_FFFF_FFFF  DRAM2			6GB
++0x40_0000_0000 - 0x47_FFFF_FFFF  PCI Express1		32G
++0x48_0000_0000 - 0x4F_FFFF_FFFF  PCI Express2		32G
++0x50_0000_0000 - 0x57_FFFF_FFFF  PCI Express3		32G
++
++QSPI flash map:
++Start Address    End Address     Description			Size
++0x00_4000_0000 - 0x00_400F_FFFF  RCW + PBI + BL2		1MB
++0x00_4010_0000 - 0x00_402F_FFFF  TFA FIP(BL31 + BL32 + U-Boot)	4MB
++0x00_4050_0000 - 0x00_405F_FFFF  U-Boot Env			1MB
++0x00_4060_0000 - 0x00_407F_FFFF  Secure boot header		2MB
++0x00_4090_0000 - 0x00_4093_FFFF  FMan ucode			256KB
++0x00_4094_0000 - 0x00_4097_FFFF  QE/uQE firmware		256KB
++0x00_409c_0000 - 0x00_409F_FFFF  boot script			256KB
++0x00_4100_0000 - 0x00_43FF_FFFF  lsdk_linux_arm65_LS_tiny.itb	48MB
++
++Booting Options
++---------------
++a) QSPI boot
++b) SD boot
++c) eMMC boot
+diff --git a/board/freescale/ls1046awrdb/eth.c b/board/freescale/ls1046awrdb/eth.c
+new file mode 100644
+index 0000000000..f2b376fcd7
+--- /dev/null
++++ b/board/freescale/ls1046awrdb/eth.c
+@@ -0,0 +1,126 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright 2020 NXP
++ */
++#include <common.h>
++#include <asm/io.h>
++#include <netdev.h>
++#include <fm_eth.h>
++#include <fsl_dtsec.h>
++#include <fsl_mdio.h>
++#include <malloc.h>
++
++#include "../common/fman.h"
++
++int board_eth_init(bd_t *bis)
++{
++#ifdef CONFIG_FMAN_ENET
++	int i;
++	struct memac_mdio_info dtsec_mdio_info;
++	struct memac_mdio_info tgec_mdio_info;
++	struct mii_dev *dev;
++	u32 srds_s1;
++	struct ccsr_gur *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
++
++	srds_s1 = in_be32(&gur->rcwsr[4]) &
++			FSL_CHASSIS2_RCWSR4_SRDS1_PRTCL_MASK;
++	srds_s1 >>= FSL_CHASSIS2_RCWSR4_SRDS1_PRTCL_SHIFT;
++
++	dtsec_mdio_info.regs =
++		(struct memac_mdio_controller *)CONFIG_SYS_FM1_DTSEC_MDIO_ADDR;
++
++	dtsec_mdio_info.name = DEFAULT_FM_MDIO_NAME;
++
++	/* Register the 1G MDIO bus */
++	fm_memac_mdio_init(bis, &dtsec_mdio_info);
++
++	tgec_mdio_info.regs =
++		(struct memac_mdio_controller *)CONFIG_SYS_FM1_TGEC_MDIO_ADDR;
++	tgec_mdio_info.name = DEFAULT_FM_TGEC_MDIO_NAME;
++
++	/* Register the 10G MDIO bus */
++	fm_memac_mdio_init(bis, &tgec_mdio_info);
++
++	/* Set the two on-board RGMII PHY address */
++	fm_info_set_phy_address(FM1_DTSEC3, RGMII_PHY1_ADDR);
++
++	/* Set the two on-board SGMII PHY address */
++	fm_info_set_phy_address(FM1_DTSEC5, SGMII_PHY1_ADDR);
++	fm_info_set_phy_address(FM1_DTSEC6, SGMII_PHY2_ADDR);
++
++	/* Set the on-board AQ PHY address */
++	fm_info_set_phy_address(FM1_10GEC2, FM1_10GEC2_PHY_ADDR);
++
++	switch (srds_s1) {
++	case 0x1133:
++		break;
++	default:
++		printf("Invalid SerDes protocol 0x%x for LS1046AWRDB\n",
++		       srds_s1);
++		break;
++	}
++
++	dev = miiphy_get_dev_by_name(DEFAULT_FM_MDIO_NAME);
++	for (i = FM1_DTSEC1; i < FM1_DTSEC1 + CONFIG_SYS_NUM_FM1_DTSEC; i++)
++		fm_info_set_mdio(i, dev);
++
++	/* XFI on MAC 10 */
++	dev = miiphy_get_dev_by_name(DEFAULT_FM_TGEC_MDIO_NAME);
++	fm_info_set_mdio(FM1_10GEC2, dev);
++
++	cpu_eth_init(bis);
++#endif
++
++	return pci_eth_init(bis);
++}
++
++#ifdef CONFIG_FMAN_ENET
++int fdt_update_ethernet_dt(void *blob)
++{
++	u32 srds_s1;
++	int i, prop;
++	int offset, nodeoff;
++	const char *path;
++	struct ccsr_gur *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
++
++	srds_s1 = in_be32(&gur->rcwsr[4]) &
++			FSL_CHASSIS2_RCWSR4_SRDS1_PRTCL_MASK;
++	srds_s1 >>= FSL_CHASSIS2_RCWSR4_SRDS1_PRTCL_SHIFT;
++
++	/* Cycle through all aliases */
++	for (prop = 0; ; prop++) {
++		const char *name;
++
++		/* FDT might have been edited, recompute the offset */
++		offset = fdt_first_property_offset(blob,
++						   fdt_path_offset(blob,
++								   "/aliases")
++						   );
++		/* Select property number 'prop' */
++		for (i = 0; i < prop; i++)
++			offset = fdt_next_property_offset(blob, offset);
++
++		if (offset < 0)
++			break;
++
++		path = fdt_getprop_by_offset(blob, offset, &name, NULL);
++		nodeoff = fdt_path_offset(blob, path);
++
++		switch (srds_s1) {
++		case 0x1133:
++			if (!strcmp(name, "ethernet0"))
++				fdt_status_disabled(blob, nodeoff);
++
++			if (!strcmp(name, "ethernet1"))
++				fdt_status_disabled(blob, nodeoff);
++		break;
++		default:
++			printf("%s:Invalid SerDes prtcl 0x%x for LS1046AWRDB\n",
++			       __func__, srds_s1);
++		break;
++		}
++	}
++
++	return 0;
++}
++#endif
+diff --git a/board/freescale/ls1046awrdb/ls1046awrdb.c b/board/freescale/ls1046awrdb/ls1046awrdb.c
+new file mode 100644
+index 0000000000..ba9f1ae85f
+--- /dev/null
++++ b/board/freescale/ls1046awrdb/ls1046awrdb.c
+@@ -0,0 +1,307 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright 2020 NXP
++ */
++
++#include <common.h>
++#include <i2c.h>
++#include <fdt_support.h>
++#include <asm/io.h>
++#include <asm/arch/clock.h>
++#include <asm/arch/fsl_serdes.h>
++#include <asm/arch/soc.h>
++#include <asm/arch-fsl-layerscape/fsl_icid.h>
++#include <hwconfig.h>
++#include <ahci.h>
++#include <mmc.h>
++#include <scsi.h>
++#include <fm_eth.h>
++#include <fsl_csu.h>
++#include <fsl_esdhc.h>
++#include <fsl_sec.h>
++#include <fsl_ddr_sdram.h>
++
++DECLARE_GLOBAL_DATA_PTR;
++
++#define BOOT_FROM_QSPI_DEV0		0x1
++#define BOOT_FROM_QSPI_DEV1		0x2
++#define BOOT_FROM_SD		0x3
++#define BOOT_FROM_EMMC		0x4
++
++struct pcal_info {
++	u8 data[2];
++	u8 offset_addr[2];
++};
++
++int board_early_init_f(void)
++{
++	fsl_lsch2_early_init_f();
++
++	return 0;
++}
++
++#ifndef CONFIG_SPL_BUILD
++int checkboard(void)
++{
++	u8 in1;
++	int ret, bus_num = 0;
++	enum boot_src src = get_boot_src();
++	struct udevice *dev;
++
++	puts("Board: DB1046A, boot from ");
++	ret = i2c_get_chip_for_busnum(bus_num, I2C_MUX_IO_ADDR,
++				      1, &dev);
++	if (ret) {
++		printf("%s: Cannot find udev for a bus %d\n", __func__,
++		       bus_num);
++		return -ENXIO;
++	}
++	ret = dm_i2c_read(dev, I2C_MUX_IO_1, &in1, 1);
++	if (ret < 0) {
++		printf("Error reading i2c boot information!\n");
++		return 0; /* Don't want to hang() on this error */
++	}
++
++	if (src == BOOT_SOURCE_SD_MMC) {
++		if ((in1 & SW_SD_EMMC_BOOT_MASK) == SW_BOOT_SD)
++			puts(": SD\n");
++		else if ((in1 & SW_SD_EMMC_BOOT_MASK) == SW_BOOT_EMMC)
++			puts(": eMMC\n");
++		else
++			puts("unknown\n");
++	} else {
++		if ((in1 & SW_QSPI_BOOT_MASK) == SW_BOOT_QSPI_DEV0)
++			puts(": QSPI Dev0\n");
++		else if ((in1 & SW_QSPI_BOOT_MASK) == SW_BOOT_QSPI_DEV1)
++			puts(": QSPI Dev1\n");
++		else
++			puts("unknown\n");
++	}
++
++	return 0;
++}
++
++int board_init(void)
++{
++#ifdef CONFIG_SECURE_BOOT
++	/*
++	 * In case of Secure Boot, the IBR configures the SMMU
++	 * to allow only Secure transactions.
++	 * SMMU must be reset in bypass mode.
++	 * Set the ClientPD bit and Clear the USFCFG Bit
++	 */
++	u32 val;
++
++	val = (in_le32(SMMU_SCR0) | SCR0_CLIENTPD_MASK) & ~(SCR0_USFCFG_MASK);
++	out_le32(SMMU_SCR0, val);
++	val = (in_le32(SMMU_NSCR0) | SCR0_CLIENTPD_MASK) & ~(SCR0_USFCFG_MASK);
++	out_le32(SMMU_NSCR0, val);
++#endif
++
++#ifdef CONFIG_FSL_CAAM
++	sec_init();
++#endif
++
++	return 0;
++}
++
++int board_setup_core_volt(u32 vdd)
++{
++	return 0;
++}
++
++void config_board_mux(void)
++{
++#ifdef CONFIG_HAS_FSL_XHCI_USB
++	struct ccsr_scfg *scfg = (struct ccsr_scfg *)CONFIG_SYS_FSL_SCFG_ADDR;
++	u32 usb_pwrfault;
++
++	/* USB3 is not used, configure mux to IIC4_SCL/IIC4_SDA */
++	out_be32(&scfg->rcwpmuxcr0, 0x3300);
++	out_be32(&scfg->usbdrvvbus_selcr, SCFG_USBDRVVBUS_SELCR_USB1);
++	usb_pwrfault = (SCFG_USBPWRFAULT_DEDICATED <<
++			SCFG_USBPWRFAULT_USB3_SHIFT) |
++			(SCFG_USBPWRFAULT_DEDICATED <<
++			SCFG_USBPWRFAULT_USB2_SHIFT) |
++			(SCFG_USBPWRFAULT_SHARED <<
++			SCFG_USBPWRFAULT_USB1_SHIFT);
++	out_be32(&scfg->usbpwrfault_selcr, usb_pwrfault);
++#endif
++}
++
++#ifdef CONFIG_MISC_INIT_R
++int misc_init_r(void)
++{
++	config_board_mux();
++	return 0;
++}
++#endif
++
++int ft_board_setup(void *blob, bd_t *bd)
++{
++	u64 base[CONFIG_NR_DRAM_BANKS];
++	u64 size[CONFIG_NR_DRAM_BANKS];
++
++	/* fixup DT for the two DDR banks */
++	base[0] = gd->bd->bi_dram[0].start;
++	size[0] = gd->bd->bi_dram[0].size;
++	base[1] = gd->bd->bi_dram[1].start;
++	size[1] = gd->bd->bi_dram[1].size;
++
++	fdt_fixup_memory_banks(blob, base, size, 2);
++	ft_cpu_setup(blob, bd);
++
++#ifdef CONFIG_SYS_DPAA_FMAN
++	fdt_fixup_fman_ethernet(blob);
++#endif
++
++	fdt_fixup_icid(blob);
++
++	return 0;
++}
++
++int fsl_initdram(void)
++{
++	gd->ram_size = tfa_get_dram_size();
++	if (!gd->ram_size)
++		gd->ram_size = fsl_ddr_sdram_size();
++	return 0;
++}
++
++static int ls1046awrdb_soc_reset(void)
++{
++	udelay(50000);
++	disable_interrupts();
++	reset_misc();
++	reset_cpu(0);
++
++	return 0;
++}
++
++static int switch_boot_source(int src_id)
++{
++	struct pcal_info pcal0, pcal1;
++	int ret, i, bus_num = 0;
++	struct udevice *dev;
++
++	pcal0.offset_addr[0] = PCAL_P1_CONF_ADDR;
++	pcal0.offset_addr[1] = PCAL_P1_OUTPUT_ADDR;
++
++	pcal0.data[0] = PCAL0_P1_0_OUTPUT;
++	pcal0.data[1] = PCAL0_P1_0_SD_QSPI;
++
++	ret = i2c_get_chip_for_busnum(bus_num, I2C_MUX_IO2_ADDR,
++				      1, &dev);
++	if (ret) {
++		printf("%s: Cannot find udev for a bus %d\n", __func__,
++		       bus_num);
++		return -ENXIO;
++	}
++
++	for (i = 0; i < 2; i++) {
++		ret = dm_i2c_write(dev, pcal0.offset_addr[i], &pcal0.data[i],
++				   1);
++		if (ret) {
++			printf("i2c write error addr: %u reg: %u data: %u\n",
++			       I2C_MUX_IO2_ADDR, pcal0.offset_addr[i],
++			       pcal0.data[i]);
++			goto err;
++		}
++	}
++
++	pcal0.offset_addr[0] = PCAL_P0_CONF_ADDR;
++	pcal0.offset_addr[1] = PCAL_P0_OUTPUT_ADDR;
++
++	pcal1.offset_addr[0] = PCAL_P1_CONF_ADDR;
++	pcal1.offset_addr[1] = PCAL_P1_OUTPUT_ADDR;
++
++	switch (src_id) {
++	case BOOT_FROM_QSPI_DEV0:
++		pcal0.data[0] = PCAL0_P0_OUTPUT;
++		pcal0.data[1] = PCAL0_P0_QSPI;
++		pcal1.data[0] = PCAL1_P0_6_OUTPUT;
++		pcal1.data[1] = PCAL1_P1_6_QSPI_DEV0;
++		break;
++	case BOOT_FROM_QSPI_DEV1:
++		pcal0.data[0] = PCAL0_P0_OUTPUT;
++		pcal0.data[1] = PCAL0_P0_QSPI;
++		pcal1.data[0] = PCAL1_P0_6_OUTPUT;
++		pcal1.data[1] = PCAL1_P1_6_QSPI_DEV1;
++		break;
++	case BOOT_FROM_SD:
++		pcal0.data[0] = PCAL0_P0_OUTPUT;
++		pcal0.data[1] = PCAL0_P0_SD_EMMC;
++		pcal1.data[0] = PCAL1_P1_7_OUTPUT;
++		pcal1.data[1] = PCAL1_P1_7_SD;
++		break;
++	case BOOT_FROM_EMMC:
++		pcal0.data[0] = PCAL0_P0_OUTPUT;
++		pcal0.data[1] = PCAL0_P0_SD_EMMC;
++		pcal1.data[0] = PCAL1_P1_7_OUTPUT;
++		pcal1.data[1] = PCAL1_P1_7_EMMC;
++		break;
++	}
++
++	for (i = 0; i < 2; i++) {
++		ret = dm_i2c_write(dev, pcal0.offset_addr[i],
++				   &pcal0.data[i], 1);
++		if (ret) {
++			printf("i2c write error addr: %u reg: %u data: %u\n",
++			       I2C_MUX_IO2_ADDR, pcal0.offset_addr[i],
++			       pcal0.data[i]);
++			goto err;
++		}
++	}
++
++	ret = i2c_get_chip_for_busnum(bus_num, I2C_MUX_IO_ADDR,
++				      1, &dev);
++	if (ret) {
++		printf("%s: Cannot find udev for a bus %d\n", __func__,
++		       bus_num);
++		return -ENXIO;
++	}
++
++	for (i = 0; i < 2; i++) {
++		ret = dm_i2c_write(dev, pcal1.offset_addr[i],
++				   &pcal1.data[i], 1);
++		if (ret) {
++			printf("i2c write error addr: %u reg: %u data: %u\n",
++			       I2C_MUX_IO_ADDR, pcal1.offset_addr[i],
++			       pcal1.data[i]);
++			goto err;
++		}
++	}
++	ls1046awrdb_soc_reset();
++err:
++	return ret;
++}
++
++static int flash_boot_cmd(cmd_tbl_t *cmdtp, int flag, int argc,
++			  char * const argv[])
++{
++	if (argc <= 1)
++		return CMD_RET_USAGE;
++	if (strcmp(argv[1], "qspi") == 0) {
++		if (strcmp(argv[2], "1") == 0)
++			switch_boot_source(BOOT_FROM_QSPI_DEV1);
++		else
++			switch_boot_source(BOOT_FROM_QSPI_DEV0);
++	} else if (strcmp(argv[1], "sd") == 0)
++		switch_boot_source(BOOT_FROM_SD);
++	else if (strcmp(argv[1], "emmc") == 0)
++		switch_boot_source(BOOT_FROM_EMMC);
++	else
++		return CMD_RET_USAGE;
++
++	return 0;
++}
++
++U_BOOT_CMD(boot_source, 3, 0, flash_boot_cmd,
++	   "Flash boot Selection Control",
++	   "boot_source qspi 0 : reset to qspi primary bank\n"
++	   "boot_source qspi 1 : reset to qspi alternate bank\n"
++	   "boot_source sd : reset to sd\n"
++	   "boot_source emmc : reset to emmc\n"
++);
++
++#endif
+diff --git a/configs/ls1046awrdb_tfa_SECURE_BOOT_defconfig b/configs/ls1046awrdb_tfa_SECURE_BOOT_defconfig
+new file mode 100644
+index 0000000000..b0f7ffb02a
+--- /dev/null
++++ b/configs/ls1046awrdb_tfa_SECURE_BOOT_defconfig
+@@ -0,0 +1,63 @@
++CONFIG_ARM=y
++CONFIG_TARGET_LS1046AWRDB=y
++CONFIG_TFABOOT=y
++CONFIG_SYS_TEXT_BASE=0x82000000
++CONFIG_SECURE_BOOT=y
++CONFIG_QSPI_AHB_INIT=y
++CONFIG_NR_DRAM_BANKS=2
++CONFIG_ARMV8_SEC_FIRMWARE_SUPPORT=y
++CONFIG_SEC_FIRMWARE_ARMV8_PSCI=y
++CONFIG_AHCI=y
++CONFIG_DISTRO_DEFAULTS=y
++CONFIG_FIT_VERBOSE=y
++CONFIG_OF_BOARD_SETUP=y
++CONFIG_USE_BOOTARGS=y
++CONFIG_BOOTARGS="console=ttyS0,115200 root=/dev/ram0 earlycon=uart8250,mmio,0x21c0500 mtdparts=1550000.spi-0:1m(rcw),15m(u-boot),48m(kernel.itb);7e800000.flash:16m(nand_uboot),48m(nand_kernel),448m(nand_free)"
++CONFIG_MISC_INIT_R=y
++CONFIG_CMD_GPT=y
++CONFIG_CMD_I2C=y
++CONFIG_CMD_MMC=y
++CONFIG_CMD_NAND=y
++CONFIG_CMD_PCI=y
++CONFIG_CMD_SF=y
++CONFIG_CMD_USB=y
++CONFIG_CMD_CACHE=y
++CONFIG_MP=y
++CONFIG_MTDPARTS_DEFAULT="mtdparts=1550000.spi-0:1m(rcw),15m(u-boot),48m(kernel.itb);7e800000.flash:16m(nand_uboot),48m(nand_kernel),448m(nand_free)"
++CONFIG_OF_CONTROL=y
++CONFIG_DEFAULT_DEVICE_TREE="fsl-ls1046a-wrdb"
++CONFIG_ENV_IS_NOWHERE=y
++CONFIG_DM=y
++CONFIG_SATA_CEVA=y
++CONFIG_FSL_CAAM=y
++CONFIG_DM_MMC=y
++CONFIG_FSL_ESDHC=y
++CONFIG_SPI_FLASH=y
++# CONFIG_SPI_FLASH_BAR is not set
++CONFIG_SPI_FLASH_STMICRO=y
++# CONFIG_SPI_FLASH_USE_4K_SECTORS is not set
++CONFIG_PHYLIB=y
++CONFIG_PHY_AQUANTIA=y
++CONFIG_PHY_REALTEK=y
++CONFIG_PHY_GIGE=y
++CONFIG_E1000=y
++CONFIG_FMAN_ENET=y
++CONFIG_PCI=y
++CONFIG_DM_PCI=y
++CONFIG_DM_PCI_COMPAT=y
++CONFIG_PCIE_LAYERSCAPE=y
++CONFIG_SYS_NS16550=y
++CONFIG_SPI=y
++CONFIG_DM_SPI=y
++CONFIG_FSL_QSPI=y
++CONFIG_USB=y
++CONFIG_DM_USB=y
++CONFIG_USB_XHCI_HCD=y
++CONFIG_USB_XHCI_DWC3=y
++CONFIG_RSA=y
++CONFIG_EFI_LOADER_BOUNCE_BUFFER=y
++CONFIG_CMD_SETEXPR=y
++CONFIG_DM_I2C=y
++CONFIG_DM_RTC=y
++CONFIG_RTC_PCF2127=y
++CONFIG_DM_GPIO=y
+diff --git a/configs/ls1046awrdb_tfa_defconfig b/configs/ls1046awrdb_tfa_defconfig
+new file mode 100644
+index 0000000000..de7dbb4317
+--- /dev/null
++++ b/configs/ls1046awrdb_tfa_defconfig
+@@ -0,0 +1,62 @@
++CONFIG_ARM=y
++CONFIG_TARGET_LS1046AWRDB=y
++CONFIG_TFABOOT=y
++CONFIG_SYS_TEXT_BASE=0x82000000
++CONFIG_QSPI_AHB_INIT=y
++CONFIG_NR_DRAM_BANKS=2
++CONFIG_ARMV8_SEC_FIRMWARE_SUPPORT=y
++CONFIG_SEC_FIRMWARE_ARMV8_PSCI=y
++CONFIG_AHCI=y
++CONFIG_DISTRO_DEFAULTS=y
++CONFIG_FIT_VERBOSE=y
++CONFIG_OF_BOARD_SETUP=y
++CONFIG_BOOTDELAY=10
++CONFIG_USE_BOOTARGS=y
++CONFIG_BOOTARGS="console=ttyS0,115200 root=/dev/ram0 earlycon=uart8250,mmio,0x21c0500 mtdparts=1550000.spi-0:1m(rcw),15m(u-boot),48m(kernel.itb);7e800000.flash:16m(nand_uboot),48m(nand_kernel),448m(nand_free)"
++CONFIG_MISC_INIT_R=y
++CONFIG_CMD_GPT=y
++CONFIG_CMD_I2C=y
++CONFIG_CMD_MMC=y
++CONFIG_CMD_NAND=y
++CONFIG_CMD_PCI=y
++CONFIG_CMD_SF=y
++CONFIG_CMD_USB=y
++CONFIG_CMD_CACHE=y
++CONFIG_MP=y
++CONFIG_MTDPARTS_DEFAULT="mtdparts=1550000.spi-0:1m(rcw),15m(u-boot),48m(kernel.itb);7e800000.flash:16m(nand_uboot),48m(nand_kernel),448m(nand_free)"
++CONFIG_OF_CONTROL=y
++CONFIG_DEFAULT_DEVICE_TREE="fsl-ls1046a-wrdb"
++CONFIG_ENV_IS_IN_MMC=y
++CONFIG_ENV_IS_IN_SPI_FLASH=y
++CONFIG_DM=y
++CONFIG_SATA_CEVA=y
++CONFIG_FSL_CAAM=y
++CONFIG_DM_MMC=y
++CONFIG_FSL_ESDHC=y
++CONFIG_SPI_FLASH=y
++# CONFIG_SPI_FLASH_BAR is not set
++CONFIG_SPI_FLASH_STMICRO=y
++# CONFIG_SPI_FLASH_USE_4K_SECTORS is not set
++CONFIG_PHYLIB=y
++CONFIG_PHY_AQUANTIA=y
++CONFIG_PHY_REALTEK=y
++CONFIG_PHY_GIGE=y
++CONFIG_E1000=y
++CONFIG_FMAN_ENET=y
++CONFIG_PCI=y
++CONFIG_DM_PCI=y
++CONFIG_DM_PCI_COMPAT=y
++CONFIG_PCIE_LAYERSCAPE=y
++CONFIG_SYS_NS16550=y
++CONFIG_SPI=y
++CONFIG_DM_SPI=y
++CONFIG_FSL_QSPI=y
++CONFIG_USB=y
++CONFIG_DM_USB=y
++CONFIG_USB_XHCI_HCD=y
++CONFIG_USB_XHCI_DWC3=y
++CONFIG_EFI_LOADER_BOUNCE_BUFFER=y
++CONFIG_DM_I2C=y
++CONFIG_DM_RTC=y
++CONFIG_RTC_PCF2127=y
++CONFIG_DM_GPIO=y
+diff --git a/include/configs/ls1046awrdb.h b/include/configs/ls1046awrdb.h
+new file mode 100644
+index 0000000000..713d809949
+--- /dev/null
++++ b/include/configs/ls1046awrdb.h
+@@ -0,0 +1,114 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++/*
++ * Copyright 2020 NXP
++ */
++
++#ifndef __LS1046AWRDB_H__
++#define __LS1046AWRDB_H__
++
++#include "ls1046a_common.h"
++
++#define CONFIG_SYS_CLK_FREQ		100000000
++#define CONFIG_DDR_CLK_FREQ		100000000
++
++#define CONFIG_LAYERSCAPE_NS_ACCESS
++
++#define CONFIG_DIMM_SLOTS_PER_CTLR	1
++/* Physical Memory Map */
++#define CONFIG_CHIP_SELECTS_PER_CTRL	4
++
++/* IFC: Not used on this board */
++#ifndef SPL_NO_IFC
++#define CONFIG_FSL_IFC
++#define CONFIG_NAND_FSL_IFC
++#endif
++#define CONFIG_SYS_NAND_BASE		0x7e800000
++#define CONFIG_SYS_MAX_NAND_DEVICE	1
++
++/* EEPROM */
++#define CONFIG_ID_EEPROM
++#define CONFIG_SYS_I2C_EEPROM_NXID
++#define CONFIG_SYS_EEPROM_BUS_NUM		0
++#define CONFIG_SYS_I2C_EEPROM_ADDR		0x57
++#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		1
++#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	3
++#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	5
++
++/*RTC*/
++#define CONFIG_SYS_I2C_RTC_ADDR         0x51
++
++/*
++ * I2C IO expander
++ */
++#define I2C_MUX_IO_ADDR		0x20
++#define I2C_MUX_IO2_ADDR	0x21
++#define I2C_MUX_IO_1		1
++#define SW_QSPI_BOOT_MASK	0x40
++#define SW_SD_EMMC_BOOT_MASK	0x80
++#define SW_BOOT_QSPI_DEV0	0x00
++#define SW_BOOT_QSPI_DEV1	0x40
++#define SW_BOOT_SD		0x00
++#define SW_BOOT_EMMC		0x80
++
++#define PCAL_P0_CONF_ADDR	0x6
++#define PCAL_P1_CONF_ADDR	0x7
++#define PCAL_P0_OUTPUT_ADDR	0x2
++#define PCAL_P1_OUTPUT_ADDR	0x3
++#define PCAL0_P0_OUTPUT		0x00
++#define PCAL0_P0_QSPI		0x44
++#define PCAL0_P0_SD_EMMC	0x04
++#define PCAL0_P1_0_OUTPUT	0xfe
++#define PCAL1_P0_6_OUTPUT	0xbf
++#define PCAL1_P1_7_OUTPUT	0x7f
++
++#define PCAL0_P1_0_SD_QSPI	0xfe
++
++#define PCAL1_P1_6_QSPI_DEV0	0xbf
++#define PCAL1_P1_6_QSPI_DEV1	0xff
++#define PCAL1_P1_7_SD		0x7f
++#define PCAL1_P1_7_EMMC		0xff
++
++/*TODO: Add more details here*/
++
++/* PMIC */
++#define CONFIG_POWER
++#define CONFIG_POWER_I2C
++
++/*
++ * Environment
++ */
++#define CONFIG_ENV_OVERWRITE
++
++#define CONFIG_SYS_MMC_ENV_DEV		0
++
++#define CONFIG_ENV_SIZE			0x2000		/* 8KB */
++#define CONFIG_ENV_OFFSET		0x500000	/* 5MB */
++#define CONFIG_ENV_SECT_SIZE		0x10000		/* 64KB */
++#define CONFIG_SYS_FSL_QSPI_BASE        0x40000000
++#define CONFIG_ENV_ADDR CONFIG_SYS_FSL_QSPI_BASE + CONFIG_ENV_OFFSET
++
++/* FMan */
++#define RGMII_PHY1_ADDR			0x1
++
++#define SGMII_PHY1_ADDR			0x2
++#define SGMII_PHY2_ADDR			0x3
++
++#define FM1_10GEC2_PHY_ADDR		0x0
++
++#define FDT_SEQ_MACADDR_FROM_ENV
++
++#define CONFIG_ETHPRIME			"FM1@TGEC1"
++
++/* QSPI device */
++#define FSL_QSPI_FLASH_SIZE		SZ_64M	/* 64MB */
++#define FSL_QSPI_FLASH_NUM		2
++
++#undef CONFIG_BOOTCOMMAND
++#define QSPI_NOR_BOOTCOMMAND "run distro_bootcmd; run qspi_bootcmd; "	\
++			   "env exists secureboot && esbc_halt;;"
++#define SD_BOOTCOMMAND "run distro_bootcmd;run sd_bootcmd; "	\
++			   "env exists secureboot && esbc_halt;"
++
++#include <asm/fsl_secure_boot.h>
++
++#endif /* __LS1046AWRDB_H__ */
+-- 
+2.17.1
+

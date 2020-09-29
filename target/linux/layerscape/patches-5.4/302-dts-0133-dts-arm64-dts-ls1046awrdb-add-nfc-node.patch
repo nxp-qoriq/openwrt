@@ -1,0 +1,63 @@
+From 3e5c595205675f4df61a128908f7e2e197901e9c Mon Sep 17 00:00:00 2001
+From: Biwen Li <biwen.li@nxp.com>
+Date: Fri, 18 Sep 2020 08:50:59 +0000
+Subject: [PATCH 21/22] arm64: dts: ls1046awrdb: add nfc node
+
+Add nfc and io expander node
+  - use poll mode
+
+Signed-off-by: Biwen Li <biwen.li@nxp.com>
+---
+ .../boot/dts/freescale/fsl-ls1046a-wrdb.dts   | 22 +++++++++++++++++++
+ 1 file changed, 22 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1046a-wrdb.dts b/arch/arm64/boot/dts/freescale/fsl-ls1046a-wrdb.dts
+index a0176c8d3070..e3f92554e661 100644
+--- a/arch/arm64/boot/dts/freescale/fsl-ls1046a-wrdb.dts
++++ b/arch/arm64/boot/dts/freescale/fsl-ls1046a-wrdb.dts
+@@ -8,6 +8,7 @@
+ 
+ /dts-v1/;
+ 
++#include <dt-bindings/gpio/gpio.h>
+ #include "fsl-ls1046a.dtsi"
+ 
+ / {
+@@ -69,6 +70,13 @@
+ 				compatible = "atmel,24c02";
+ 				reg = <0x57>;
+ 			};
++
++			pca6416: gpio@20 {
++				compatible = "nxp,pcal6416";
++				reg = <0x20>;
++				gpio-controller;
++				#gpio-cells = <2>;
++			};
+ 		};
+ 
+ 		i2c@1 {
+@@ -96,6 +104,20 @@
+ 	};
+ };
+ 
++&i2c3 {
++	status = "okay";
++
++	pn7150: pn7150@28 {
++		compatible = "nxp,pn7150", "nxp,pn547";
++		reg = <0x28>;
++		clock-frequency = <400000>;
++		//interrupt-gpios = <&gpio0 23 GPIO_ACTIVE_HIGH>;
++		//irq-trigger-level = <IRQ_TYPE_LEVEL_HIGH>;
++		poll-mode;
++		enable-gpios = <&pca6416 1 GPIO_ACTIVE_HIGH>;
++	};
++};
++
+ &qspi {
+ 	status = "okay";
+ 
+-- 
+2.17.1
+

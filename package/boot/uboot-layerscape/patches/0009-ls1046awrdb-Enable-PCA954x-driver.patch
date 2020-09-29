@@ -1,0 +1,43 @@
+From 922863991991cc62690ea7b5685a95445294654d Mon Sep 17 00:00:00 2001
+From: Pankit Garg <pankit.garg@nxp.com>
+Date: Thu, 17 Sep 2020 14:40:43 +0530
+Subject: [PATCH 9/9] ls1046awrdb: Enable PCA954x driver
+
+Enable PCA954x driver and modify reg property of
+I2C channel 1 in dts file
+
+Signed-off-by: Pankit Garg <pankit.garg@nxp.com>
+---
+ arch/arm/dts/fsl-ls1046a-wrdb.dts | 2 +-
+ configs/ls1046awrdb_tfa_defconfig | 2 ++
+ 2 files changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm/dts/fsl-ls1046a-wrdb.dts b/arch/arm/dts/fsl-ls1046a-wrdb.dts
+index d3dc24f872..521e056559 100644
+--- a/arch/arm/dts/fsl-ls1046a-wrdb.dts
++++ b/arch/arm/dts/fsl-ls1046a-wrdb.dts
+@@ -52,7 +52,7 @@
+ 		i2c@1 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+-			reg = <0x3>;
++			reg = <0x1>;
+ 
+ 			rtc@51 {
+ 				compatible = "pcf2127-rtc";
+diff --git a/configs/ls1046awrdb_tfa_defconfig b/configs/ls1046awrdb_tfa_defconfig
+index de7dbb4317..66d0287df4 100644
+--- a/configs/ls1046awrdb_tfa_defconfig
++++ b/configs/ls1046awrdb_tfa_defconfig
+@@ -14,6 +14,8 @@ CONFIG_BOOTDELAY=10
+ CONFIG_USE_BOOTARGS=y
+ CONFIG_BOOTARGS="console=ttyS0,115200 root=/dev/ram0 earlycon=uart8250,mmio,0x21c0500 mtdparts=1550000.spi-0:1m(rcw),15m(u-boot),48m(kernel.itb);7e800000.flash:16m(nand_uboot),48m(nand_kernel),448m(nand_free)"
+ CONFIG_MISC_INIT_R=y
++CONFIG_I2C_MUX=y
++CONFIG_I2C_MUX_PCA954x=y
+ CONFIG_CMD_GPT=y
+ CONFIG_CMD_I2C=y
+ CONFIG_CMD_MMC=y
+-- 
+2.17.1
+

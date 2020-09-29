@@ -1,0 +1,48 @@
+From 3c4502fe7b1ec262fb5a413c5680757a46a2f4e5 Mon Sep 17 00:00:00 2001
+From: Pankit Garg <pankit.garg@nxp.com>
+Date: Fri, 4 Sep 2020 12:39:30 +0530
+Subject: [PATCH 3/5] ls1046awrdb: RN_FFNNPPPN_1133_5577: Make common rcw for
+ sd and emmc boot
+
+Modify EVDD_VSEL to 3 to enable auto voltage selection
+and make common rcw for both sd and emmc boot.
+
+Signed-off-by: Pankit Garg <pankit.garg@nxp.com>
+---
+ ls1046awrdb/RN_FFNNPPPN_1133_5577/rcw_1800_qspiboot.rcw         | 2 +-
+ .../{rcw_1800_sdboot.rcw => rcw_1800_sd_emmcboot.rcw}           | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+ rename ls1046awrdb/RN_FFNNPPPN_1133_5577/{rcw_1800_sdboot.rcw => rcw_1800_sd_emmcboot.rcw} (99%)
+
+diff --git a/ls1046awrdb/RN_FFNNPPPN_1133_5577/rcw_1800_qspiboot.rcw b/ls1046awrdb/RN_FFNNPPPN_1133_5577/rcw_1800_qspiboot.rcw
+index 17bbd4e..cf31e1f 100644
+--- a/ls1046awrdb/RN_FFNNPPPN_1133_5577/rcw_1800_qspiboot.rcw
++++ b/ls1046awrdb/RN_FFNNPPPN_1133_5577/rcw_1800_qspiboot.rcw
+@@ -53,7 +53,7 @@ IFC_GRP_F_EXT=1
+ IRQ_OUT=1
+ TVDD_VSEL=1
+ DVDD_VSEL=2
+-EVDD_VSEL=2
++EVDD_VSEL=3
+ IIC2_EXT=1
+ SYSCLK_FREQ=600
+ HWA_CGA_M2_CLK_SEL=1
+diff --git a/ls1046awrdb/RN_FFNNPPPN_1133_5577/rcw_1800_sdboot.rcw b/ls1046awrdb/RN_FFNNPPPN_1133_5577/rcw_1800_sd_emmcboot.rcw
+similarity index 99%
+rename from ls1046awrdb/RN_FFNNPPPN_1133_5577/rcw_1800_sdboot.rcw
+rename to ls1046awrdb/RN_FFNNPPPN_1133_5577/rcw_1800_sd_emmcboot.rcw
+index e0d08f9..ccd2d09 100644
+--- a/ls1046awrdb/RN_FFNNPPPN_1133_5577/rcw_1800_sdboot.rcw
++++ b/ls1046awrdb/RN_FFNNPPPN_1133_5577/rcw_1800_sd_emmcboot.rcw
+@@ -52,7 +52,7 @@ IFC_GRP_F_EXT=1
+ IRQ_OUT=1
+ TVDD_VSEL=1
+ DVDD_VSEL=2
+-EVDD_VSEL=2
++EVDD_VSEL=3
+ IIC2_EXT=1
+ SYSCLK_FREQ=600
+ HWA_CGA_M2_CLK_SEL=1
+-- 
+2.17.1
+

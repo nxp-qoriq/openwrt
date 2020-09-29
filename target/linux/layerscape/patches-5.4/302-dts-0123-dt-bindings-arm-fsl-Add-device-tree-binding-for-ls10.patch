@@ -1,0 +1,28 @@
+From 139752cd3fbd71b9aed1410c150bcb517f12fd96 Mon Sep 17 00:00:00 2001
+From: Wen He <wen.he_1@nxp.com>
+Date: Thu, 30 Apr 2020 14:17:00 +0800
+Subject: [PATCH 01/22] dt-bindings: arm: fsl: Add device tree binding for
+ ls1046a-wrdb board
+
+Add bindings for the ls1046awrdb board based on ls1046a SoC
+
+Signed-off-by: Wen He <wen.he_1@nxp.com>
+---
+ Documentation/devicetree/bindings/arm/fsl.yaml | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/Documentation/devicetree/bindings/arm/fsl.yaml b/Documentation/devicetree/bindings/arm/fsl.yaml
+index 415ceaf673b4..32910306fa24 100644
+--- a/Documentation/devicetree/bindings/arm/fsl.yaml
++++ b/Documentation/devicetree/bindings/arm/fsl.yaml
+@@ -309,6 +309,7 @@ properties:
+       - description: LS1046A based Boards
+         items:
+           - enum:
++              - fsl,ls1046a-wrdb
+               - fsl,ls1046a-frwy
+               - fsl,ls1046a-qds
+               - fsl,ls1046a-rdb
+-- 
+2.17.1
+

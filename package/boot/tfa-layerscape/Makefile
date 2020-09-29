@@ -121,6 +121,20 @@ define Package/tfa-ls1046a-frwy-sdboot
   BOOT_MODE:=sd
 endef
 
+define Package/tfa-ls1046a-db
+  $(Package/tfa-generic)
+  TITLE:=NXP LS1046ADB Trusted Firmware
+  PLAT:=ls1046adb
+  BOOT_MODE:=qspi
+endef
+
+define Package/tfa-ls1046a-db-sdboot
+  $(Package/tfa-generic)
+  TITLE:=NXP LS1046ADB SD Boot Trusted Firmware
+  PLAT:=ls1046adb
+  BOOT_MODE:=sd
+endef
+
 define Package/tfa-ls1088a-rdb
   $(Package/tfa-generic)
   TITLE:=NXP LS1088ARDB Trusted Firmware
@@ -187,6 +201,8 @@ TFAS := \
   ls1046a-rdb-sdboot \
   ls1046a-frwy \
   ls1046a-frwy-sdboot \
+  ls1046a-db \
+  ls1046a-db-sdboot \
   ls1088a-rdb \
   ls1088a-rdb-sdboot \
   ls2088a-rdb \

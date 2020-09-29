@@ -1,0 +1,48 @@
+From a32504507984b4667fa78c09bba51014a8cd5fd4 Mon Sep 17 00:00:00 2001
+From: Rajesh Bhagat <rajesh.bhagat@nxp.com>
+Date: Fri, 31 Jan 2020 14:48:07 +0530
+Subject: [PATCH 1/9] net: phy: aquantia: add AQR113C support
+
+Signed-off-by: Madalin Bucur <madalin.bucur@nxp.com>
+Signed-off-by: Rajesh Bhagat <rajesh.bhagat@nxp.com>
+Signed-off-by: Pankit Garg <pankit.garg@nxp.com>
+Signed-off-by: Priyanka Jain <priyanka.jain@nxp.com>
+---
+ drivers/net/phy/aquantia.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+diff --git a/drivers/net/phy/aquantia.c b/drivers/net/phy/aquantia.c
+index aa0deb1f78..05b15dbb2d 100644
+--- a/drivers/net/phy/aquantia.c
++++ b/drivers/net/phy/aquantia.c
+@@ -689,6 +689,19 @@ struct phy_driver aqr412_driver = {
+ 	.data = AQUANTIA_GEN3,
+ };
+ 
++struct phy_driver aqr113c_driver = {
++	.name = "Aquantia AQR113C",
++	.uid = 0x31c31c12,
++	.mask = 0xfffffff0,
++	.features = PHY_10G_FEATURES,
++	.mmds = (MDIO_MMD_PMAPMD | MDIO_MMD_PCS |
++			MDIO_MMD_PHYXS | MDIO_MMD_AN |
++			MDIO_MMD_VEND1),
++	.config = &aquantia_config,
++	.startup = &aquantia_startup,
++	.shutdown = &gen10g_shutdown,
++};
++
+ int phy_aquantia_init(void)
+ {
+ 	phy_register(&aq1202_driver);
+@@ -699,6 +712,7 @@ int phy_aquantia_init(void)
+ 	phy_register(&aqr112_driver);
+ 	phy_register(&aqr405_driver);
+ 	phy_register(&aqr412_driver);
++	phy_register(&aqr113c_driver);
+ 
+ 	return 0;
+ }
+-- 
+2.17.1
+

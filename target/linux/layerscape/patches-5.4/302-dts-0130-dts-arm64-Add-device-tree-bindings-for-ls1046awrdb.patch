@@ -1,0 +1,300 @@
+From be5438ae446099cb063c3fb4bac9ddbd0e3da78c Mon Sep 17 00:00:00 2001
+From: Pankit Garg <pankit.garg@nxp.com>
+Date: Tue, 8 Sep 2020 16:38:50 +0530
+Subject: [PATCH 12/22] dts: arm64: Add device tree bindings for ls1046awrdb
+
+Add device tree bindings for ls1046awrdb and update
+fman nodes
+
+Signed-off-by: Pankit Garg <pankit.garg@nxp.com>
+---
+ arch/arm64/boot/dts/freescale/Makefile        |   1 +
+ .../dts/freescale/fsl-ls1046a-wrdb-sdk.dts    | 238 ++++++++++++++++++
+ .../boot/dts/freescale/fsl-ls1046a-wrdb.dts   |   7 +-
+ 3 files changed, 245 insertions(+), 1 deletion(-)
+ create mode 100644 arch/arm64/boot/dts/freescale/fsl-ls1046a-wrdb-sdk.dts
+
+diff --git a/arch/arm64/boot/dts/freescale/Makefile b/arch/arm64/boot/dts/freescale/Makefile
+index 0a1743dddd5e..dbba3ed71d16 100644
+--- a/arch/arm64/boot/dts/freescale/Makefile
++++ b/arch/arm64/boot/dts/freescale/Makefile
+@@ -38,6 +38,7 @@ dtb-$(CONFIG_ARCH_LAYERSCAPE) += fsl-ls1046a-rdb.dtb
+ dtb-$(CONFIG_ARCH_LAYERSCAPE) += fsl-ls1046a-rdb-sdk.dtb
+ dtb-$(CONFIG_ARCH_LAYERSCAPE) += fsl-ls1046a-rdb-usdpaa.dtb
+ dtb-$(CONFIG_ARCH_LAYERSCAPE) += fsl-ls1046a-wrdb.dtb
++dtb-$(CONFIG_ARCH_LAYERSCAPE) += fsl-ls1046a-wrdb-sdk.dtb
+ dtb-$(CONFIG_ARCH_LAYERSCAPE) += fsl-ls1046a-db.dtb
+ dtb-$(CONFIG_ARCH_LAYERSCAPE) += fsl-ls1046a-db-sdk.dtb
+ dtb-$(CONFIG_ARCH_LAYERSCAPE) += fsl-ls1088a-qds.dtb
+diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1046a-wrdb-sdk.dts b/arch/arm64/boot/dts/freescale/fsl-ls1046a-wrdb-sdk.dts
+new file mode 100644
+index 000000000000..c5be4d188237
+--- /dev/null
++++ b/arch/arm64/boot/dts/freescale/fsl-ls1046a-wrdb-sdk.dts
+@@ -0,0 +1,238 @@
++// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
++/*
++ * Device Tree Include file for Freescale Layerscape-1046A family SoC.
++ *
++ * Copyright 2020 NXP.
++ *
++ */
++
++#include "fsl-ls1046a-wrdb.dts"
++#include "qoriq-qman-portals-sdk.dtsi"
++#include "qoriq-bman-portals-sdk.dtsi"
++
++&bman_fbpr {
++	compatible = "fsl,bman-fbpr";
++	alloc-ranges = <0 0 0x10000 0>;
++};
++&qman_fqd {
++	compatible = "fsl,qman-fqd";
++	alloc-ranges = <0 0 0x10000 0>;
++};
++&qman_pfdr {
++	compatible = "fsl,qman-pfdr";
++	alloc-ranges = <0 0 0x10000 0>;
++};
++
++&soc {
++/delete-property/ dma-coherent;
++
++#include "qoriq-dpaa-eth.dtsi"
++#include "qoriq-fman3-0-6oh.dtsi"
++
++	pcie@3400000 {
++		/delete-property/ iommu-map;
++	};
++
++	pcie@3500000 {
++		/delete-property/ iommu-map;
++	};
++
++	pcie@3600000 {
++		/delete-property/ iommu-map;
++	};
++
++	/delete-node/ iommu@9000000;
++};
++
++&fsldpaa {
++	ethernet@0 {
++		status = "disabled";
++	};
++	ethernet@1 {
++		status = "disabled";
++	};
++	ethernet@3 {
++		status = "disabled";
++	};
++	ethernet@9 {
++		compatible = "fsl,dpa-ethernet";
++		fsl,fman-mac = <&enet7>;
++		dma-coherent;
++	};
++};
++
++&fman0 {
++	compatible = "fsl,fman", "simple-bus";
++};
++
++&clockgen {
++	dma-coherent;
++};
++
++&scfg {
++	dma-coherent;
++};
++
++&crypto {
++	dma-coherent;
++};
++
++&dcfg {
++	dma-coherent;
++};
++
++&ifc {
++	dma-coherent;
++};
++
++&qspi {
++	dma-coherent;
++};
++
++&esdhc {
++	dma-coherent;
++};
++
++&ddr {
++	dma-coherent;
++};
++
++&tmu {
++	dma-coherent;
++};
++
++&qman {
++	dma-coherent;
++};
++
++&bman {
++	dma-coherent;
++};
++
++&bportals {
++	dma-coherent;
++};
++
++&qportals {
++	dma-coherent;
++};
++
++&dspi {
++	dma-coherent;
++};
++
++&i2c0 {
++	dma-coherent;
++};
++
++&i2c1 {
++	dma-coherent;
++};
++
++&i2c2 {
++	dma-coherent;
++};
++
++&i2c3 {
++	dma-coherent;
++};
++
++&duart0 {
++	dma-coherent;
++};
++
++&duart1 {
++	dma-coherent;
++};
++
++&duart2 {
++	dma-coherent;
++};
++
++&duart3 {
++	dma-coherent;
++};
++
++&gpio0 {
++	dma-coherent;
++};
++
++&gpio1 {
++	dma-coherent;
++};
++
++&gpio2 {
++	dma-coherent;
++};
++
++&gpio3 {
++	dma-coherent;
++};
++
++&lpuart0 {
++	dma-coherent;
++};
++
++&lpuart1 {
++	dma-coherent;
++};
++
++&lpuart2 {
++	dma-coherent;
++};
++
++&lpuart3 {
++	dma-coherent;
++};
++
++&lpuart4 {
++	dma-coherent;
++};
++
++&lpuart5 {
++	dma-coherent;
++};
++
++&ftm_alarm0 {
++	dma-coherent;
++};
++
++&wdog0 {
++	dma-coherent;
++};
++
++&edma0 {
++	dma-coherent;
++};
++
++&sata {
++	dma-coherent;
++};
++
++&qdma {
++	dma-coherent;
++};
++
++&msi1 {
++	dma-coherent;
++};
++
++&msi2 {
++	dma-coherent;
++};
++
++&msi3 {
++	dma-coherent;
++};
++
++&fman0 {
++	dma-coherent;
++};
++
++&ptp_timer0 {
++	dma-coherent;
++};
++
++&fsldpaa {
++	dma-coherent;
++};
+diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1046a-wrdb.dts b/arch/arm64/boot/dts/freescale/fsl-ls1046a-wrdb.dts
+index e954f6eb70cd..a3047322eef6 100644
+--- a/arch/arm64/boot/dts/freescale/fsl-ls1046a-wrdb.dts
++++ b/arch/arm64/boot/dts/freescale/fsl-ls1046a-wrdb.dts
+@@ -138,6 +138,11 @@
+                 phy-connection-type = "sgmii";
+         };
+ 
++	ethernet@f0000 { /* 10GEC1 */
++		fixed-link = <0 1 1000 0 0>;
++		phy-connection-type = "xgmii";
++	};
++
+ 	ethernet@f2000 {
+ 		phy-handle = <&aqr113c_phy1>;
+ 		phy-connection-type = "xfi";
+@@ -152,7 +157,7 @@
+                         reg = <0x2>;
+                 };
+ 
+-                sgmii_phy2: ethernet-phy@2 {
++                sgmii_phy2: ethernet-phy@3 {
+                         reg = <0x3>;
+                 };
+         };
+-- 
+2.17.1
+

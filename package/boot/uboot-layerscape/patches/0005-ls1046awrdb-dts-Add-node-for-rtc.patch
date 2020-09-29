@@ -1,0 +1,43 @@
+From f07874bb1efbf2660996d1d81b757d1726763e70 Mon Sep 17 00:00:00 2001
+From: Pankit Garg <pankit.garg@nxp.com>
+Date: Mon, 7 Sep 2020 17:22:12 +0530
+Subject: [PATCH 5/9] ls1046awrdb: dts: Add node for rtc
+
+Signed-off-by: Pankit Garg <pankit.garg@nxp.com>
+---
+ arch/arm/dts/fsl-ls1046a-wrdb.dts | 19 ++++++++++++++++---
+ 1 file changed, 16 insertions(+), 3 deletions(-)
+
+diff --git a/arch/arm/dts/fsl-ls1046a-wrdb.dts b/arch/arm/dts/fsl-ls1046a-wrdb.dts
+index bc5dd1ccaf..d3dc24f872 100644
+--- a/arch/arm/dts/fsl-ls1046a-wrdb.dts
++++ b/arch/arm/dts/fsl-ls1046a-wrdb.dts
+@@ -43,9 +43,22 @@
+ &i2c0 {
+ 	status = "okay";
+ 
+-	rtc@51 {
+-		compatible = "pcf2127-rtc";
+-		reg = <0x51>;
++	i2c-mux@77 {
++		compatible = "nxp,pca9547";
++		reg = <0x77>;
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		i2c@1 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <0x3>;
++
++			rtc@51 {
++				compatible = "pcf2127-rtc";
++				reg = <0x51>;
++			};
++		};
+ 	};
+ };
+ 
+-- 
+2.17.1
+
