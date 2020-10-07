@@ -39,6 +39,8 @@ BOARDS := \
   ls1046a-frwy-sdboot \
   ls1046a-db \
   ls1046a-db-sdboot \
+  ls1046a-wrdb \
+  ls1046a-wrdb-sdboot \
   ls1088a-rdb \
   ls1088a-rdb-sdboot \
   ls2088a-rdb \
@@ -59,6 +61,8 @@ RCW_ls1046a-frwy        :=ls1046afrwy/NN_NNQNNPNP_3040_0506/rcw_1600_qspiboot.bi
 RCW_ls1046a-frwy-sdboot :=ls1046afrwy/NN_NNQNNPNP_3040_0506/rcw_1600_sdboot.bin
 RCW_ls1046a-db          :=ls1046awrdb/RN_FFNNPPPN_1133_5577/rcw_1600_qspiboot.bin
 RCW_ls1046a-db-sdboot   :=ls1046awrdb/RN_FFNNPPPN_1133_5577/rcw_1800_sd_emmcboot.bin
+RCW_ls1046a-wrdb        :=ls1046awrdb/RN_FFSSPPPN_1133_5577/rcw_1200_qspiboot.bin
+RCW_ls1046a-wrdb-sdboot :=ls1046awrdb/RN_FFSSPPPN_1133_5577/rcw_1200_sdboot.bin
 RCW_ls1088a-rdb         :=ls1088ardb/FCQQQQQQQQ_PPP_H_0x1d_0x0d/rcw_1600_qspi.bin
 RCW_ls1088a-rdb-sdboot  :=ls1088ardb/FCQQQQQQQQ_PPP_H_0x1d_0x0d/rcw_1600_sd.bin
 RCW_ls2088a-rdb         :=ls2088ardb/FFFFFFFF_PP_HH_0x2a_0x41/rcw_1800.bin

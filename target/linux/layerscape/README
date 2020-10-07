@@ -76,7 +76,7 @@ from SD card.
   => mmc write a0000000 0 a0000
 
   Note: The default sdcard.img size is 320MB. a0000 is the block number for 320MB.
-  blk_num = filesize / 512.
+  blk_num = filesize / 512. 
 
 * linux environment
 
