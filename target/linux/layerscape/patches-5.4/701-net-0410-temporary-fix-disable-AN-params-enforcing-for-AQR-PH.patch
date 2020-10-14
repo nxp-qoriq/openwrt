@@ -1,0 +1,39 @@
+From 963ca1ba66f7b5d874b43a0896e0a1b3dda725ad Mon Sep 17 00:00:00 2001
+From: Madalin Bucur <madalin.bucur@oss.nxp.com>
+Date: Fri, 9 Oct 2020 13:55:22 +0300
+Subject: [PATCH 1/1] temporary fix: disable AN params enforcing for AQR PHYs
+
+Starting from commit 09c4c57f7bc4150c ("net: phy: aquantia:
+add support for auto-negotiation configuration") AQR PHYs set
+the autonegotiation parameters as found in phydev->supported.
+The SDK DPAA driver is removing from phydev->supported all
+speeds besides 10G for the system interface mode XFI (named
+XGMII in the code). The result is that AQR PHYs can no longer
+do rate adaptation and link at speeds lower that 10G. This
+patch temporarily reverts the AQR change, to circumvent the
+problem, until the DPAA drivers are aligned with the upstream
+solution to this issue:
+
+https://patchwork.ozlabs.org/project/netdev/patch/1580810938-21047-1-git-send-email-madalin.bucur@oss.nxp.com/
+
+Signed-off-by: Madalin Bucur <madalin.bucur@oss.nxp.com>
+---
+ drivers/net/phy/aquantia_main.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/net/phy/aquantia_main.c b/drivers/net/phy/aquantia_main.c
+index b178225fdf6b..a1d8b9709033 100644
+--- a/drivers/net/phy/aquantia_main.c
++++ b/drivers/net/phy/aquantia_main.c
+@@ -251,6 +251,8 @@ static int aqr_config_aneg(struct phy_device *phydev)
+ 	u16 reg;
+ 	int ret;
+ 
++	return 0;
++
+ 	if (phydev->autoneg == AUTONEG_DISABLE)
+ 		return genphy_c45_pma_setup_forced(phydev);
+ 
+-- 
+2.17.1
+
