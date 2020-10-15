@@ -356,7 +356,9 @@ define Device/fsl_ls1046a-wrdb
     layerscape-fman \
     tfa-ls1046a-wrdb \
     fmc fmc-eth-config \
-    kmod-rtc-pcf2127
+    kmod-rtc-pcf2127 \
+    openthread \
+    libnfc-nci
   DEVICE_DTS := freescale/fsl-ls1046a-wrdb-sdk
   IMAGE/firmware.bin := \
     ls-clean | \
@@ -378,7 +380,9 @@ define Device/fsl_ls1046a-wrdb-sdboot
     layerscape-fman \
     tfa-ls1046a-wrdb-sdboot \
     fmc fmc-eth-config \
-    kmod-rtc-pcf2127
+    kmod-rtc-pcf2127 \
+    openthread \
+    libnfc-nci
   DEVICE_DTS := freescale/fsl-ls1046a-wrdb-sdk
   FILESYSTEMS := ext4
   IMAGES := sdcard.img sysupgrade.bin
