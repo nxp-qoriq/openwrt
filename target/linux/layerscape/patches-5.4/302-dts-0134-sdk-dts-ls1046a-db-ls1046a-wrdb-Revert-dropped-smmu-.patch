@@ -1,0 +1,68 @@
+From 1297cc6f9f24fa1c09e8a79cb8a3566731cc2191 Mon Sep 17 00:00:00 2001
+From: Priyanka Singh <priyanka.singh@nxp.com>
+Date: Thu, 19 Nov 2020 12:56:13 +0530
+Subject: [PATCH 1/1] sdk: dts: ls1046a-db ls1046a-wrdb: Revert dropped smmu
+ from sdk device trees
+
+Add support for SMMU for boards LS1046ADB and LS1046AWRDB
+Earlier SMMU was not supported for the SDK version of the dpaa ethernet
+drivers so reverted the changes to remove SMMU nodes from
+the device tree
+
+Signed-off-by: Priyanka Singh <priyanka.singh@nxp.com>
+---
+ .../arm64/boot/dts/freescale/fsl-ls1046a-db-sdk.dts | 13 -------------
+ .../boot/dts/freescale/fsl-ls1046a-wrdb-sdk.dts     | 13 -------------
+ 2 files changed, 26 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1046a-db-sdk.dts b/arch/arm64/boot/dts/freescale/fsl-ls1046a-db-sdk.dts
+index bb96fd1b25b5..da0f00a1b4cd 100644
+--- a/arch/arm64/boot/dts/freescale/fsl-ls1046a-db-sdk.dts
++++ b/arch/arm64/boot/dts/freescale/fsl-ls1046a-db-sdk.dts
+@@ -29,19 +29,6 @@
+ #include "qoriq-dpaa-eth.dtsi"
+ #include "qoriq-fman3-0-6oh.dtsi"
+ 
+-	pcie@3400000 {
+-		/delete-property/ iommu-map;
+-	};
+-
+-	pcie@3500000 {
+-		/delete-property/ iommu-map;
+-	};
+-
+-	pcie@3600000 {
+-		/delete-property/ iommu-map;
+-	};
+-
+-	/delete-node/ iommu@9000000;
+ };
+ 
+ &fsldpaa {
+diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1046a-wrdb-sdk.dts b/arch/arm64/boot/dts/freescale/fsl-ls1046a-wrdb-sdk.dts
+index bd434f04dccb..a5ff1cbc7c45 100644
+--- a/arch/arm64/boot/dts/freescale/fsl-ls1046a-wrdb-sdk.dts
++++ b/arch/arm64/boot/dts/freescale/fsl-ls1046a-wrdb-sdk.dts
+@@ -29,19 +29,6 @@
+ #include "qoriq-dpaa-eth.dtsi"
+ #include "qoriq-fman3-0-6oh.dtsi"
+ 
+-	pcie@3400000 {
+-		/delete-property/ iommu-map;
+-	};
+-
+-	pcie@3500000 {
+-		/delete-property/ iommu-map;
+-	};
+-
+-	pcie@3600000 {
+-		/delete-property/ iommu-map;
+-	};
+-
+-	/delete-node/ iommu@9000000;
+ };
+ 
+ &fsldpaa {
+-- 
+2.17.1
+

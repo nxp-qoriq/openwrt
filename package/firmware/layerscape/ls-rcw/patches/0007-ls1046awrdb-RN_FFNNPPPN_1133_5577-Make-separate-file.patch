@@ -1,0 +1,185 @@
+From 6ae5eef83716beda05bd80d34f77b3059b28ff16 Mon Sep 17 00:00:00 2001
+From: Pankit Garg <pankit.garg@nxp.com>
+Date: Mon, 5 Oct 2020 16:11:03 +0530
+Subject: [PATCH 1/1] ls1046awrdb/RN_FFNNPPPN_1133_5577: Make separate files
+ for sd and emmc
+
+Make separate files for sd and emmc to disable CD
+and WP in emmc mode
+
+Signed-off-by: Pankit Garg <pankit.garg@nxp.com>
+---
+ .../rcw_1800_emmcboot.rcw                     | 73 ++++++++++++++++++
+ .../rcw_1800_qspiboot_emmc.rcw                | 74 +++++++++++++++++++
+ ...00_sd_emmcboot.rcw => rcw_1800_sdboot.rcw} |  0
+ 3 files changed, 147 insertions(+)
+ create mode 100644 ls1046awrdb/RN_FFNNPPPN_1133_5577/rcw_1800_emmcboot.rcw
+ create mode 100644 ls1046awrdb/RN_FFNNPPPN_1133_5577/rcw_1800_qspiboot_emmc.rcw
+ rename ls1046awrdb/RN_FFNNPPPN_1133_5577/{rcw_1800_sd_emmcboot.rcw => rcw_1800_sdboot.rcw} (100%)
+
+diff --git a/ls1046awrdb/RN_FFNNPPPN_1133_5577/rcw_1800_emmcboot.rcw b/ls1046awrdb/RN_FFNNPPPN_1133_5577/rcw_1800_emmcboot.rcw
+new file mode 100644
+index 0000000..465837d
+--- /dev/null
++++ b/ls1046awrdb/RN_FFNNPPPN_1133_5577/rcw_1800_emmcboot.rcw
+@@ -0,0 +1,73 @@
++/*
++ * LS1046AWRDB RCW for SerDes Protocol 0x1133_5577 with no SGMII
++ * Required for DB1046 board.
++ * It should not get integrated in LSDK
++ *
++ *
++ * Sys Clock: 100 MHz
++ * DDR_Refclock: 100 MHz
++ *
++ * Core		-- 1800 MHz (Mul 16)
++ * Platform	-- 700 MHz (Mul 7)
++ * DDR		-- 2100 MT/s (Mul 21)
++ * FMan		-- 700 MHz (CGA2 /2)
++ * XFI		-- 156.25 MHz (10.3125G)
++ * PCIE		-- 100 MHz (5G)
++ * eSDHC	-- 1400 MHz (CGA2 /1)
++ *
++ * DDR clock:
++ * DDR_REFCLK_SEL : 1 - DDRCLK pin provides the reference clock to the DDR PLL
++ *
++ */
++
++#include <ls1046a.rcwi>
++
++SYS_PLL_RAT=7
++MEM_PLL_RAT=21
++CGA_PLL1_RAT=18
++CGA_PLL2_RAT=14
++SRDS_PRTCL_S1=4403
++SRDS_PRTCL_S2=21879
++SRDS_PLL_REF_CLK_SEL_S1=1
++SRDS_PLL_REF_CLK_SEL_S2=0
++SRDS_PLL_PD_S1=2
++SRDS_DIV_PEX_S1=0
++SRDS_DIV_PEX_S2=0
++DDR_FDBK_MULT=2
++DDR_REFCLK_SEL=1
++PBI_SRC=6
++IFC_MODE=64
++EC2=1
++HWA_CGA_M1_CLK_SEL=6
++DRAM_LAT=1
++SPI_EXT=1
++UART_BASE=7
++IFC_GRP_A_BASE=1
++IFC_GRP_A_EXT=1
++IFC_GRP_D_BASE=1
++IFC_GRP_D_EXT=1
++IFC_GRP_E1_BASE=1
++IFC_GRP_E1_EXT=1
++IFC_GRP_F_EXT=1
++IRQ_OUT=1
++TVDD_VSEL=1
++DVDD_VSEL=2
++EVDD_VSEL=3
++IIC2_EXT=2
++SYSCLK_FREQ=600
++HWA_CGA_M2_CLK_SEL=1
++
++.pbi
++// set SCFG_SCRATCHRW1 ansd SCFG_SCRATCHRW2 for boot location ptr
++write 0x570600, 0x00000000
++write 0x570604, 0x10000000
++.end
++
++#include <cci_barrier_disable.rcw>
++#include <usb_phy_freq.rcw>
++#include <pex_gen3_link.rcw>
++
++.pbi
++// flush PBI data
++write 0x6100c0, 0x000fffff
++.end
+diff --git a/ls1046awrdb/RN_FFNNPPPN_1133_5577/rcw_1800_qspiboot_emmc.rcw b/ls1046awrdb/RN_FFNNPPPN_1133_5577/rcw_1800_qspiboot_emmc.rcw
+new file mode 100644
+index 0000000..3f071f6
+--- /dev/null
++++ b/ls1046awrdb/RN_FFNNPPPN_1133_5577/rcw_1800_qspiboot_emmc.rcw
+@@ -0,0 +1,74 @@
++/*
++ * LS1046AWRDB RCW for SerDes Protocol 0x1133_5577 with no SGMII
++ * Required for DB1046 board.
++ * It should not get integrated in LSDK
++ *
++ * Frequencies:
++ *
++ * Sys Clock: 100 MHz
++ * DDR_Refclock: 100 MHz
++ *
++ * Core		-- 1800 MHz (Mul 16)
++ * Platform	-- 700 MHz (Mul 7)
++ * DDR		-- 2100 MT/s (Mul 21)
++ * FMan		-- 800 MHz (CGA2 /2)
++ * XFI		-- 156.25 MHz (10.3125G)
++ * PCIE		-- 100 MHz (5G)
++ * eSDHC	-- 1400 MHz (CGA2 /1)
++ *
++ * DDR clock:
++ * DDR_REFCLK_SEL : 1 - DDRCLK pin provides the reference clock to the DDR PLL
++ *
++ */
++
++#include <ls1046a.rcwi>
++
++SYS_PLL_RAT=7
++MEM_PLL_RAT=21
++CGA_PLL1_RAT=18
++CGA_PLL2_RAT=16
++SRDS_PRTCL_S1=4403
++SRDS_PRTCL_S2=21879
++SRDS_PLL_REF_CLK_SEL_S1=1
++SRDS_PLL_REF_CLK_SEL_S2=0
++SRDS_PLL_PD_S1=2
++SRDS_DIV_PEX_S1=0
++SRDS_DIV_PEX_S2=0
++DDR_FDBK_MULT=2
++DDR_REFCLK_SEL=1
++PBI_SRC=4
++IFC_MODE=37
++EC2=1
++HWA_CGA_M1_CLK_SEL=6
++DRAM_LAT=1
++SPI_EXT=1
++UART_BASE=7
++IFC_GRP_A_BASE=1
++IFC_GRP_A_EXT=1
++IFC_GRP_D_BASE=1
++IFC_GRP_D_EXT=1
++IFC_GRP_E1_BASE=1
++IFC_GRP_E1_EXT=1
++IFC_GRP_F_EXT=1
++IRQ_OUT=1
++TVDD_VSEL=1
++DVDD_VSEL=2
++EVDD_VSEL=3
++IIC2_EXT=2
++SYSCLK_FREQ=600
++HWA_CGA_M2_CLK_SEL=1
++
++.pbi
++// set CLK_SEL for QSPI CONFIG Register
++write 0x57015c, 0x30100000
++// set SCFG_SCRATCHRW1 ansd SCFG_SCRATCHRW2 for boot location ptr
++write 0x570600, 0x00000000
++write 0x570604, 0x40100000
++.end
++
++#include <qspi_speed.rcw>
++#include <cci_barrier_disable.rcw>
++#include <usb_phy_freq.rcw>
++// Errata A-010477 and  A-008851 for PCI Express Gen3 link training
++#include <../ls1046ardb/pex_gen3_link.rcw>
++#include <qspi_endianness.rcw>
+diff --git a/ls1046awrdb/RN_FFNNPPPN_1133_5577/rcw_1800_sd_emmcboot.rcw b/ls1046awrdb/RN_FFNNPPPN_1133_5577/rcw_1800_sdboot.rcw
+similarity index 100%
+rename from ls1046awrdb/RN_FFNNPPPN_1133_5577/rcw_1800_sd_emmcboot.rcw
+rename to ls1046awrdb/RN_FFNNPPPN_1133_5577/rcw_1800_sdboot.rcw
+-- 
+2.17.1
+

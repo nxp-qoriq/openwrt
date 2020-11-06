@@ -1,0 +1,107 @@
+From cd4d093cdc8fc4d9e8f72d217bc1ffdf5449bb3f Mon Sep 17 00:00:00 2001
+From: Laurentiu Tudor <laurentiu.tudor@nxp.com>
+Date: Mon, 26 Oct 2020 15:40:12 +0200
+Subject: [PATCH 1/1] armv8: fsl-layerscape: add option to disable SMMU setup
+ for DPAA1
+
+Add a Kconfig option that allows disabling / enabling of SMMU setup
+for DPAA1 networking devices (bman, qman, fman).
+
+Signed-off-by: Laurentiu Tudor <laurentiu.tudor@nxp.com>
+---
+ arch/arm/cpu/armv8/fsl-layerscape/icid.c       | 4 ++--
+ arch/arm/cpu/armv8/fsl-layerscape/ls1046_ids.c | 2 +-
+ drivers/misc/fsl_portals.c                     | 8 +++++---
+ drivers/net/Kconfig                            | 8 ++++++++
+ 4 files changed, 16 insertions(+), 6 deletions(-)
+
+diff --git a/arch/arm/cpu/armv8/fsl-layerscape/icid.c b/arch/arm/cpu/armv8/fsl-layerscape/icid.c
+index 82c5a8b123..5fdeb54564 100644
+--- a/arch/arm/cpu/armv8/fsl-layerscape/icid.c
++++ b/arch/arm/cpu/armv8/fsl-layerscape/icid.c
+@@ -41,7 +41,7 @@ void set_icids(void)
+ 	/* setup general icid offsets */
+ 	set_icid(icid_tbl, icid_tbl_sz);
+ 
+-#ifdef CONFIG_SYS_DPAA_FMAN
++#if defined(CONFIG_SYS_DPAA_FMAN) && defined(CONFIG_SETUP_DPAA1_SMMU)
+ 	set_fman_icids(fman_icid_tbl, fman_icid_tbl_sz);
+ #endif
+ }
+@@ -189,7 +189,7 @@ void fdt_fixup_icid(void *blob)
+ 
+ 	fdt_fixup_icid_tbl(blob, smmu_ph, icid_tbl, icid_tbl_sz);
+ 
+-#ifdef CONFIG_SYS_DPAA_FMAN
++#if defined(CONFIG_SYS_DPAA_FMAN) && defined(CONFIG_SETUP_DPAA1_SMMU)
+ 	fdt_fixup_fman_icids(blob, smmu_ph);
+ #endif
+ }
+diff --git a/arch/arm/cpu/armv8/fsl-layerscape/ls1046_ids.c b/arch/arm/cpu/armv8/fsl-layerscape/ls1046_ids.c
+index abd847b5be..64e75b8068 100644
+--- a/arch/arm/cpu/armv8/fsl-layerscape/ls1046_ids.c
++++ b/arch/arm/cpu/armv8/fsl-layerscape/ls1046_ids.c
+@@ -24,7 +24,7 @@ struct qportal_info qp_info[CONFIG_SYS_QMAN_NUM_PORTALS] = {
+ #endif
+ 
+ struct icid_id_table icid_tbl[] = {
+-#ifdef CONFIG_SYS_DPAA_QBMAN
++#if defined(CONFIG_SYS_DPAA_QBMAN) && defined(CONFIG_SETUP_DPAA1_SMMU)
+ 	SET_QMAN_ICID(FSL_DPAA1_STREAM_ID_START),
+ 	SET_BMAN_ICID(FSL_DPAA1_STREAM_ID_START + 1),
+ #endif
+diff --git a/drivers/misc/fsl_portals.c b/drivers/misc/fsl_portals.c
+index 45eed22f6e..eb2028a64f 100644
+--- a/drivers/misc/fsl_portals.c
++++ b/drivers/misc/fsl_portals.c
+@@ -197,7 +197,8 @@ void fdt_fixup_qportals(void *blob)
+ 	char compat[64];
+ 	int compat_len;
+ 
+-#if defined(CONFIG_ARCH_LS1043A) || defined(CONFIG_ARCH_LS1046A)
++#if defined(CONFIG_ARCH_LS1043A) || defined(CONFIG_ARCH_LS1046A) && \
++defined(CONFIG_SETUP_DPAA1_SMMU)
+ 	int smmu_ph = fdt_get_smmu_phandle(blob);
+ #endif
+ 
+@@ -212,7 +213,7 @@ void fdt_fixup_qportals(void *blob)
+ 	off = fdt_node_offset_by_compatible(blob, -1, "fsl,qman-portal");
+ 	while (off != -FDT_ERR_NOTFOUND) {
+ #if defined(CONFIG_PPC) || defined(CONFIG_ARCH_LS1043A) || \
+-defined(CONFIG_ARCH_LS1046A)
++defined(CONFIG_ARCH_LS1046A) && defined(CONFIG_SETUP_DPAA1_SMMU)
+ #ifdef CONFIG_FSL_CORENET
+ 		u32 liodns[2];
+ #endif
+@@ -276,7 +277,8 @@ defined(CONFIG_ARCH_LS1046A)
+ 			goto err;
+ #endif
+ #else
+-#if defined(CONFIG_ARCH_LS1043A) || defined(CONFIG_ARCH_LS1046A)
++#if defined(CONFIG_ARCH_LS1043A) || defined(CONFIG_ARCH_LS1046A) && \
++defined(CONFIG_SETUP_DPAA1_SMMU)
+ 		if (smmu_ph >= 0) {
+ 			u32 icids[3];
+ 
+diff --git a/drivers/net/Kconfig b/drivers/net/Kconfig
+index df1d3b8040..bc011eaa9c 100644
+--- a/drivers/net/Kconfig
++++ b/drivers/net/Kconfig
+@@ -268,6 +268,14 @@ config FMAN_ENET
+ 	help
+ 	  This driver support the Freescale FMan Ethernet controller
+ 
++config SETUP_DPAA1_SMMU
++	bool "Enable SMMU setup for DPAA1 devices"
++	depends on FMAN_ENET
++	default y
++	help
++	  Control SMMU setup for DPAA1 related network devices.
++	  By default SMMU setup is enabled.
++
+ config FTMAC100
+ 	bool "Ftmac100 Ethernet Support"
+ 	help
+-- 
+2.17.1
+

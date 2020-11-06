@@ -1,0 +1,41 @@
+From 6ddd8af7003a5259d042fcbc9c8f4fd2ca72e10b Mon Sep 17 00:00:00 2001
+From: Priyanka Jain <priyanka.jain@nxp.com>
+Date: Wed, 26 Aug 2020 14:00:46 +0530
+Subject: [PATCH 11/22] dts/fsl-ls1046a-db.dts: Update fman nodes
+
+Signed-off-by: Priyanka Jain <priyanka.jain@nxp.com>
+---
+ .../arm64/boot/dts/freescale/fsl-ls1046a-db.dts | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1046a-db.dts b/arch/arm64/boot/dts/freescale/fsl-ls1046a-db.dts
+index 2111266b9697..e5220b3632f2 100644
+--- a/arch/arm64/boot/dts/freescale/fsl-ls1046a-db.dts
++++ b/arch/arm64/boot/dts/freescale/fsl-ls1046a-db.dts
+@@ -109,6 +109,23 @@
+ #include "fsl-ls1046-post.dtsi"
+ 
+ &fman0 {
++	ethernet@e4000 {
++			status = "disabled";
++	};
++
++	ethernet@e8000 {
++			status = "disabled";
++	};
++
++	ethernet@ea000 {
++			status = "disabled";
++	};
++
++	ethernet@f0000 { /* 10GEC1 */
++		fixed-link = <0 1 1000 0 0>;
++		phy-connection-type = "xgmii";
++	};
++
+ 
+ 	ethernet@f2000 {
+ 		phy-handle = <&aqr113c_phy1>;
+-- 
+2.17.1
+
