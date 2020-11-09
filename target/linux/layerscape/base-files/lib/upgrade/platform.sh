@@ -152,7 +152,9 @@ platform_check_image() {
 	fsl,ls1046a-frwy-sdboot | \
 	fsl,ls1046a-rdb-sdboot | \
 	fsl,ls1046a-db-sdboot | \
+	fsl,ls1046a-db-emmcboot | \
 	fsl,ls1046a-wrdb-sdboot | \
+	fsl,ls1046a-wrdb-emmcboot | \
 	fsl,ls1088a-rdb-sdboot | \
 	fsl,lx2160a-rdb-sdboot)
 		platform_check_image_sdboot "$1"
@@ -199,7 +201,9 @@ platform_do_upgrade() {
 	fsl,ls1046a-frwy-sdboot | \
 	fsl,ls1046a-rdb-sdboot | \
 	fsl,ls1046a-db-sdboot | \
+	fsl,ls1046a-db-emmcboot | \
 	fsl,ls1046a-wrdb-sdboot | \
+	fsl,ls1046a-wrdb-emmcboot | \
 	fsl,ls1088a-rdb-sdboot | \
 	fsl,lx2160a-rdb-sdboot)
 		platform_do_upgrade_sdboot "$1"

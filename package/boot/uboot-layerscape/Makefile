@@ -95,6 +95,11 @@ define U-Boot/fsl_ls1046a-db-sdboot
   UBOOT_CONFIG:=db1046_tfa
 endef
 
+define U-Boot/fsl_ls1046a-db-emmcboot
+  NAME:=NXP LS1046ADB EMMC Card Boot
+  UBOOT_CONFIG:=db1046_tfa
+endef
+
 define U-Boot/fsl_ls1046a-wrdb
   NAME:=NXP LS1046AWRDB
   UBOOT_CONFIG:=ls1046awrdb_tfa
@@ -102,6 +107,11 @@ endef
 
 define U-Boot/fsl_ls1046a-wrdb-sdboot
   NAME:=NXP LS1046AWRDB SD Card Boot
+  UBOOT_CONFIG:=ls1046awrdb_tfa
+endef
+
+define U-Boot/fsl_ls1046a-wrdb-emmcboot
+  NAME:=NXP LS1046AWRDB EMMC Card Boot
   UBOOT_CONFIG:=ls1046awrdb_tfa
 endef
 
@@ -167,8 +177,10 @@ UBOOT_TARGETS := \
   fsl_ls1046a-frwy-sdboot \
   fsl_ls1046a-db \
   fsl_ls1046a-db-sdboot \
+  fsl_ls1046a-db-emmcboot \
   fsl_ls1046a-wrdb \
   fsl_ls1046a-wrdb-sdboot \
+  fsl_ls1046a-wrdb-emmcboot \
   fsl_ls1088a-rdb \
   fsl_ls1088a-rdb-sdboot \
   fsl_ls2088a-rdb \

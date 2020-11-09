@@ -135,6 +135,13 @@ define Package/tfa-ls1046a-db-sdboot
   BOOT_MODE:=sd
 endef
 
+define Package/tfa-ls1046a-db-emmcboot
+  $(Package/tfa-generic)
+  TITLE:=NXP LS1046ADB EMMC Boot Trusted Firmware
+  PLAT:=ls1046adb
+  BOOT_MODE:=emmc
+endef
+
 define Package/tfa-ls1046a-wrdb
   $(Package/tfa-generic)
   TITLE:=NXP LS1046AWRDB Trusted Firmware
@@ -147,6 +154,13 @@ define Package/tfa-ls1046a-wrdb-sdboot
   TITLE:=NXP LS1046AWRDB SD Boot Trusted Firmware
   PLAT:=ls1046awrdb
   BOOT_MODE:=sd
+endef
+
+define Package/tfa-ls1046a-wrdb-emmcboot
+  $(Package/tfa-generic)
+  TITLE:=NXP LS1046AWRDB EMMC Boot Trusted Firmware
+  PLAT:=ls1046awrdb
+  BOOT_MODE:=emmc
 endef
 
 define Package/tfa-ls1088a-rdb
@@ -217,8 +231,10 @@ TFAS := \
   ls1046a-frwy-sdboot \
   ls1046a-db \
   ls1046a-db-sdboot \
+  ls1046a-db-emmcboot \
   ls1046a-wrdb \
   ls1046a-wrdb-sdboot \
+  ls1046a-wrdb-emmcboot \
   ls1088a-rdb \
   ls1088a-rdb-sdboot \
   ls2088a-rdb \
