@@ -1,0 +1,50 @@
+From 6577c3d21ed77f4923724ec0c8562fdc139d87a0 Mon Sep 17 00:00:00 2001
+From: Pankit Garg <pankit.garg@nxp.com>
+Date: Thu, 5 Nov 2020 13:28:27 +0530
+Subject: [PATCH 1/2] ls1046awrdb: eth: Register AQR PHY for FM1_10GEC1
+
+Signed-off-by: Pankit Garg <pankit.garg@nxp.com>
+---
+ board/freescale/ls1046awrdb/eth.c | 6 ++++++
+ include/configs/ls1046awrdb.h     | 1 +
+ 2 files changed, 7 insertions(+)
+
+diff --git a/board/freescale/ls1046awrdb/eth.c b/board/freescale/ls1046awrdb/eth.c
+index 2a69892f9b..7549e0d6e5 100644
+--- a/board/freescale/ls1046awrdb/eth.c
++++ b/board/freescale/ls1046awrdb/eth.c
+@@ -55,6 +55,9 @@ int board_eth_init(bd_t *bis)
+ #endif
+ 	/* Set the on-board AQ PHY address */
+ 	fm_info_set_phy_address(FM1_10GEC2, FM1_10GEC2_PHY_ADDR);
++#ifndef CONFIG_TARGET_DB1046
++	fm_info_set_phy_address(FM1_10GEC1, FM1_10GEC1_PHY_ADDR);
++#endif
+ 
+ 	switch (srds_s1) {
+ 	case 0x1133:
+@@ -75,6 +78,9 @@ int board_eth_init(bd_t *bis)
+ 	dev = miiphy_get_dev_by_name(DEFAULT_FM_TGEC_MDIO_NAME);
+ 	fm_info_set_mdio(FM1_10GEC2, dev);
+ 
++#ifndef CONFIG_TARGET_DB1046
++	fm_info_set_mdio(FM1_10GEC1, dev);
++#endif
+ 	cpu_eth_init(bis);
+ #endif
+ 
+diff --git a/include/configs/ls1046awrdb.h b/include/configs/ls1046awrdb.h
+index 1f1362a128..cb3c3e9b90 100644
+--- a/include/configs/ls1046awrdb.h
++++ b/include/configs/ls1046awrdb.h
+@@ -102,6 +102,7 @@
+ 
+ #define SGMII_PHY1_ADDR			0x2
+ #define SGMII_PHY2_ADDR			0x3
++#define FM1_10GEC1_PHY_ADDR		0x8
+ #endif
+ 
+ #define FM1_10GEC2_PHY_ADDR		0x0
+-- 
+2.17.1
+

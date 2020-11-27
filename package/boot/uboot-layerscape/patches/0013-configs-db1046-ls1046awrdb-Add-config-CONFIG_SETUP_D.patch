@@ -1,0 +1,35 @@
+From 719576158d2585f464904b1b7aa89346904a4226 Mon Sep 17 00:00:00 2001
+From: Priyanka Singh <priyanka.singh@nxp.com>
+Date: Thu, 26 Nov 2020 16:43:37 +0530
+Subject: [PATCH 3/3] configs: db1046, ls1046awrdb: Add config
+ CONFIG_SETUP_DPAA1_SMMU=n
+
+Add config CONFIG_SETUP_DPAA1_SMMU=n for boards DB1046 and LS1046AWRDB
+
+Signed-off-by: Priyanka Singh <priyanka.singh@nxp.com>
+---
+ configs/db1046_tfa_defconfig      | 1 +
+ configs/ls1046awrdb_tfa_defconfig | 1 +
+ 2 files changed, 2 insertions(+)
+
+diff --git a/configs/db1046_tfa_defconfig b/configs/db1046_tfa_defconfig
+index c5edfa9526..fe1873c450 100644
+--- a/configs/db1046_tfa_defconfig
++++ b/configs/db1046_tfa_defconfig
+@@ -63,3 +63,4 @@ CONFIG_USB_HOST_ETHER=y
+ CONFIG_USB_ETHER_RTL8152=y
+ CONFIG_USB_ETHER_ASIX=y
+ CONFIG_USB_ETHER_ASIX88179=y
++CONFIG_SETUP_DPAA1_SMMU=n
+diff --git a/configs/ls1046awrdb_tfa_defconfig b/configs/ls1046awrdb_tfa_defconfig
+index 66d0287df4..6fa36e02c1 100644
+--- a/configs/ls1046awrdb_tfa_defconfig
++++ b/configs/ls1046awrdb_tfa_defconfig
+@@ -62,3 +62,4 @@ CONFIG_DM_I2C=y
+ CONFIG_DM_RTC=y
+ CONFIG_RTC_PCF2127=y
+ CONFIG_DM_GPIO=y
++CONFIG_SETUP_DPAA1_SMMU=n
+-- 
+2.17.1
+

@@ -1,0 +1,30 @@
+From 84cbb657b916f42749f6102ce20a6260747ba2ec Mon Sep 17 00:00:00 2001
+From: Priyanka Singh <priyanka.singh@nxp.com>
+Date: Wed, 25 Nov 2020 13:06:06 +0530
+Subject: [PATCH 2/3] configs: db1046: Add config support for USB Ethernet
+ adapter
+
+Add configs CONFIG_USB_HOST_ETHER, CONFIG_USB_ETHER_RTL8152,
+CONFIG_USB_ETHER_ASIX, CONFIG_USB_ETHER_ASIX88179 to enable
+support for USB Ethernet adapter
+
+Signed-off-by: Priyanka Singh <priyanka.singh@nxp.com>
+---
+ configs/db1046_tfa_defconfig | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/configs/db1046_tfa_defconfig b/configs/db1046_tfa_defconfig
+index 8064ea00b9..c5edfa9526 100644
+--- a/configs/db1046_tfa_defconfig
++++ b/configs/db1046_tfa_defconfig
+@@ -59,3 +59,7 @@ CONFIG_DM_I2C=y
+ CONFIG_DM_RTC=y
+ CONFIG_RTC_PCF2127=y
+ CONFIG_DM_GPIO=y
++CONFIG_USB_HOST_ETHER=y
++CONFIG_USB_ETHER_RTL8152=y
++CONFIG_USB_ETHER_ASIX=y
++CONFIG_USB_ETHER_ASIX88179=y
+-- 
+2.17.1
+

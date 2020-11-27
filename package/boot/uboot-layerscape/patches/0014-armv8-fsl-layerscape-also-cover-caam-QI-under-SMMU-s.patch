@@ -1,0 +1,32 @@
+From ea82916520352f74316010f8080d8555ef44f58e Mon Sep 17 00:00:00 2001
+From: Laurentiu Tudor <laurentiu.tudor@nxp.com>
+Date: Thu, 26 Nov 2020 15:31:42 +0200
+Subject: [PATCH] armv8: fsl-layerscape: also cover caam QI under SMMU setup
+ option
+Content-Type: text/plain; charset="us-ascii"
+
+CAAM QI interface is also DPAA1 related so wrap the SMMU setup for it
+under the DPAA1 SMMU setup Kconfig option.
+
+Signed-off-by: Laurentiu Tudor <laurentiu.tudor@nxp.com>
+---
+ arch/arm/cpu/armv8/fsl-layerscape/ls1046_ids.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/arch/arm/cpu/armv8/fsl-layerscape/ls1046_ids.c b/arch/arm/cpu/armv8/fsl-layerscape/ls1046_ids.c
+index 64e75b8068..f391c55e18 100644
+--- a/arch/arm/cpu/armv8/fsl-layerscape/ls1046_ids.c
++++ b/arch/arm/cpu/armv8/fsl-layerscape/ls1046_ids.c
+@@ -41,7 +41,9 @@ struct icid_id_table icid_tbl[] = {
+ 	SET_ETR_ICID(FSL_ETR_STREAM_ID),
+ 	SET_DEBUG_ICID(FSL_DEBUG_STREAM_ID),
+ #ifdef CONFIG_FSL_CAAM
++#ifdef CONFIG_SETUP_DPAA1_SMMU
+ 	SET_SEC_QI_ICID(FSL_DPAA1_STREAM_ID_END),
++#endif
+ 	SET_SEC_JR_ICID_ENTRY(0, FSL_DPAA1_STREAM_ID_START + 3),
+ 	SET_SEC_JR_ICID_ENTRY(1, FSL_DPAA1_STREAM_ID_START + 4),
+ 	SET_SEC_JR_ICID_ENTRY(2, FSL_DPAA1_STREAM_ID_START + 5),
+-- 
+2.17.1
+
