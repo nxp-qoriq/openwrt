@@ -375,6 +375,7 @@ define Device/fsl_ls1046a-db-emmcboot
     ls-append-sdhead $(1) | pad-to 16M | \
     append-kernel | pad-to $(LS_SD_ROOTFSPART_OFFSET)M | \
     append-rootfs | check-size $(LS_SD_IMAGE_SIZE) | append-metadata
+  SUPPORTED_DEVICES := fsl,ls1046a-db-sdboot
 endef
 TARGET_DEVICES += fsl_ls1046a-db-emmcboot
 
@@ -461,6 +462,7 @@ define Device/fsl_ls1046a-wrdb-emmcboot
     ls-append-sdhead $(1) | pad-to 16M | \
     append-kernel | pad-to $(LS_SD_ROOTFSPART_OFFSET)M | \
     append-rootfs | check-size $(LS_SD_IMAGE_SIZE) | append-metadata
+  SUPPORTED_DEVICES := fsl,ls1046a-wrdb-sdboot
 endef
 TARGET_DEVICES += fsl_ls1046a-wrdb-emmcboot
 
