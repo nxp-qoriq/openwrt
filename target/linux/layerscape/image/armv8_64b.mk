@@ -354,6 +354,7 @@ define Device/fsl_lx2160a-rdb
   DEVICE_VENDOR := NXP
   DEVICE_MODEL := LX2160A-RDB
   DEVICE_VARIANT := Rev2.0 silicon
+  KERNEL_NAME := Image
   DEVICE_PACKAGES += \
     layerscape-mc \
     layerscape-dpl \
@@ -380,6 +381,8 @@ define Device/fsl_lx2160a-rdb-sdboot
   DEVICE_VENDOR := NXP
   DEVICE_MODEL := LX2160A-RDB
   DEVICE_VARIANT := Rev2.0 silicon SD Card Boot
+  KERNEL_NAME := Image
+  IMAGES := sdcard.img sysupgrade.bin
   DEVICE_PACKAGES += \
     layerscape-mc \
     layerscape-dpl \
@@ -387,7 +390,7 @@ define Device/fsl_lx2160a-rdb-sdboot
     tfa-lx2160a-rdb-sdboot \
     restool
   DEVICE_DTS := freescale/fsl-lx2160a-rdb
-  IMAGE/sdcard.img.gz := \
+  IMAGE/sdcard.img := \
     ls-clean | \
     ls-append-sdhead $(1) | pad-to 4K | \
     ls-append $(1)-bl2.pbl | pad-to 1M | \
@@ -398,7 +401,7 @@ define Device/fsl_lx2160a-rdb-sdboot
     ls-append fsl_lx2160a-rdb-dpl.dtb | pad-to 14M | \
     ls-append fsl_lx2160a-rdb-dpc.dtb | pad-to 16M | \
     ls-append-kernel | pad-to $(LS_SD_ROOTFSPART_OFFSET)M | \
-    append-rootfs | pad-to $(LS_SD_IMAGE_SIZE)M | gzip
+    append-rootfs | pad-to $(LS_SD_IMAGE_SIZE)M
 endef
 TARGET_DEVICES += fsl_lx2160a-rdb-sdboot
 
