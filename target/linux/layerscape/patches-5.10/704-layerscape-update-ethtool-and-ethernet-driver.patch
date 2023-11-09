@@ -1,0 +1,1211 @@
+From 1e90f6cfe214444c1c1c5b7336365a2837d9564c Mon Sep 17 00:00:00 2001
+From: Yuantian Tang <andy.tang@nxp.com>
+Date: Tue, 7 Mar 2023 09:56:42 +0800
+Subject: [PATCH] layerscape: update ethtool and ethernet driver
+
+Signed-off-by: Andy Tang <andy.tang@nxp.com>
+---
+ drivers/net/phy/phy_device.c |   3 -
+ drivers/of/of_net.c          | 149 ++++++---------------
+ include/linux/of_net.h       |   6 +-
+ include/net/dsa.h            |   9 +-
+ net/dsa/dsa2.c               |  15 +--
+ net/dsa/dsa_priv.h           |  26 ----
+ net/dsa/slave.c              | 253 +++++++++++------------------------
+ net/dsa/tag_ocelot.c         |   2 +-
+ net/ethernet/eth.c           |  58 ++++----
+ net/ethtool/ioctl.c          | 154 ++++-----------------
+ net/ethtool/netlink.c        |   3 +-
+ net/ethtool/netlink.h        |   3 -
+ net/ethtool/pause.c          |   3 +-
+ net/ethtool/strset.c         |   2 -
+ 14 files changed, 178 insertions(+), 508 deletions(-)
+
+diff --git a/drivers/net/phy/phy_device.c b/drivers/net/phy/phy_device.c
+index 81c252a17..2d7bba90d 100644
+--- a/drivers/net/phy/phy_device.c
++++ b/drivers/net/phy/phy_device.c
+@@ -1681,9 +1681,6 @@ void phy_detach(struct phy_device *phydev)
+ 	struct module *ndev_owner = NULL;
+ 	struct mii_bus *bus;
+ 
+-	if (phydev->drv && phydev->drv->detach)
+-		phydev->drv->detach(phydev);
+-
+ 	if (phydev->sysfs_links) {
+ 		if (dev)
+ 			sysfs_remove_link(&dev->dev.kobj, "phydev");
+diff --git a/drivers/of/of_net.c b/drivers/of/of_net.c
+index bbc2ba3b6..20c3ae17f 100644
+--- a/drivers/of/of_net.c
++++ b/drivers/of/of_net.c
+@@ -11,7 +11,6 @@
+ #include <linux/phy.h>
+ #include <linux/export.h>
+ #include <linux/device.h>
+-#include <linux/nvmem-consumer.h>
+ 
+ /**
+  * of_get_phy_mode - Get phy mode for given device_node
+@@ -46,74 +45,37 @@ int of_get_phy_mode(struct device_node *np, phy_interface_t *interface)
+ }
+ EXPORT_SYMBOL_GPL(of_get_phy_mode);
+ 
+-static int of_get_mac_addr(struct device_node *np, const char *name, u8 *addr)
++static const void *of_get_mac_addr(struct device_node *np, const char *name)
+ {
+ 	struct property *pp = of_find_property(np, name, NULL);
+ 
+-	if (pp && pp->length == ETH_ALEN && is_valid_ether_addr(pp->value)) {
+-		memcpy(addr, pp->value, ETH_ALEN);
+-		return 0;
+-	}
+-	return -ENODEV;
++	if (pp && pp->length == ETH_ALEN && is_valid_ether_addr(pp->value))
++		return pp->value;
++	return NULL;
+ }
+ 
+-static int of_get_mac_addr_nvmem(struct device_node *np, u8 *addr)
++static const void *of_get_mac_addr_nvmem(struct device_node *np)
+ {
+-	struct platform_device *pdev = of_find_device_by_node(np);
+-	struct nvmem_cell *cell;
+-	const void *mac;
+-	size_t len;
+ 	int ret;
++	const void *mac;
++	u8 nvmem_mac[ETH_ALEN];
++	struct platform_device *pdev = of_find_device_by_node(np);
+ 
+-	/* Try lookup by device first, there might be a nvmem_cell_lookup
+-	 * associated with a given device.
+-	 */
+-	if (pdev) {
+-		ret = nvmem_get_mac_address(&pdev->dev, addr);
+-		put_device(&pdev->dev);
+-		return ret;
+-	}
+-
+-	cell = of_nvmem_cell_get(np, "mac-address");
+-	if (IS_ERR(cell))
+-		return PTR_ERR(cell);
+-
+-	mac = nvmem_cell_read(cell, &len);
+-	nvmem_cell_put(cell);
+-
+-	if (IS_ERR(mac))
+-		return PTR_ERR(mac);
++	if (!pdev)
++		return ERR_PTR(-ENODEV);
+ 
+-	if (len != ETH_ALEN || !is_valid_ether_addr(mac)) {
+-		kfree(mac);
+-		return -EINVAL;
++	ret = nvmem_get_mac_address(&pdev->dev, &nvmem_mac);
++	if (ret) {
++		put_device(&pdev->dev);
++		return ERR_PTR(ret);
+ 	}
+ 
+-	memcpy(addr, mac, ETH_ALEN);
+-	kfree(mac);
++	mac = devm_kmemdup(&pdev->dev, nvmem_mac, ETH_ALEN, GFP_KERNEL);
++	put_device(&pdev->dev);
++	if (!mac)
++		return ERR_PTR(-ENOMEM);
+ 
+-	return 0;
+-}
+-
+-static int of_add_mac_address(struct device_node *np, u8* addr)
+-{
+-	struct property *prop;
+-
+-	prop = kzalloc(sizeof(*prop), GFP_KERNEL);
+-	if (!prop)
+-		return -ENOMEM;
+-
+-	prop->name = "mac-address";
+-	prop->length = ETH_ALEN;
+-	prop->value = kmemdup(addr, ETH_ALEN, GFP_KERNEL);
+-	if (!prop->value || of_update_property(np, prop))
+-		goto free;
+-
+-	return 0;
+-free:
+-	kfree(prop->value);
+-	kfree(prop);
+-	return -ENOMEM;
++	return mac;
+ }
+ 
+ /**
+@@ -136,63 +98,28 @@ static int of_add_mac_address(struct device_node *np, u8* addr)
+  * this case, the real MAC is in 'local-mac-address', and 'mac-address' exists
+  * but is all zeros.
+  *
+- * DT can tell the system to increment the mac-address after is extracted by
+- * using:
+- * - mac-address-increment-byte to decide what byte to increase
+- *   (if not defined is increased the last byte)
+- * - mac-address-increment to decide how much to increase. The value WILL
+- *   overflow to other bytes if the increment is over 255 or the total
+- *   increment will exceed 255 of the current byte.
+- *   (example 00:01:02:03:04:ff + 1 == 00:01:02:03:05:00)
+- *   (example 00:01:02:03:04:fe + 5 == 00:01:02:03:05:03)
+- *
+- * Return: 0 on success and errno in case of error.
++ * Return: Will be a valid pointer on success and ERR_PTR in case of error.
+ */
+-int of_get_mac_address(struct device_node *np, u8 *addr)
++const void *of_get_mac_address(struct device_node *np)
+ {
+-	u32 inc_idx, mac_inc, mac_val;
+-	int ret;
++	const void *addr;
+ 
+-	/* Check first if the increment byte is present and valid.
+-	 * If not set assume to increment the last byte if found.
+-	 */
+-	if (of_property_read_u32(np, "mac-address-increment-byte", &inc_idx))
+-		inc_idx = 5;
+-	if (inc_idx < 3 || inc_idx > 5)
+-		return -EINVAL;
+-
+-	if (!np)
+-		return -ENODEV;
+-
+-	ret = of_get_mac_addr(np, "mac-address", addr);
+-	if (!ret)
+-		goto found;
+-
+-	ret = of_get_mac_addr(np, "local-mac-address", addr);
+-	if (!ret)
+-		goto found;
+-
+-	ret = of_get_mac_addr(np, "address", addr);
+-	if (!ret)
+-		goto found;
+-
+-	ret = of_get_mac_addr_nvmem(np, addr);
+-	if (ret)
+-		return ret;
+-
+-found:
+-	if (!of_property_read_u32(np, "mac-address-increment", &mac_inc)) {
+-		/* Convert to a contiguous value */
+-		mac_val = (addr[3] << 16) + (addr[4] << 8) + addr[5];
+-		mac_val += mac_inc << 8 * (5-inc_idx);
+-
+-		/* Apply the incremented value handling overflow case */
+-		addr[3] = (mac_val >> 16) & 0xff;
+-		addr[4] = (mac_val >> 8) & 0xff;
+-		addr[5] = (mac_val >> 0) & 0xff;
+-	}
++	addr = of_get_mac_addr(np, "mac-address");
++	if (addr)
++		return addr;
++
++	addr = of_get_mac_addr(np, "local-mac-address");
++	if (addr)
++		return addr;
++
++	addr = of_get_mac_addr(np, "address");
++	if (addr)
++		return addr;
++
++	addr = of_get_mac_addr(np, "nvmem-mac-address");
++	if (addr)
++		return addr;
+ 
+-	of_add_mac_address(np, addr);
+-	return ret;
++	return of_get_mac_addr_nvmem(np);
+ }
+ EXPORT_SYMBOL(of_get_mac_address);
+diff --git a/include/linux/of_net.h b/include/linux/of_net.h
+index daef3b0d9..71bbfcf3a 100644
+--- a/include/linux/of_net.h
++++ b/include/linux/of_net.h
+@@ -13,7 +13,7 @@
+ 
+ struct net_device;
+ extern int of_get_phy_mode(struct device_node *np, phy_interface_t *interface);
+-extern int of_get_mac_address(struct device_node *np, u8 *mac);
++extern const void *of_get_mac_address(struct device_node *np);
+ extern struct net_device *of_find_net_device_by_node(struct device_node *np);
+ #else
+ static inline int of_get_phy_mode(struct device_node *np,
+@@ -22,9 +22,9 @@ static inline int of_get_phy_mode(struct device_node *np,
+ 	return -ENODEV;
+ }
+ 
+-static inline int of_get_mac_address(struct device_node *np, u8 *mac)
++static inline const void *of_get_mac_address(struct device_node *np)
+ {
+-	return -ENODEV;
++	return ERR_PTR(-ENODEV);
+ }
+ 
+ static inline struct net_device *of_find_net_device_by_node(struct device_node *np)
+diff --git a/include/net/dsa.h b/include/net/dsa.h
+index acfae5546..35429a140 100644
+--- a/include/net/dsa.h
++++ b/include/net/dsa.h
+@@ -45,12 +45,10 @@ struct phylink_link_state;
+ #define DSA_TAG_PROTO_OCELOT_VALUE		15
+ #define DSA_TAG_PROTO_AR9331_VALUE		16
+ #define DSA_TAG_PROTO_RTL4_A_VALUE		17
+-#define DSA_TAG_PROTO_BRCM_LEGACY_VALUE		22
+ 
+ enum dsa_tag_protocol {
+ 	DSA_TAG_PROTO_NONE		= DSA_TAG_PROTO_NONE_VALUE,
+ 	DSA_TAG_PROTO_BRCM		= DSA_TAG_PROTO_BRCM_VALUE,
+-	DSA_TAG_PROTO_BRCM_LEGACY	= DSA_TAG_PROTO_BRCM_LEGACY_VALUE,
+ 	DSA_TAG_PROTO_BRCM_PREPEND	= DSA_TAG_PROTO_BRCM_PREPEND_VALUE,
+ 	DSA_TAG_PROTO_DSA		= DSA_TAG_PROTO_DSA_VALUE,
+ 	DSA_TAG_PROTO_EDSA		= DSA_TAG_PROTO_EDSA_VALUE,
+@@ -210,7 +208,7 @@ struct dsa_port {
+ 	unsigned int		index;
+ 	const char		*name;
+ 	struct dsa_port		*cpu_dp;
+-	u8			mac[ETH_ALEN];
++	const char		*mac;
+ 	struct device_node	*dn;
+ 	unsigned int		ageing_time;
+ 	bool			vlan_filtering;
+@@ -319,11 +317,6 @@ struct dsa_switch {
+ 	 */
+ 	bool			untag_bridge_pvid;
+ 
+-	/* Let DSA manage the FDB entries towards the CPU, based on the
+-	 * software bridge database.
+-	 */
+-	bool			assisted_learning_on_cpu_port;
+-
+ 	/* In case vlan_filtering_is_global is set, the VLAN awareness state
+ 	 * should be retrieved from here and not from the per-port settings.
+ 	 */
+diff --git a/net/dsa/dsa2.c b/net/dsa/dsa2.c
+index 45bf13e6a..3ada338d7 100644
+--- a/net/dsa/dsa2.c
++++ b/net/dsa/dsa2.c
+@@ -288,7 +288,7 @@ static int dsa_port_setup(struct dsa_port *dp)
+ 
+ 		break;
+ 	case DSA_PORT_TYPE_USER:
+-		of_get_mac_address(dp->dn, dp->mac);
++		dp->mac = of_get_mac_address(dp->dn);
+ 		err = dsa_slave_create(dp);
+ 		if (err)
+ 			break;
+@@ -459,7 +459,7 @@ static int dsa_switch_setup(struct dsa_switch *ds)
+ 	devlink_params_publish(ds->devlink);
+ 
+ 	if (!ds->slave_mii_bus && ds->ops->phy_read) {
+-		ds->slave_mii_bus = mdiobus_alloc();
++		ds->slave_mii_bus = devm_mdiobus_alloc(ds->dev);
+ 		if (!ds->slave_mii_bus) {
+ 			err = -ENOMEM;
+ 			goto teardown;
+@@ -469,16 +469,13 @@ static int dsa_switch_setup(struct dsa_switch *ds)
+ 
+ 		err = mdiobus_register(ds->slave_mii_bus);
+ 		if (err < 0)
+-			goto free_slave_mii_bus;
++			goto teardown;
+ 	}
+ 
+ 	ds->setup = true;
+ 
+ 	return 0;
+ 
+-free_slave_mii_bus:
+-	if (ds->slave_mii_bus && ds->ops->phy_read)
+-		mdiobus_free(ds->slave_mii_bus);
+ teardown:
+ 	if (ds->ops->teardown)
+ 		ds->ops->teardown(ds);
+@@ -503,11 +500,8 @@ static void dsa_switch_teardown(struct dsa_switch *ds)
+ 	if (!ds->setup)
+ 		return;
+ 
+-	if (ds->slave_mii_bus && ds->ops->phy_read) {
++	if (ds->slave_mii_bus && ds->ops->phy_read)
+ 		mdiobus_unregister(ds->slave_mii_bus);
+-		mdiobus_free(ds->slave_mii_bus);
+-		ds->slave_mii_bus = NULL;
+-	}
+ 
+ 	dsa_switch_unregister_notifier(ds);
+ 
+@@ -766,7 +760,6 @@ static int dsa_port_parse_of(struct dsa_port *dp, struct device_node *dn)
+ 		struct net_device *master;
+ 
+ 		master = of_find_net_device_by_node(ethernet);
+-		of_node_put(ethernet);
+ 		if (!master)
+ 			return -EPROBE_DEFER;
+ 
+diff --git a/net/dsa/dsa_priv.h b/net/dsa/dsa_priv.h
+index c83dde462..12998bf04 100644
+--- a/net/dsa/dsa_priv.h
++++ b/net/dsa/dsa_priv.h
+@@ -73,18 +73,6 @@ struct dsa_notifier_mtu_info {
+ 	int mtu;
+ };
+ 
+-struct dsa_switchdev_event_work {
+-	struct dsa_switch *ds;
+-	int port;
+-	struct work_struct work;
+-	unsigned long event;
+-	/* Specific for SWITCHDEV_FDB_ADD_TO_DEVICE and
+-	 * SWITCHDEV_FDB_DEL_TO_DEVICE
+-	 */
+-	unsigned char addr[ETH_ALEN];
+-	u16 vid;
+-};
+-
+ struct dsa_slave_priv {
+ 	/* Copy of CPU port xmit for faster access in slave transmit hot path */
+ 	struct sk_buff *	(*xmit)(struct sk_buff *skb,
+@@ -266,20 +254,6 @@ static inline struct sk_buff *dsa_untag_bridge_pvid(struct sk_buff *skb)
+ 	return skb;
+ }
+ 
+-/* If the ingress port offloads the bridge, we mark the frame as autonomously
+- * forwarded by hardware, so the software bridge doesn't forward in twice, back
+- * to us, because we already did. However, if we're in fallback mode and we do
+- * software bridging, we are not offloading it, therefore the dp->bridge_dev
+- * pointer is not populated, and flooding needs to be done by software (we are
+- * effectively operating in standalone ports mode).
+- */
+-static inline void dsa_default_offload_fwd_mark(struct sk_buff *skb)
+-{
+-	struct dsa_port *dp = dsa_slave_to_port(skb->dev);
+-
+-	skb->offload_fwd_mark = !!(dp->bridge_dev);
+-}
+-
+ /* switch.c */
+ int dsa_switch_register_notifier(struct dsa_switch *ds);
+ void dsa_switch_unregister_notifier(struct dsa_switch *ds);
+diff --git a/net/dsa/slave.c b/net/dsa/slave.c
+index ffc6b9aa8..c6806eef9 100644
+--- a/net/dsa/slave.c
++++ b/net/dsa/slave.c
+@@ -68,11 +68,8 @@ static int dsa_slave_open(struct net_device *dev)
+ 	struct dsa_port *dp = dsa_slave_to_port(dev);
+ 	int err;
+ 
+-	err = dev_open(master, NULL);
+-	if (err < 0) {
+-		netdev_err(dev, "failed to open master %s\n", master->name);
+-		goto out;
+-	}
++	if (!(master->flags & IFF_UP))
++		return -ENETDOWN;
+ 
+ 	if (!ether_addr_equal(dev->dev_addr, master->dev_addr)) {
+ 		err = dev_uc_add(master, dev->dev_addr);
+@@ -749,15 +746,13 @@ static int dsa_slave_get_sset_count(struct net_device *dev, int sset)
+ 	struct dsa_switch *ds = dp->ds;
+ 
+ 	if (sset == ETH_SS_STATS) {
+-		int count = 0;
++		int count;
+ 
+-		if (ds->ops->get_sset_count) {
+-			count = ds->ops->get_sset_count(ds, dp->index, sset);
+-			if (count < 0)
+-				return count;
+-		}
++		count = 4;
++		if (ds->ops->get_sset_count)
++			count += ds->ops->get_sset_count(ds, dp->index, sset);
+ 
+-		return count + 4;
++		return count;
+ 	}
+ 
+ 	return -EOPNOTSUPP;
+@@ -1242,32 +1237,14 @@ static int dsa_slave_setup_tc_block(struct net_device *dev,
+ 	}
+ }
+ 
+-static int dsa_slave_setup_ft_block(struct dsa_switch *ds, int port,
+-				    void *type_data)
+-{
+-	struct dsa_port *cpu_dp = dsa_to_port(ds, port)->cpu_dp;
+-	struct net_device *master = cpu_dp->master;
+-
+-	if (!master->netdev_ops->ndo_setup_tc)
+-		return -EOPNOTSUPP;
+-
+-	return master->netdev_ops->ndo_setup_tc(master, TC_SETUP_FT, type_data);
+-}
+-
+ static int dsa_slave_setup_tc(struct net_device *dev, enum tc_setup_type type,
+ 			      void *type_data)
+ {
+ 	struct dsa_port *dp = dsa_slave_to_port(dev);
+ 	struct dsa_switch *ds = dp->ds;
+ 
+-	switch (type) {
+-	case TC_SETUP_BLOCK:
++	if (type == TC_SETUP_BLOCK)
+ 		return dsa_slave_setup_tc_block(dev, type_data);
+-	case TC_SETUP_FT:
+-		return dsa_slave_setup_ft_block(ds, dp->index, type_data);
+-	default:
+-		break;
+-	}
+ 
+ 	if (!ds->ops->port_setup_tc)
+ 		return -EOPNOTSUPP;
+@@ -1640,21 +1617,6 @@ static struct devlink_port *dsa_slave_get_devlink_port(struct net_device *dev)
+ 	return dp->ds->devlink ? &dp->devlink_port : NULL;
+ }
+ 
+-static int dsa_slave_fill_forward_path(struct net_device_path_ctx *ctx,
+-				       struct net_device_path *path)
+-{
+-	struct dsa_port *dp = dsa_slave_to_port(ctx->dev);
+-	struct dsa_port *cpu_dp = dp->cpu_dp;
+-
+-	path->dev = ctx->dev;
+-	path->type = DEV_PATH_DSA;
+-	path->dsa.proto = cpu_dp->tag_ops->proto;
+-	path->dsa.port = dp->index;
+-	ctx->dev = cpu_dp->master;
+-
+-	return 0;
+-}
+-
+ static const struct net_device_ops dsa_slave_netdev_ops = {
+ 	.ndo_open	 	= dsa_slave_open,
+ 	.ndo_stop		= dsa_slave_close,
+@@ -1680,7 +1642,6 @@ static const struct net_device_ops dsa_slave_netdev_ops = {
+ 	.ndo_vlan_rx_kill_vid	= dsa_slave_vlan_rx_kill_vid,
+ 	.ndo_get_devlink_port	= dsa_slave_get_devlink_port,
+ 	.ndo_change_mtu		= dsa_slave_change_mtu,
+-	.ndo_fill_forward_path	= dsa_slave_fill_forward_path,
+ };
+ 
+ static struct device_type dsa_type = {
+@@ -1765,11 +1726,13 @@ static int dsa_slave_phy_setup(struct net_device *slave_dev)
+ 		 * use the switch internal MDIO bus instead
+ 		 */
+ 		ret = dsa_slave_phy_connect(slave_dev, dp->index);
+-	}
+-	if (ret) {
+-		netdev_err(slave_dev, "failed to connect to PHY: %pe\n",
+-			   ERR_PTR(ret));
+-		phylink_destroy(dp->pl);
++		if (ret) {
++			netdev_err(slave_dev,
++				   "failed to connect to port %d: %d\n",
++				   dp->index, ret);
++			phylink_destroy(dp->pl);
++			return ret;
++		}
+ 	}
+ 
+ 	return ret;
+@@ -1855,7 +1818,7 @@ int dsa_slave_create(struct dsa_port *port)
+ 	slave_dev->hw_features |= NETIF_F_HW_TC;
+ 	slave_dev->features |= NETIF_F_LLTX;
+ 	slave_dev->ethtool_ops = &dsa_slave_ethtool_ops;
+-	if (!is_zero_ether_addr(port->mac))
++	if (!IS_ERR_OR_NULL(port->mac))
+ 		ether_addr_copy(slave_dev->dev_addr, port->mac);
+ 	else
+ 		eth_hw_addr_inherit(slave_dev, master);
+@@ -2087,177 +2050,119 @@ static int dsa_slave_netdevice_event(struct notifier_block *nb,
+ 	return NOTIFY_DONE;
+ }
+ 
+-static void
+-dsa_fdb_offload_notify(struct dsa_switchdev_event_work *switchdev_work)
+-{
+-	struct dsa_switch *ds = switchdev_work->ds;
+-	struct switchdev_notifier_fdb_info info;
+-	struct dsa_port *dp;
+-
+-	if (!dsa_is_user_port(ds, switchdev_work->port))
+-		return;
+-
+-	info.addr = switchdev_work->addr;
+-	info.vid = switchdev_work->vid;
+-	info.offloaded = true;
+-	dp = dsa_to_port(ds, switchdev_work->port);
+-	call_switchdev_notifiers(SWITCHDEV_FDB_OFFLOADED,
+-				 dp->slave, &info.info, NULL);
+-}
++struct dsa_switchdev_event_work {
++	struct work_struct work;
++	struct switchdev_notifier_fdb_info fdb_info;
++	struct net_device *dev;
++	unsigned long event;
++};
+ 
+ static void dsa_slave_switchdev_event_work(struct work_struct *work)
+ {
+ 	struct dsa_switchdev_event_work *switchdev_work =
+ 		container_of(work, struct dsa_switchdev_event_work, work);
+-	struct dsa_switch *ds = switchdev_work->ds;
+-	struct dsa_port *dp;
++	struct net_device *dev = switchdev_work->dev;
++	struct switchdev_notifier_fdb_info *fdb_info;
++	struct dsa_port *dp = dsa_slave_to_port(dev);
+ 	int err;
+ 
+-	dp = dsa_to_port(ds, switchdev_work->port);
+-
+ 	rtnl_lock();
+ 	switch (switchdev_work->event) {
+ 	case SWITCHDEV_FDB_ADD_TO_DEVICE:
+-		err = dsa_port_fdb_add(dp, switchdev_work->addr,
+-				       switchdev_work->vid);
++		fdb_info = &switchdev_work->fdb_info;
++		if (!fdb_info->added_by_user)
++			break;
++
++		err = dsa_port_fdb_add(dp, fdb_info->addr, fdb_info->vid);
+ 		if (err) {
+-			dev_err(ds->dev,
+-				"port %d failed to add %pM vid %d to fdb: %d\n",
+-				dp->index, switchdev_work->addr,
+-				switchdev_work->vid, err);
++			netdev_dbg(dev, "fdb add failed err=%d\n", err);
+ 			break;
+ 		}
+-		dsa_fdb_offload_notify(switchdev_work);
++		fdb_info->offloaded = true;
++		call_switchdev_notifiers(SWITCHDEV_FDB_OFFLOADED, dev,
++					 &fdb_info->info, NULL);
+ 		break;
+ 
+ 	case SWITCHDEV_FDB_DEL_TO_DEVICE:
+-		err = dsa_port_fdb_del(dp, switchdev_work->addr,
+-				       switchdev_work->vid);
++		fdb_info = &switchdev_work->fdb_info;
++		if (!fdb_info->added_by_user)
++			break;
++
++		err = dsa_port_fdb_del(dp, fdb_info->addr, fdb_info->vid);
+ 		if (err) {
+-			dev_err(ds->dev,
+-				"port %d failed to delete %pM vid %d from fdb: %d\n",
+-				dp->index, switchdev_work->addr,
+-				switchdev_work->vid, err);
++			netdev_dbg(dev, "fdb del failed err=%d\n", err);
++			dev_close(dev);
+ 		}
+-
+ 		break;
+ 	}
+ 	rtnl_unlock();
+ 
++	kfree(switchdev_work->fdb_info.addr);
+ 	kfree(switchdev_work);
+-	if (dsa_is_user_port(ds, dp->index))
+-		dev_put(dp->slave);
++	dev_put(dev);
+ }
+ 
+-static int dsa_lower_dev_walk(struct net_device *lower_dev,
+-			      struct netdev_nested_priv *priv)
+-{
+-	if (dsa_slave_dev_check(lower_dev)) {
+-		priv->data = (void *)netdev_priv(lower_dev);
+-		return 1;
+-	}
+-
++static int
++dsa_slave_switchdev_fdb_work_init(struct dsa_switchdev_event_work *
++				  switchdev_work,
++				  const struct switchdev_notifier_fdb_info *
++				  fdb_info)
++{
++	memcpy(&switchdev_work->fdb_info, fdb_info,
++	       sizeof(switchdev_work->fdb_info));
++	switchdev_work->fdb_info.addr = kzalloc(ETH_ALEN, GFP_ATOMIC);
++	if (!switchdev_work->fdb_info.addr)
++		return -ENOMEM;
++	ether_addr_copy((u8 *)switchdev_work->fdb_info.addr,
++			fdb_info->addr);
+ 	return 0;
+ }
+ 
+-static struct dsa_slave_priv *dsa_slave_dev_lower_find(struct net_device *dev)
+-{
+-	struct netdev_nested_priv priv = {
+-		.data = NULL,
+-	};
+-
+-	netdev_walk_all_lower_dev_rcu(dev, dsa_lower_dev_walk, &priv);
+-
+-	return (struct dsa_slave_priv *)priv.data;
+-}
+-
+ /* Called under rcu_read_lock() */
+ static int dsa_slave_switchdev_event(struct notifier_block *unused,
+ 				     unsigned long event, void *ptr)
+ {
+ 	struct net_device *dev = switchdev_notifier_info_to_dev(ptr);
+-	const struct switchdev_notifier_fdb_info *fdb_info;
+ 	struct dsa_switchdev_event_work *switchdev_work;
+-	struct dsa_port *dp;
+ 	int err;
+ 
+-	switch (event) {
+-	case SWITCHDEV_PORT_ATTR_SET:
++	if (event == SWITCHDEV_PORT_ATTR_SET) {
+ 		err = switchdev_handle_port_attr_set(dev, ptr,
+ 						     dsa_slave_dev_check,
+ 						     dsa_slave_port_attr_set);
+ 		return notifier_from_errno(err);
+-	case SWITCHDEV_FDB_ADD_TO_DEVICE:
+-	case SWITCHDEV_FDB_DEL_TO_DEVICE:
+-		fdb_info = ptr;
+-
+-		if (dsa_slave_dev_check(dev)) {
+-			dp = dsa_slave_to_port(dev);
+-
+-			if (fdb_info->local && dp->ds->assisted_learning_on_cpu_port)
+-				dp = dp->cpu_dp;
+-			else if (!fdb_info->added_by_user)
+-				return NOTIFY_OK;
+-		} else {
+-			/* Snoop addresses added to foreign interfaces
+-			 * bridged with us, or the bridge
+-			 * itself. Dynamically learned addresses can
+-			 * also be added for switches that don't
+-			 * automatically learn SA from CPU-injected
+-			 * traffic.
+-			 */
+-			struct net_device *br_dev;
+-			struct dsa_slave_priv *p;
+-
+-			if (netif_is_bridge_master(dev))
+-				br_dev = dev;
+-			else
+-				br_dev = netdev_master_upper_dev_get_rcu(dev);
+-
+-			if (!br_dev)
+-				return NOTIFY_DONE;
+-
+-			if (!netif_is_bridge_master(br_dev))
+-				return NOTIFY_DONE;
+-
+-			p = dsa_slave_dev_lower_find(br_dev);
+-			if (!p)
+-				return NOTIFY_DONE;
+-
+-			dp = p->dp->cpu_dp;
+-
+-			if (!fdb_info->added_by_user &&
+-			    !dp->ds->assisted_learning_on_cpu_port)
+-				return NOTIFY_DONE;
+-		}
+-
+-		if (!dp->ds->ops->port_fdb_add || !dp->ds->ops->port_fdb_del)
+-			return NOTIFY_DONE;
++	}
+ 
+-		switchdev_work = kzalloc(sizeof(*switchdev_work), GFP_ATOMIC);
+-		if (!switchdev_work)
+-			return NOTIFY_BAD;
++	if (!dsa_slave_dev_check(dev))
++		return NOTIFY_DONE;
+ 
+-		INIT_WORK(&switchdev_work->work,
+-			  dsa_slave_switchdev_event_work);
+-		switchdev_work->ds = dp->ds;
+-		switchdev_work->port = dp->index;
+-		switchdev_work->event = event;
++	switchdev_work = kzalloc(sizeof(*switchdev_work), GFP_ATOMIC);
++	if (!switchdev_work)
++		return NOTIFY_BAD;
+ 
+-		ether_addr_copy(switchdev_work->addr,
+-				fdb_info->addr);
+-		switchdev_work->vid = fdb_info->vid;
++	INIT_WORK(&switchdev_work->work,
++		  dsa_slave_switchdev_event_work);
++	switchdev_work->dev = dev;
++	switchdev_work->event = event;
+ 
+-		/* Hold a reference on the slave for dsa_fdb_offload_notify */
+-		if (dsa_is_user_port(dp->ds, dp->index))
+-			dev_hold(dev);
+-		dsa_schedule_work(&switchdev_work->work);
++	switch (event) {
++	case SWITCHDEV_FDB_ADD_TO_DEVICE:
++	case SWITCHDEV_FDB_DEL_TO_DEVICE:
++		if (dsa_slave_switchdev_fdb_work_init(switchdev_work, ptr))
++			goto err_fdb_work_init;
++		dev_hold(dev);
+ 		break;
+ 	default:
++		kfree(switchdev_work);
+ 		return NOTIFY_DONE;
+ 	}
+ 
++	dsa_schedule_work(&switchdev_work->work);
+ 	return NOTIFY_OK;
++
++err_fdb_work_init:
++	kfree(switchdev_work);
++	return NOTIFY_BAD;
+ }
+ 
+ static int dsa_slave_switchdev_blocking_event(struct notifier_block *unused,
+diff --git a/net/dsa/tag_ocelot.c b/net/dsa/tag_ocelot.c
+index 7f0898569..16a1afd5b 100644
+--- a/net/dsa/tag_ocelot.c
++++ b/net/dsa/tag_ocelot.c
+@@ -225,7 +225,7 @@ static struct sk_buff *ocelot_rcv(struct sk_buff *skb,
+ 		 */
+ 		return NULL;
+ 
+-	dsa_default_offload_fwd_mark(skb);
++	skb->offload_fwd_mark = 1;
+ 	skb->priority = qos_class;
+ 
+ 	/* Ocelot switches copy frames unmodified to the CPU. However, it is
+diff --git a/net/ethernet/eth.c b/net/ethernet/eth.c
+index 4ae164f52..f8484fa7d 100644
+--- a/net/ethernet/eth.c
++++ b/net/ethernet/eth.c
+@@ -143,18 +143,6 @@ u32 eth_get_headlen(const struct net_device *dev, void *data, unsigned int len)
+ }
+ EXPORT_SYMBOL(eth_get_headlen);
+ 
+-static inline bool
+-eth_check_local_mask(const void *addr1, const void *addr2, const void *mask)
+-{
+-	const u16 *a1 = addr1;
+-	const u16 *a2 = addr2;
+-	const u16 *m = mask;
+-
+-	return (((a1[0] ^ a2[0]) & ~m[0]) |
+-		((a1[1] ^ a2[1]) & ~m[1]) |
+-		((a1[2] ^ a2[2]) & ~m[2]));
+-}
+-
+ /**
+  * eth_type_trans - determine the packet's protocol ID.
+  * @skb: received socket data
+@@ -171,12 +159,6 @@ __be16 eth_type_trans(struct sk_buff *skb, struct net_device *dev)
+ 	const struct ethhdr *eth;
+ 
+ 	skb->dev = dev;
+-
+-#ifdef CONFIG_ETHERNET_PACKET_MANGLE
+-	if (dev->eth_mangle_rx)
+-		dev->eth_mangle_rx(dev, skb);
+-#endif
+-
+ 	skb_reset_mac_header(skb);
+ 
+ 	eth = (struct ethhdr *)skb->data;
+@@ -192,10 +174,6 @@ __be16 eth_type_trans(struct sk_buff *skb, struct net_device *dev)
+ 		} else {
+ 			skb->pkt_type = PACKET_OTHERHOST;
+ 		}
+-
+-		if (eth_check_local_mask(eth->h_dest, dev->dev_addr,
+-					 dev->local_addr_mask))
+-			skb->gro_skip = 1;
+ 	}
+ 
+ 	/*
+@@ -528,14 +506,13 @@ unsigned char * __weak arch_get_platform_mac_address(void)
+ 
+ int eth_platform_get_mac_address(struct device *dev, u8 *mac_addr)
+ {
+-	unsigned char *addr;
+-	int ret;
++	const unsigned char *addr = NULL;
+ 
+-	ret = of_get_mac_address(dev->of_node, mac_addr);
+-	if (!ret)
+-		return 0;
++	if (dev->of_node)
++		addr = of_get_mac_address(dev->of_node);
++	if (IS_ERR_OR_NULL(addr))
++		addr = arch_get_platform_mac_address();
+ 
+-	addr = arch_get_platform_mac_address();
+ 	if (!addr)
+ 		return -ENODEV;
+ 
+@@ -557,8 +534,10 @@ EXPORT_SYMBOL(eth_platform_get_mac_address);
+ int nvmem_get_mac_address(struct device *dev, void *addrbuf)
+ {
+ 	struct nvmem_cell *cell;
+-	const void *mac;
++	const unsigned char *mac;
++	unsigned char macaddr[ETH_ALEN];
+ 	size_t len;
++	int i = 0;
+ 
+ 	cell = nvmem_cell_get(dev, "mac-address");
+ 	if (IS_ERR(cell))
+@@ -570,14 +549,27 @@ int nvmem_get_mac_address(struct device *dev, void *addrbuf)
+ 	if (IS_ERR(mac))
+ 		return PTR_ERR(mac);
+ 
+-	if (len != ETH_ALEN || !is_valid_ether_addr(mac)) {
+-		kfree(mac);
+-		return -EINVAL;
++	if (len != ETH_ALEN)
++		goto invalid_addr;
++
++	if (dev->of_node &&
++	    of_property_read_bool(dev->of_node, "nvmem_macaddr_swap")) {
++		for (i = 0; i < ETH_ALEN; i++)
++			macaddr[i] = mac[ETH_ALEN - i - 1];
++	} else {
++		ether_addr_copy(macaddr, mac);
+ 	}
+ 
+-	ether_addr_copy(addrbuf, mac);
++	if (!is_valid_ether_addr(macaddr))
++		goto invalid_addr;
++
++	ether_addr_copy(addrbuf, macaddr);
+ 	kfree(mac);
+ 
+ 	return 0;
++
++invalid_addr:
++	kfree(mac);
++	return -EINVAL;
+ }
+ EXPORT_SYMBOL(nvmem_get_mac_address);
+diff --git a/net/ethtool/ioctl.c b/net/ethtool/ioctl.c
+index 12bf740e2..ec2cd7aab 100644
+--- a/net/ethtool/ioctl.c
++++ b/net/ethtool/ioctl.c
+@@ -7,7 +7,6 @@
+  * the information ethtool needs.
+  */
+ 
+-#include <linux/compat.h>
+ #include <linux/module.h>
+ #include <linux/types.h>
+ #include <linux/capability.h>
+@@ -490,7 +489,7 @@ store_link_ksettings_for_user(void __user *to,
+ {
+ 	struct ethtool_link_usettings link_usettings;
+ 
+-	memcpy(&link_usettings, from, sizeof(link_usettings));
++	memcpy(&link_usettings.base, &from->base, sizeof(link_usettings));
+ 	bitmap_to_arr32(link_usettings.link_modes.supported,
+ 			from->link_modes.supported,
+ 			__ETHTOOL_LINK_MODE_MASK_NBITS);
+@@ -808,120 +807,6 @@ static noinline_for_stack int ethtool_get_sset_info(struct net_device *dev,
+ 	return ret;
+ }
+ 
+-static noinline_for_stack int
+-ethtool_rxnfc_copy_from_compat(struct ethtool_rxnfc *rxnfc,
+-			       const struct compat_ethtool_rxnfc __user *useraddr,
+-			       size_t size)
+-{
+-	struct compat_ethtool_rxnfc crxnfc = {};
+-
+-	/* We expect there to be holes between fs.m_ext and
+-	 * fs.ring_cookie and at the end of fs, but nowhere else.
+-	 * On non-x86, no conversion should be needed.
+-	 */
+-	BUILD_BUG_ON(!IS_ENABLED(CONFIG_X86_64) &&
+-		     sizeof(struct compat_ethtool_rxnfc) !=
+-		     sizeof(struct ethtool_rxnfc));
+-	BUILD_BUG_ON(offsetof(struct compat_ethtool_rxnfc, fs.m_ext) +
+-		     sizeof(useraddr->fs.m_ext) !=
+-		     offsetof(struct ethtool_rxnfc, fs.m_ext) +
+-		     sizeof(rxnfc->fs.m_ext));
+-	BUILD_BUG_ON(offsetof(struct compat_ethtool_rxnfc, fs.location) -
+-		     offsetof(struct compat_ethtool_rxnfc, fs.ring_cookie) !=
+-		     offsetof(struct ethtool_rxnfc, fs.location) -
+-		     offsetof(struct ethtool_rxnfc, fs.ring_cookie));
+-
+-	if (copy_from_user(&crxnfc, useraddr, min(size, sizeof(crxnfc))))
+-		return -EFAULT;
+-
+-	*rxnfc = (struct ethtool_rxnfc) {
+-		.cmd		= crxnfc.cmd,
+-		.flow_type	= crxnfc.flow_type,
+-		.data		= crxnfc.data,
+-		.fs		= {
+-			.flow_type	= crxnfc.fs.flow_type,
+-			.h_u		= crxnfc.fs.h_u,
+-			.h_ext		= crxnfc.fs.h_ext,
+-			.m_u		= crxnfc.fs.m_u,
+-			.m_ext		= crxnfc.fs.m_ext,
+-			.ring_cookie	= crxnfc.fs.ring_cookie,
+-			.location	= crxnfc.fs.location,
+-		},
+-		.rule_cnt	= crxnfc.rule_cnt,
+-	};
+-
+-	return 0;
+-}
+-
+-static int ethtool_rxnfc_copy_from_user(struct ethtool_rxnfc *rxnfc,
+-					const void __user *useraddr,
+-					size_t size)
+-{
+-	if (compat_need_64bit_alignment_fixup())
+-		return ethtool_rxnfc_copy_from_compat(rxnfc, useraddr, size);
+-
+-	if (copy_from_user(rxnfc, useraddr, size))
+-		return -EFAULT;
+-
+-	return 0;
+-}
+-
+-static int ethtool_rxnfc_copy_to_compat(void __user *useraddr,
+-					const struct ethtool_rxnfc *rxnfc,
+-					size_t size, const u32 *rule_buf)
+-{
+-	struct compat_ethtool_rxnfc crxnfc;
+-
+-	memset(&crxnfc, 0, sizeof(crxnfc));
+-	crxnfc = (struct compat_ethtool_rxnfc) {
+-		.cmd		= rxnfc->cmd,
+-		.flow_type	= rxnfc->flow_type,
+-		.data		= rxnfc->data,
+-		.fs		= {
+-			.flow_type	= rxnfc->fs.flow_type,
+-			.h_u		= rxnfc->fs.h_u,
+-			.h_ext		= rxnfc->fs.h_ext,
+-			.m_u		= rxnfc->fs.m_u,
+-			.m_ext		= rxnfc->fs.m_ext,
+-			.ring_cookie	= rxnfc->fs.ring_cookie,
+-			.location	= rxnfc->fs.location,
+-		},
+-		.rule_cnt	= rxnfc->rule_cnt,
+-	};
+-
+-	if (copy_to_user(useraddr, &crxnfc, min(size, sizeof(crxnfc))))
+-		return -EFAULT;
+-
+-	return 0;
+-}
+-
+-static int ethtool_rxnfc_copy_to_user(void __user *useraddr,
+-				      const struct ethtool_rxnfc *rxnfc,
+-				      size_t size, const u32 *rule_buf)
+-{
+-	int ret;
+-
+-	if (compat_need_64bit_alignment_fixup()) {
+-		ret = ethtool_rxnfc_copy_to_compat(useraddr, rxnfc, size,
+-						   rule_buf);
+-		useraddr += offsetof(struct compat_ethtool_rxnfc, rule_locs);
+-	} else {
+-		ret = copy_to_user(useraddr, rxnfc, size);
+-		useraddr += offsetof(struct ethtool_rxnfc, rule_locs);
+-	}
+-
+-	if (ret)
+-		return -EFAULT;
+-
+-	if (rule_buf) {
+-		if (copy_to_user(useraddr, rule_buf,
+-				 rxnfc->rule_cnt * sizeof(u32)))
+-			return -EFAULT;
+-	}
+-
+-	return 0;
+-}
+-
+ static noinline_for_stack int ethtool_set_rxnfc(struct net_device *dev,
+ 						u32 cmd, void __user *useraddr)
+ {
+@@ -940,7 +825,7 @@ static noinline_for_stack int ethtool_set_rxnfc(struct net_device *dev,
+ 		info_size = (offsetof(struct ethtool_rxnfc, data) +
+ 			     sizeof(info.data));
+ 
+-	if (ethtool_rxnfc_copy_from_user(&info, useraddr, info_size))
++	if (copy_from_user(&info, useraddr, info_size))
+ 		return -EFAULT;
+ 
+ 	rc = dev->ethtool_ops->set_rxnfc(dev, &info);
+@@ -948,7 +833,7 @@ static noinline_for_stack int ethtool_set_rxnfc(struct net_device *dev,
+ 		return rc;
+ 
+ 	if (cmd == ETHTOOL_SRXCLSRLINS &&
+-	    ethtool_rxnfc_copy_to_user(useraddr, &info, info_size, NULL))
++	    copy_to_user(useraddr, &info, info_size))
+ 		return -EFAULT;
+ 
+ 	return 0;
+@@ -974,7 +859,7 @@ static noinline_for_stack int ethtool_get_rxnfc(struct net_device *dev,
+ 		info_size = (offsetof(struct ethtool_rxnfc, data) +
+ 			     sizeof(info.data));
+ 
+-	if (ethtool_rxnfc_copy_from_user(&info, useraddr, info_size))
++	if (copy_from_user(&info, useraddr, info_size))
+ 		return -EFAULT;
+ 
+ 	/* If FLOW_RSS was requested then user-space must be using the
+@@ -982,7 +867,7 @@ static noinline_for_stack int ethtool_get_rxnfc(struct net_device *dev,
+ 	 */
+ 	if (cmd == ETHTOOL_GRXFH && info.flow_type & FLOW_RSS) {
+ 		info_size = sizeof(info);
+-		if (ethtool_rxnfc_copy_from_user(&info, useraddr, info_size))
++		if (copy_from_user(&info, useraddr, info_size))
+ 			return -EFAULT;
+ 		/* Since malicious users may modify the original data,
+ 		 * we need to check whether FLOW_RSS is still requested.
+@@ -1008,7 +893,18 @@ static noinline_for_stack int ethtool_get_rxnfc(struct net_device *dev,
+ 	if (ret < 0)
+ 		goto err_out;
+ 
+-	ret = ethtool_rxnfc_copy_to_user(useraddr, &info, info_size, rule_buf);
++	ret = -EFAULT;
++	if (copy_to_user(useraddr, &info, info_size))
++		goto err_out;
++
++	if (rule_buf) {
++		useraddr += offsetof(struct ethtool_rxnfc, rule_locs);
++		if (copy_to_user(useraddr, rule_buf,
++				 info.rule_cnt * sizeof(u32)))
++			goto err_out;
++	}
++	ret = 0;
++
+ err_out:
+ 	kfree(rule_buf);
+ 
+@@ -1525,7 +1421,7 @@ static int ethtool_get_any_eeprom(struct net_device *dev, void __user *useraddr,
+ 	if (eeprom.offset + eeprom.len > total_len)
+ 		return -EINVAL;
+ 
+-	data = kzalloc(PAGE_SIZE, GFP_USER);
++	data = kmalloc(PAGE_SIZE, GFP_USER);
+ 	if (!data)
+ 		return -ENOMEM;
+ 
+@@ -1590,7 +1486,7 @@ static int ethtool_set_eeprom(struct net_device *dev, void __user *useraddr)
+ 	if (eeprom.offset + eeprom.len > ops->get_eeprom_len(dev))
+ 		return -EINVAL;
+ 
+-	data = kzalloc(PAGE_SIZE, GFP_USER);
++	data = kmalloc(PAGE_SIZE, GFP_USER);
+ 	if (!data)
+ 		return -ENOMEM;
+ 
+@@ -1869,7 +1765,7 @@ static int ethtool_self_test(struct net_device *dev, char __user *useraddr)
+ 		return -EFAULT;
+ 
+ 	test.len = test_len;
+-	data = kcalloc(test_len, sizeof(u64), GFP_USER);
++	data = kmalloc_array(test_len, sizeof(u64), GFP_USER);
+ 	if (!data)
+ 		return -ENOMEM;
+ 
+@@ -1966,8 +1862,7 @@ static int ethtool_phys_id(struct net_device *dev, void __user *useraddr)
+ 	} else {
+ 		/* Driver expects to be called at twice the frequency in rc */
+ 		int n = rc * 2, interval = HZ / n;
+-		u64 count = mul_u32_u32(n, id.data);
+-		u64 i = 0;
++		u64 count = n * id.data, i = 0;
+ 
+ 		do {
+ 			rtnl_lock();
+@@ -2052,8 +1947,7 @@ static int ethtool_get_phy_stats(struct net_device *dev, void __user *useraddr)
+ 		return n_stats;
+ 	if (n_stats > S32_MAX / sizeof(u64))
+ 		return -ENOMEM;
+-	if (WARN_ON_ONCE(!n_stats))
+-		return -EOPNOTSUPP;
++	WARN_ON_ONCE(!n_stats);
+ 
+ 	if (copy_from_user(&stats, useraddr, sizeof(stats)))
+ 		return -EFAULT;
+@@ -2387,7 +2281,7 @@ static int ethtool_get_tunable(struct net_device *dev, void __user *useraddr)
+ 	ret = ethtool_tunable_valid(&tuna);
+ 	if (ret)
+ 		return ret;
+-	data = kzalloc(tuna.len, GFP_USER);
++	data = kmalloc(tuna.len, GFP_USER);
+ 	if (!data)
+ 		return -ENOMEM;
+ 	ret = ops->get_tunable(dev, &tuna, data);
+@@ -2579,7 +2473,7 @@ static int get_phy_tunable(struct net_device *dev, void __user *useraddr)
+ 	ret = ethtool_phy_tunable_valid(&tuna);
+ 	if (ret)
+ 		return ret;
+-	data = kzalloc(tuna.len, GFP_USER);
++	data = kmalloc(tuna.len, GFP_USER);
+ 	if (!data)
+ 		return -ENOMEM;
+ 	if (phy_drv_tunable) {
+diff --git a/net/ethtool/netlink.c b/net/ethtool/netlink.c
+index 25a55086d..50d3c8896 100644
+--- a/net/ethtool/netlink.c
++++ b/net/ethtool/netlink.c
+@@ -384,8 +384,7 @@ static int ethnl_default_dump_one(struct sk_buff *skb, struct net_device *dev,
+ 	int ret;
+ 
+ 	ehdr = genlmsg_put(skb, NETLINK_CB(cb->skb).portid, cb->nlh->nlmsg_seq,
+-			   &ethtool_genl_family, NLM_F_MULTI,
+-			   ctx->ops->reply_cmd);
++			   &ethtool_genl_family, 0, ctx->ops->reply_cmd);
+ 	if (!ehdr)
+ 		return -EMSGSIZE;
+ 
+diff --git a/net/ethtool/netlink.h b/net/ethtool/netlink.h
+index 979dee6bb..d8efec516 100644
+--- a/net/ethtool/netlink.h
++++ b/net/ethtool/netlink.h
+@@ -249,9 +249,6 @@ struct ethnl_reply_data {
+ 
+ static inline int ethnl_ops_begin(struct net_device *dev)
+ {
+-	if (dev && dev->reg_state == NETREG_UNREGISTERING)
+-		return -ENODEV;
+-
+ 	if (dev && dev->ethtool_ops->begin)
+ 		return dev->ethtool_ops->begin(dev);
+ 	else
+diff --git a/net/ethtool/pause.c b/net/ethtool/pause.c
+index c7bc704c8..d4ac02718 100644
+--- a/net/ethtool/pause.c
++++ b/net/ethtool/pause.c
+@@ -62,7 +62,8 @@ static int pause_reply_size(const struct ethnl_req_info *req_base,
+ 
+ 	if (req_base->flags & ETHTOOL_FLAG_STATS)
+ 		n += nla_total_size(0) +	/* _PAUSE_STATS */
+-		     nla_total_size_64bit(sizeof(u64)) * ETHTOOL_PAUSE_STAT_CNT;
++			nla_total_size_64bit(sizeof(u64)) *
++				(ETHTOOL_A_PAUSE_STAT_MAX - 2);
+ 	return n;
+ }
+ 
+diff --git a/net/ethtool/strset.c b/net/ethtool/strset.c
+index 9908b922c..c3a548996 100644
+--- a/net/ethtool/strset.c
++++ b/net/ethtool/strset.c
+@@ -328,8 +328,6 @@ static int strset_reply_size(const struct ethnl_req_info *req_base,
+ 	int len = 0;
+ 	int ret;
+ 
+-	len += nla_total_size(0); /* ETHTOOL_A_STRSET_STRINGSETS */
+-
+ 	for (i = 0; i < ETH_SS_COUNT; i++) {
+ 		const struct strset_info *set_info = &data->sets[i];
+ 
+-- 
+2.25.1
+

@@ -1,0 +1,948 @@
+From b926d621830914be996685725841580b529f575b Mon Sep 17 00:00:00 2001
+From: Yuantian Tang <andy.tang@nxp.com>
+Date: Fri, 3 Mar 2023 11:00:27 +0800
+Subject: [PATCH] layerscape: dts: update lx2160ardb dts
+
+Signed-off-by: Andy Tang <andy.tang@nxp.com>
+---
+ .../boot/dts/freescale/fsl-lx2160a-qds.dts    | 171 ++++++-
+ .../boot/dts/freescale/fsl-lx2160a-rdb.dts    |  75 +++-
+ .../arm64/boot/dts/freescale/fsl-lx2160a.dtsi | 418 +++++++++++++++++-
+ 3 files changed, 638 insertions(+), 26 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/freescale/fsl-lx2160a-qds.dts b/arch/arm64/boot/dts/freescale/fsl-lx2160a-qds.dts
+index 2d1fe6c37..bafb643c5 100644
+--- a/arch/arm64/boot/dts/freescale/fsl-lx2160a-qds.dts
++++ b/arch/arm64/boot/dts/freescale/fsl-lx2160a-qds.dts
+@@ -2,7 +2,7 @@
+ //
+ // Device Tree file for LX2160AQDS
+ //
+-// Copyright 2018 NXP
++// Copyright 2018-2019 NXP
+ 
+ /dts-v1/;
+ 
+@@ -29,6 +29,138 @@ sb_3v3: regulator-sb3v3 {
+ 		regulator-boot-on;
+ 		regulator-always-on;
+ 	};
++
++	mdio-mux-1 {
++		compatible = "mdio-mux-multiplexer";
++		mux-controls = <&mux 0>;
++		mdio-parent-bus = <&emdio1>;
++		#address-cells=<1>;
++		#size-cells = <0>;
++
++		mdio@0 { /* On-board PHY #1 RGMI1*/
++			reg = <0x00>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++
++		mdio@8 { /* On-board PHY #2 RGMI2*/
++			reg = <0x8>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++
++		mdio@18 { /* Slot #1 */
++			reg = <0x18>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++
++		mdio@19 { /* Slot #2 */
++			reg = <0x19>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++
++		mdio@1a { /* Slot #3 */
++			reg = <0x1a>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++
++		mdio@1b { /* Slot #4 */
++			reg = <0x1b>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++
++		mdio@1c { /* Slot #5 */
++			reg = <0x1c>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++
++		mdio@1d { /* Slot #6 */
++			reg = <0x1d>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++
++		mdio@1e { /* Slot #7 */
++			reg = <0x1e>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++
++		mdio@1f { /* Slot #8 */
++			reg = <0x1f>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++	};
++
++	mdio-mux-2 {
++		compatible = "mdio-mux-multiplexer";
++		mux-controls = <&mux 1>;
++		mdio-parent-bus = <&emdio2>;
++		#address-cells=<1>;
++		#size-cells = <0>;
++
++		mdio@0 { /* Slot #1 (secondary EMI) */
++			reg = <0x00>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++
++		mdio@1 { /* Slot #2 (secondary EMI) */
++			reg = <0x01>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++
++		mdio@2 { /* Slot #3 (secondary EMI) */
++			reg = <0x02>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++
++		mdio@3 { /* Slot #4 (secondary EMI) */
++			reg = <0x03>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++
++		mdio@4 { /* Slot #5 (secondary EMI) */
++			reg = <0x04>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++
++		mdio@5 { /* Slot #6 (secondary EMI) */
++			reg = <0x05>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++
++		mdio@6 { /* Slot #7 (secondary EMI) */
++			reg = <0x06>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++
++		mdio@7 { /* Slot #8 (secondary EMI) */
++			reg = <0x07>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++	};
++};
++
++&can0 {
++	status = "okay";
++};
++
++&can1 {
++	status = "okay";
+ };
+ 
+ &crypto {
+@@ -71,6 +203,14 @@ dflash2: flash@0 {
+ 	};
+ };
+ 
++&emdio1 {
++	status = "okay";
++};
++
++&emdio2 {
++	status = "okay";
++};
++
+ &esdhc0 {
+ 	status = "okay";
+ };
+@@ -97,6 +237,19 @@ mt35xu512aba0: flash@0 {
+ &i2c0 {
+ 	status = "okay";
+ 
++	fpga@66 {
++		compatible = "fsl,lx2160aqds-fpga", "fsl,fpga-qixis-i2c",
++			     "simple-mfd";
++		reg = <0x66>;
++
++		mux: mux-controller {
++			compatible = "reg-mux";
++			#mux-control-cells = <1>;
++			mux-reg-masks = <0x54 0xf8>, /* 0: reg 0x54, bits 7:3 */
++					<0x54 0x07>; /* 1: reg 0x54, bit 2:0 */
++		};
++	};
++
+ 	i2c-mux@77 {
+ 		compatible = "nxp,pca9547";
+ 		reg = <0x77>;
+@@ -177,3 +330,19 @@ &usb0 {
+ &usb1 {
+ 	status = "okay";
+ };
++
++&sata0 {
++	status = "okay";
++};
++
++&sata1 {
++	status = "okay";
++};
++
++&sata2 {
++	status = "okay";
++};
++
++&sata3 {
++	status = "okay";
++};
+diff --git a/arch/arm64/boot/dts/freescale/fsl-lx2160a-rdb.dts b/arch/arm64/boot/dts/freescale/fsl-lx2160a-rdb.dts
+index 54fe8cd3a..5f7659bac 100644
+--- a/arch/arm64/boot/dts/freescale/fsl-lx2160a-rdb.dts
++++ b/arch/arm64/boot/dts/freescale/fsl-lx2160a-rdb.dts
+@@ -2,7 +2,7 @@
+ //
+ // Device Tree file for LX2160ARDB
+ //
+-// Copyright 2018 NXP
++// Copyright 2018-2020 NXP
+ 
+ /dts-v1/;
+ 
+@@ -31,10 +31,38 @@ sb_3v3: regulator-sb3v3 {
+ 	};
+ };
+ 
++&can0 {
++	status = "okay";
++
++	can-transceiver {
++		max-bitrate = <5000000>;
++	};
++};
++
++&can1 {
++	status = "okay";
++
++	can-transceiver {
++		max-bitrate = <5000000>;
++	};
++};
++
+ &crypto {
+ 	status = "okay";
+ };
+ 
++&dpmac3 {
++	phy-handle = <&aquantia_phy1>;
++	phy-connection-type = "usxgmii";
++	managed = "in-band-status";
++};
++
++&dpmac4 {
++	phy-handle = <&aquantia_phy2>;
++	phy-connection-type = "usxgmii";
++	managed = "in-band-status";
++};
++
+ &dpmac17 {
+ 	phy-handle = <&rgmii_phy1>;
+ 	phy-connection-type = "rgmii-id";
+@@ -61,6 +89,24 @@ rgmii_phy2: ethernet-phy@2 {
+ 		reg = <0x2>;
+ 		eee-broken-1000t;
+ 	};
++
++	aquantia_phy1: ethernet-phy@4 {
++		/* AQR107 PHY */
++		compatible = "ethernet-phy-ieee802.3-c45";
++		interrupts = <GIC_SPI 2 IRQ_TYPE_LEVEL_HIGH>;
++		reg = <0x4>;
++	};
++
++	aquantia_phy2: ethernet-phy@5 {
++		/* AQR107 PHY */
++		compatible = "ethernet-phy-ieee802.3-c45";
++		interrupts = <GIC_SPI 3 IRQ_TYPE_LEVEL_HIGH>;
++		reg = <0x5>;
++	};
++};
++
++&emdio2 {
++	status = "okay";
+ };
+ 
+ &esdhc0 {
+@@ -151,11 +197,19 @@ &i2c4 {
+ 	rtc@51 {
+ 		compatible = "nxp,pcf2129";
+ 		reg = <0x51>;
+-		// IRQ10_B
+-		interrupts = <0 150 0x4>;
++		/* IRQ_RTC_B -> IRQ08, active low */
++		interrupts-extended = <&extirq 8 IRQ_TYPE_LEVEL_LOW>;
+ 	};
+ };
+ 
++&pcs_mdio3 {
++	status = "okay";
++};
++
++&pcs_mdio4 {
++	status = "okay";
++};
++
+ &sata0 {
+ 	status = "okay";
+ };
+@@ -187,3 +241,18 @@ &usb0 {
+ &usb1 {
+ 	status = "okay";
+ };
++
++&emdio2 {
++	inphi_phy: ethernet-phy@0 {
++		compatible = "ethernet-phy-id0210.7440";
++		reg = <0x0>;
++	};
++};
++
++&dpmac5 {
++	phy-handle = <&inphi_phy>;
++};
++
++&dpmac6 {
++	phy-handle = <&inphi_phy>;
++};
+diff --git a/arch/arm64/boot/dts/freescale/fsl-lx2160a.dtsi b/arch/arm64/boot/dts/freescale/fsl-lx2160a.dtsi
+index 83072da6f..cff0699d7 100644
+--- a/arch/arm64/boot/dts/freescale/fsl-lx2160a.dtsi
++++ b/arch/arm64/boot/dts/freescale/fsl-lx2160a.dtsi
+@@ -17,6 +17,8 @@ / {
+ 	#size-cells = <2>;
+ 
+ 	aliases {
++		mmc0 = &esdhc0;
++		mmc1 = &esdhc1;
+ 		rtc1 = &ftm_alarm0;
+ 	};
+ 
+@@ -664,6 +666,37 @@ dcfg: syscon@1e00000 {
+ 			little-endian;
+ 		};
+ 
++		isc: syscon@1f70000 {
++			compatible = "fsl,lx2160a-isc", "syscon";
++			reg = <0x0 0x1f70000 0x0 0x10000>;
++			little-endian;
++			#address-cells = <1>;
++			#size-cells = <1>;
++			ranges = <0x0 0x0 0x1f70000 0x10000>;
++
++			extirq: interrupt-controller@14 {
++				compatible = "fsl,lx2160a-extirq", "fsl,ls1088a-extirq";
++				#interrupt-cells = <2>;
++				#address-cells = <0>;
++				interrupt-controller;
++				reg = <0x14 4>;
++				interrupt-map =
++					<0 0 &gic GIC_SPI 0 IRQ_TYPE_LEVEL_HIGH>,
++					<1 0 &gic GIC_SPI 1 IRQ_TYPE_LEVEL_HIGH>,
++					<2 0 &gic GIC_SPI 2 IRQ_TYPE_LEVEL_HIGH>,
++					<3 0 &gic GIC_SPI 3 IRQ_TYPE_LEVEL_HIGH>,
++					<4 0 &gic GIC_SPI 4 IRQ_TYPE_LEVEL_HIGH>,
++					<5 0 &gic GIC_SPI 5 IRQ_TYPE_LEVEL_HIGH>,
++					<6 0 &gic GIC_SPI 6 IRQ_TYPE_LEVEL_HIGH>,
++					<7 0 &gic GIC_SPI 7 IRQ_TYPE_LEVEL_HIGH>,
++					<8 0 &gic GIC_SPI 8 IRQ_TYPE_LEVEL_HIGH>,
++					<9 0 &gic GIC_SPI 9 IRQ_TYPE_LEVEL_HIGH>,
++					<10 0 &gic GIC_SPI 10 IRQ_TYPE_LEVEL_HIGH>,
++					<11 0 &gic GIC_SPI 11 IRQ_TYPE_LEVEL_HIGH>;
++				interrupt-map-mask = <0xffffffff 0x0>;
++			};
++		};
++
+ 		tmu: tmu@1f80000 {
+ 			compatible = "fsl,qoriq-tmu";
+ 			reg = <0x0 0x1f80000 0x0 0x10000>;
+@@ -686,7 +719,7 @@ i2c0: i2c@2000000 {
+ 			interrupts = <GIC_SPI 34 IRQ_TYPE_LEVEL_HIGH>;
+ 			clock-names = "i2c";
+ 			clocks = <&clockgen 4 15>;
+-			scl-gpio = <&gpio2 15 GPIO_ACTIVE_HIGH>;
++			scl-gpios = <&gpio2 15 GPIO_ACTIVE_HIGH>;
+ 			status = "disabled";
+ 		};
+ 
+@@ -731,7 +764,7 @@ i2c4: i2c@2040000 {
+ 			interrupts = <GIC_SPI 74 IRQ_TYPE_LEVEL_HIGH>;
+ 			clock-names = "i2c";
+ 			clocks = <&clockgen 4 15>;
+-			scl-gpio = <&gpio2 16 GPIO_ACTIVE_HIGH>;
++			scl-gpios = <&gpio2 16 GPIO_ACTIVE_HIGH>;
+ 			status = "disabled";
+ 		};
+ 
+@@ -847,6 +880,24 @@ esdhc1: esdhc@2150000 {
+ 			status = "disabled";
+ 		};
+ 
++		can0: can@2180000 {
++			compatible = "fsl,lx2160ar1-flexcan";
++			reg = <0x0 0x2180000 0x0 0x10000>;
++			interrupts = <GIC_SPI 21 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&sysclk>, <&clockgen 4 7>;
++			clock-names = "ipg", "per";
++			status = "disabled";
++		};
++
++		can1: can@2190000 {
++			compatible = "fsl,lx2160ar1-flexcan";
++			reg = <0x0 0x2190000 0x0 0x10000>;
++			interrupts = <GIC_SPI 22 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&sysclk>, <&clockgen 4 7>;
++			clock-names = "ipg", "per";
++			status = "disabled";
++		};
++
+ 		uart0: serial@21c0000 {
+ 			compatible = "arm,sbsa-uart","arm,pl011";
+ 			reg = <0x0 0x21c0000 0x0 0x1000>;
+@@ -946,24 +997,32 @@ ftm_alarm0: timer@2800000 {
+ 		};
+ 
+ 		usb0: usb@3100000 {
+-			compatible = "snps,dwc3";
++			compatible = "fsl,lx2160a-dwc3", "snps,dwc3";
+ 			reg = <0x0 0x3100000 0x0 0x10000>;
+ 			interrupts = <GIC_SPI 80 IRQ_TYPE_LEVEL_HIGH>;
+ 			dr_mode = "host";
+ 			snps,quirk-frame-length-adjustment = <0x20>;
++			usb3-lpm-capable;
++			snps,dis-u1u2-when-u3-quirk;
+ 			snps,dis_rxdet_inp3_quirk;
+ 			snps,incr-burst-type-adjustment = <1>, <4>, <8>, <16>;
++			snps,host-vbus-glitches;
++			dma-coherent;
+ 			status = "disabled";
+ 		};
+ 
+ 		usb1: usb@3110000 {
+-			compatible = "snps,dwc3";
++			compatible = "fsl,lx2160a-dwc3", "snps,dwc3";
+ 			reg = <0x0 0x3110000 0x0 0x10000>;
+ 			interrupts = <GIC_SPI 81 IRQ_TYPE_LEVEL_HIGH>;
+ 			dr_mode = "host";
+ 			snps,quirk-frame-length-adjustment = <0x20>;
++			usb3-lpm-capable;
++			snps,dis-u1u2-when-u3-quirk;
+ 			snps,dis_rxdet_inp3_quirk;
+ 			snps,incr-burst-type-adjustment = <1>, <4>, <8>, <16>;
++			snps,host-vbus-glitches;
++			dma-coherent;
+ 			status = "disabled";
+ 		};
+ 
+@@ -1039,6 +1098,15 @@ pcie1: pcie@3400000 {
+ 			status = "disabled";
+ 		};
+ 
++		pcie_ep1: pcie_ep@3400000 {
++			compatible = "fsl,lx2160a-pcie-ep";
++			reg = <0x00 0x03400000 0x0 0x00100000
++			       0x80 0x00000000 0x8 0x00000000>;
++			reg-names = "regs", "addr_space";
++			apio-wins = <8>;
++			status = "disabled";
++		};
++
+ 		pcie2: pcie@3500000 {
+ 			compatible = "fsl,lx2160a-pcie";
+ 			reg = <0x00 0x03500000 0x0 0x00100000   /* controller registers */
+@@ -1067,6 +1135,15 @@ pcie2: pcie@3500000 {
+ 			status = "disabled";
+ 		};
+ 
++		pcie_ep2: pcie_ep@3500000 {
++			compatible = "fsl,lx2160a-pcie-ep";
++			reg = <0x00 0x03500000 0x0 0x00100000
++			       0x88 0x00000000 0x8 0x00000000>;
++			reg-names = "regs", "addr_space";
++			apio-wins = <8>;
++			status = "disabled";
++		};
++
+ 		pcie3: pcie@3600000 {
+ 			compatible = "fsl,lx2160a-pcie";
+ 			reg = <0x00 0x03600000 0x0 0x00100000   /* controller registers */
+@@ -1095,6 +1172,16 @@ pcie3: pcie@3600000 {
+ 			status = "disabled";
+ 		};
+ 
++		pcie_ep3: pcie_ep@3600000 {
++			compatible = "fsl,lx2160a-pcie-ep";
++			reg = <0x00 0x03600000 0x0 0x00100000
++			       0x90 0x00000000 0x8 0x00000000>;
++			reg-names = "regs", "addr_space";
++			apio-wins = <256>;
++			max-functions = /bits/ 8 <2>;
++			status = "disabled";
++		};
++
+ 		pcie4: pcie@3700000 {
+ 			compatible = "fsl,lx2160a-pcie";
+ 			reg = <0x00 0x03700000 0x0 0x00100000   /* controller registers */
+@@ -1123,6 +1210,15 @@ pcie4: pcie@3700000 {
+ 			status = "disabled";
+ 		};
+ 
++		pcie_ep4: pcie_ep@3700000 {
++			compatible = "fsl,lx2160a-pcie-ep";
++			reg = <0x00 0x03700000 0x0 0x00100000
++			       0x98 0x00000000 0x8 0x00000000>;
++			reg-names = "regs", "addr_space";
++			apio-wins = <8>;
++			status = "disabled";
++		};
++
+ 		pcie5: pcie@3800000 {
+ 			compatible = "fsl,lx2160a-pcie";
+ 			reg = <0x00 0x03800000 0x0 0x00100000   /* controller registers */
+@@ -1151,6 +1247,16 @@ pcie5: pcie@3800000 {
+ 			status = "disabled";
+ 		};
+ 
++		pcie_ep5: pcie_ep@3800000 {
++			compatible = "fsl,lx2160a-pcie-ep";
++			reg = <0x00 0x03800000 0x0 0x00100000
++			       0xa0 0x00000000 0x8 0x00000000>;
++			reg-names = "regs", "addr_space";
++			apio-wins = <256>;
++			max-functions = /bits/ 8 <2>;
++			status = "disabled";
++		};
++
+ 		pcie6: pcie@3900000 {
+ 			compatible = "fsl,lx2160a-pcie";
+ 			reg = <0x00 0x03900000 0x0 0x00100000   /* controller registers */
+@@ -1179,6 +1285,15 @@ pcie6: pcie@3900000 {
+ 			status = "disabled";
+ 		};
+ 
++		pcie_ep6: pcie_ep@3900000 {
++			compatible = "fsl,lx2160a-pcie-ep";
++			reg = <0x00 0x03900000 0x0 0x00100000
++			       0xa8 0x00000000 0x8 0x00000000>;
++			reg-names = "regs", "addr_space";
++			apio-wins = <8>;
++			status = "disabled";
++		};
++
+ 		smmu: iommu@5000000 {
+ 			compatible = "arm,mmu-500";
+ 			reg = <0 0x5000000 0 0x800000>;
+@@ -1305,6 +1420,240 @@ emdio2: mdio@8b97000 {
+ 			status = "disabled";
+ 		};
+ 
++		pcs_mdio1: mdio@8c07000 {
++			compatible = "fsl,fman-memac-mdio";
++			reg = <0x0 0x8c07000 0x0 0x1000>;
++			little-endian;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			status = "disabled";
++
++			pcs1: ethernet-phy@0 {
++				reg = <0>;
++			};
++		};
++
++		pcs_mdio2: mdio@8c0b000 {
++			compatible = "fsl,fman-memac-mdio";
++			reg = <0x0 0x8c0b000 0x0 0x1000>;
++			little-endian;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			status = "disabled";
++
++			pcs2: ethernet-phy@0 {
++				reg = <0>;
++			};
++		};
++
++		pcs_mdio3: mdio@8c0f000 {
++			compatible = "fsl,fman-memac-mdio";
++			reg = <0x0 0x8c0f000 0x0 0x1000>;
++			little-endian;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			status = "disabled";
++
++			pcs3: ethernet-phy@0 {
++				reg = <0>;
++			};
++		};
++
++		pcs_mdio4: mdio@8c13000 {
++			compatible = "fsl,fman-memac-mdio";
++			reg = <0x0 0x8c13000 0x0 0x1000>;
++			little-endian;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			status = "disabled";
++
++			pcs4: ethernet-phy@0 {
++				reg = <0>;
++			};
++		};
++
++		pcs_mdio5: mdio@8c17000 {
++			compatible = "fsl,fman-memac-mdio";
++			reg = <0x0 0x8c17000 0x0 0x1000>;
++			little-endian;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			status = "disabled";
++
++			pcs5: ethernet-phy@0 {
++				reg = <0>;
++			};
++		};
++
++		pcs_mdio6: mdio@8c1b000 {
++			compatible = "fsl,fman-memac-mdio";
++			reg = <0x0 0x8c1b000 0x0 0x1000>;
++			little-endian;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			status = "disabled";
++
++			pcs6: ethernet-phy@0 {
++				reg = <0>;
++			};
++		};
++
++		pcs_mdio7: mdio@8c1f000 {
++			compatible = "fsl,fman-memac-mdio";
++			reg = <0x0 0x8c1f000 0x0 0x1000>;
++			little-endian;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			status = "disabled";
++
++			pcs7: ethernet-phy@0 {
++				reg = <0>;
++			};
++		};
++
++		pcs_mdio8: mdio@8c23000 {
++			compatible = "fsl,fman-memac-mdio";
++			reg = <0x0 0x8c23000 0x0 0x1000>;
++			little-endian;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			status = "disabled";
++
++			pcs8: ethernet-phy@0 {
++				reg = <0>;
++			};
++		};
++
++		pcs_mdio9: mdio@8c27000 {
++			compatible = "fsl,fman-memac-mdio";
++			reg = <0x0 0x8c27000 0x0 0x1000>;
++			little-endian;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			status = "disabled";
++
++			pcs9: ethernet-phy@0 {
++				reg = <0>;
++			};
++		};
++
++		pcs_mdio10: mdio@8c2b000 {
++			compatible = "fsl,fman-memac-mdio";
++			reg = <0x0 0x8c2b000 0x0 0x1000>;
++			little-endian;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			status = "disabled";
++
++			pcs10: ethernet-phy@0 {
++				reg = <0>;
++			};
++		};
++
++		pcs_mdio11: mdio@8c2f000 {
++			compatible = "fsl,fman-memac-mdio";
++			reg = <0x0 0x8c2f000 0x0 0x1000>;
++			little-endian;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			status = "disabled";
++
++			pcs11: ethernet-phy@0 {
++				reg = <0>;
++			};
++		};
++
++		pcs_mdio12: mdio@8c33000 {
++			compatible = "fsl,fman-memac-mdio";
++			reg = <0x0 0x8c33000 0x0 0x1000>;
++			little-endian;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			status = "disabled";
++
++			pcs12: ethernet-phy@0 {
++				reg = <0>;
++			};
++		};
++
++		pcs_mdio13: mdio@8c37000 {
++			compatible = "fsl,fman-memac-mdio";
++			reg = <0x0 0x8c37000 0x0 0x1000>;
++			little-endian;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			status = "disabled";
++
++			pcs13: ethernet-phy@0 {
++				reg = <0>;
++			};
++		};
++
++		pcs_mdio14: mdio@8c3b000 {
++			compatible = "fsl,fman-memac-mdio";
++			reg = <0x0 0x8c3b000 0x0 0x1000>;
++			little-endian;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			status = "disabled";
++
++			pcs14: ethernet-phy@0 {
++				reg = <0>;
++			};
++		};
++
++		pcs_mdio15: mdio@8c3f000 {
++			compatible = "fsl,fman-memac-mdio";
++			reg = <0x0 0x8c3f000 0x0 0x1000>;
++			little-endian;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			status = "disabled";
++
++			pcs15: ethernet-phy@0 {
++				reg = <0>;
++			};
++		};
++
++		pcs_mdio16: mdio@8c43000 {
++			compatible = "fsl,fman-memac-mdio";
++			reg = <0x0 0x8c43000 0x0 0x1000>;
++			little-endian;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			status = "disabled";
++
++			pcs16: ethernet-phy@0 {
++				reg = <0>;
++			};
++		};
++
++		pcs_mdio17: mdio@8c47000 {
++			compatible = "fsl,fman-memac-mdio";
++			reg = <0x0 0x8c47000 0x0 0x1000>;
++			little-endian;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			status = "disabled";
++
++			pcs17: ethernet-phy@0 {
++				reg = <0>;
++			};
++		};
++
++		pcs_mdio18: mdio@8c4b000 {
++			compatible = "fsl,fman-memac-mdio";
++			reg = <0x0 0x8c4b000 0x0 0x1000>;
++			little-endian;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			status = "disabled";
++
++			pcs18: ethernet-phy@0 {
++				reg = <0>;
++			};
++		};
++
+ 		fsl_mc: fsl-mc@80c000000 {
+ 			compatible = "fsl,qoriq-mc";
+ 			reg = <0x00000008 0x0c000000 0 0x40>,
+@@ -1330,96 +1679,121 @@ dpmacs {
+ 				#address-cells = <1>;
+ 				#size-cells = <0>;
+ 
+-				dpmac1: dpmac@1 {
++				dpmac1: ethernet@1 {
+ 					compatible = "fsl,qoriq-mc-dpmac";
+ 					reg = <0x1>;
++					pcs-handle = <&pcs1>;
+ 				};
+ 
+-				dpmac2: dpmac@2 {
++				dpmac2: ethernet@2 {
+ 					compatible = "fsl,qoriq-mc-dpmac";
+ 					reg = <0x2>;
++					pcs-handle = <&pcs2>;
+ 				};
+ 
+-				dpmac3: dpmac@3 {
++				dpmac3: ethernet@3 {
+ 					compatible = "fsl,qoriq-mc-dpmac";
+ 					reg = <0x3>;
++					pcs-handle = <&pcs3>;
+ 				};
+ 
+-				dpmac4: dpmac@4 {
++				dpmac4: ethernet@4 {
+ 					compatible = "fsl,qoriq-mc-dpmac";
+ 					reg = <0x4>;
++					pcs-handle = <&pcs4>;
+ 				};
+ 
+-				dpmac5: dpmac@5 {
++				dpmac5: ethernet@5 {
+ 					compatible = "fsl,qoriq-mc-dpmac";
+ 					reg = <0x5>;
++					pcs-handle = <&pcs5>;
+ 				};
+ 
+-				dpmac6: dpmac@6 {
++				dpmac6: ethernet@6 {
+ 					compatible = "fsl,qoriq-mc-dpmac";
+ 					reg = <0x6>;
++					pcs-handle = <&pcs6>;
+ 				};
+ 
+-				dpmac7: dpmac@7 {
++				dpmac7: ethernet@7 {
+ 					compatible = "fsl,qoriq-mc-dpmac";
+ 					reg = <0x7>;
++					pcs-handle = <&pcs7>;
+ 				};
+ 
+-				dpmac8: dpmac@8 {
++				dpmac8: ethernet@8 {
+ 					compatible = "fsl,qoriq-mc-dpmac";
+ 					reg = <0x8>;
++					pcs-handle = <&pcs8>;
+ 				};
+ 
+-				dpmac9: dpmac@9 {
++				dpmac9: ethernet@9 {
+ 					compatible = "fsl,qoriq-mc-dpmac";
+ 					reg = <0x9>;
++					pcs-handle = <&pcs9>;
+ 				};
+ 
+-				dpmac10: dpmac@a {
++				dpmac10: ethernet@a {
+ 					compatible = "fsl,qoriq-mc-dpmac";
+ 					reg = <0xa>;
++					pcs-handle = <&pcs10>;
+ 				};
+ 
+-				dpmac11: dpmac@b {
++				dpmac11: ethernet@b {
+ 					compatible = "fsl,qoriq-mc-dpmac";
+ 					reg = <0xb>;
++					pcs-handle = <&pcs11>;
+ 				};
+ 
+-				dpmac12: dpmac@c {
++				dpmac12: ethernet@c {
+ 					compatible = "fsl,qoriq-mc-dpmac";
+ 					reg = <0xc>;
++					pcs-handle = <&pcs12>;
+ 				};
+ 
+-				dpmac13: dpmac@d {
++				dpmac13: ethernet@d {
+ 					compatible = "fsl,qoriq-mc-dpmac";
+ 					reg = <0xd>;
++					pcs-handle = <&pcs13>;
+ 				};
+ 
+-				dpmac14: dpmac@e {
++				dpmac14: ethernet@e {
+ 					compatible = "fsl,qoriq-mc-dpmac";
+ 					reg = <0xe>;
++					pcs-handle = <&pcs14>;
+ 				};
+ 
+-				dpmac15: dpmac@f {
++				dpmac15: ethernet@f {
+ 					compatible = "fsl,qoriq-mc-dpmac";
+ 					reg = <0xf>;
++					pcs-handle = <&pcs15>;
+ 				};
+ 
+-				dpmac16: dpmac@10 {
++				dpmac16: ethernet@10 {
+ 					compatible = "fsl,qoriq-mc-dpmac";
+ 					reg = <0x10>;
++					pcs-handle = <&pcs16>;
+ 				};
+ 
+-				dpmac17: dpmac@11 {
++				dpmac17: ethernet@11 {
+ 					compatible = "fsl,qoriq-mc-dpmac";
+ 					reg = <0x11>;
++					pcs-handle = <&pcs17>;
+ 				};
+ 
+-				dpmac18: dpmac@12 {
++				dpmac18: ethernet@12 {
+ 					compatible = "fsl,qoriq-mc-dpmac";
+ 					reg = <0x12>;
++					pcs-handle = <&pcs18>;
+ 				};
+ 			};
+ 		};
+ 	};
++
++	firmware {
++		optee {
++			compatible = "linaro,optee-tz";
++			method = "smc";
++		};
++	};
+ };
+-- 
+2.25.1
+
