@@ -12,7 +12,7 @@ PKG_VERSION:=21.08
 PKG_RELEASE:=$(AUTORELEASE)
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=https://github.com/NXP/qoriq-engine-pfe-bin.git
+PKG_SOURCE_URL:=https://github.com/nxp-qoriq/qoriq-engine-pfe-bin
 PKG_SOURCE_VERSION:=LSDK-21.08
 PKG_MIRROR_HASH:=f2591b12bc02dbfcf113dcb79cce2fc703d8492b7309ad75b3c4915b76966c64
 

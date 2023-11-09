@@ -12,7 +12,7 @@ PKG_VERSION:=21.08
 PKG_RELEASE:=$(AUTORELEASE)
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=https://source.codeaurora.org/external/qoriq/qoriq-components/atf
+PKG_SOURCE_URL:=https://github.com/nxp-qoriq/atf
 PKG_SOURCE_VERSION:=LSDK-21.08
 PKG_MIRROR_HASH:=893f2d28a77dcc9d4413a619b4719ca5f1f4dc78dd824a8488e7d543e66bcf95
 PKG_BUILD_DEPENDS:=tfa-layerscape/host

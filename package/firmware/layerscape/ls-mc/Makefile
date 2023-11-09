@@ -12,7 +12,7 @@ PKG_VERSION:=21.08
 PKG_RELEASE:=$(AUTORELEASE)
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=https://github.com/NXP/qoriq-mc-binary.git
+PKG_SOURCE_URL:=https://github.com/nxp-qoriq/qoriq-mc-binary
 PKG_SOURCE_VERSION:=LSDK-21.08
 PKG_MIRROR_HASH:=ab22c16b2bce37886c15ffeed7b068e5b46d619eae58e5a6a005028f5ddb06b6
 

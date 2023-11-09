@@ -10,7 +10,7 @@ PKG_VERSION:=21.08
 PKG_RELEASE:=$(AUTORELEASE)
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=https://github.com/NXP/ddr-phy-binary.git
+PKG_SOURCE_URL:=https://github.com/nxp-qoriq/ddr-phy-binary
 PKG_SOURCE_VERSION:=LSDK-21.08
 PKG_MIRROR_HASH:=0fb35c697f4b4274577cce63223198f5c7715164a2c5d09a55c46ef17639ed4b
 PKG_BUILD_DEPENDS:=tfa-layerscape/host

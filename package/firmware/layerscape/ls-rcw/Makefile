@@ -12,7 +12,7 @@ PKG_VERSION:=21.08
 PKG_RELEASE:=$(AUTORELEASE)
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=https://source.codeaurora.org/external/qoriq/qoriq-components/rcw
+PKG_SOURCE_URL:=https://github.com/nxp-qoriq/rcw
 PKG_SOURCE_VERSION:=LSDK-21.08
 PKG_MIRROR_HASH:=5b6ae3937d8c64f24c2d09d21e892e60b9f60de3573ca64ef19fa71072e6e346
 
